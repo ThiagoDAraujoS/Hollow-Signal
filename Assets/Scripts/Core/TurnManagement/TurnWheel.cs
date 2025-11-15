@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
+using Utils;
 
 namespace Core.TurnManagement{
     [DefaultExecutionOrder(-100)]
@@ -9,43 +12,59 @@ namespace Core.TurnManagement{
         private static TurnWheel _i;
         
         public List<TurnUser> users = new(15);
+
+        public UnityEvent
+            onTurnEndEvent,
+            onTurnStartEvent,
+            onRoundEndEvent,
+            onWheelChanged;
         
-        public UnityEvent onRoundEnd;
-        public UnityEvent onTurnEnd;
-        public UnityEvent onTurnStart;
-        public UnityEvent onWheelChanged;
-        public TurnUser   CurrentUser { get; private set; }
+        public CoroutineComponent[]
+            onTurnEndRoutine,
+            onTurnStartRoutine,
+            onRoundEndRoutine;
         
-        private int  _prevIndex = -1;
-        private int  _prevTbw;
-        private int  _prevInit;
-        private Guid _prevID;
+        public static TurnUser User => _i._user;
+
+        private TurnUser _user;
+        private Guid     _id;
+        private int      
+            _index = -1, 
+            _tbw, 
+            _init;
         
-        public static void AddUser(TurnUser user){
-            if (_i.users.Contains(user)) return;
-            _i.users.Add(user);
+        private void AddUser(TurnUser user){
+            if (users.Contains(user) || user == null) return;
+            users.Add(user);
             RecalculateTurnElements();
-            _i.onWheelChanged?.Invoke();
+            onWheelChanged?.Invoke();
         }
-        public static void RemoveUser(TurnUser user){
-            if (!_i.users.Contains(user)) return;
-            _i.users.Remove(user);
+        private void RemoveUser(TurnUser user){
+            if (!users.Contains(user) || user == null) return;
+            users.Remove(user);
             RecalculateTurnElements();
-            _i.onWheelChanged?.Invoke();
+            onWheelChanged?.Invoke();
         }
-        public static TurnUser NextTurn(){
-            if (_i.users.Count == 0){
-                _i._prevIndex  = -1;
-                _i.CurrentUser = null;
-                return null;
+        private IEnumerator EndTurnRoutine(){
+            onTurnEndEvent?.Invoke();
+            yield return this.Multicast(onTurnEndRoutine);
+            yield return NextTurn();
+            onTurnStartEvent?.Invoke();
+            yield return this.Multicast(onTurnStartRoutine);
+        }
+        
+        private IEnumerator NextTurn(){
+            if (users.Count == 0){
+                _index  = -1;
+                _user = null;
             }
-            if (++_i._prevIndex >= _i.users.Count){
-                _i._prevIndex = 0;
-                _i.SetPreviousUser(_i._prevIndex);
-                _i.onRoundEnd?.Invoke();
+            else if (++_index >= users.Count){
+                _index = 0;
+                SetCurrentUser(_index);
+                onRoundEndEvent?.Invoke();
+                yield return this.Multicast(onRoundEndRoutine);
             }
-            _i.SetPreviousUser(_i._prevIndex);
-            return _i.CurrentUser;
+            SetCurrentUser(_index);
         }
         public static void RecalculateTurnElements(){
             _i.users.RemoveAll(item => item == null);
@@ -53,25 +72,25 @@ namespace Core.TurnManagement{
             _i.RelocateIterator();
         }
         private void RelocateIterator(){
-            if (_prevIndex == -1 || users.Count == 0){
-                _prevIndex = -1;
+            if (_index == -1 || users.Count == 0){
+                _index = -1;
                 return;
             }
 
             for (int i = 0; i < users.Count; i++){
-                if (users[i].CompareTo(_prevInit, _prevTbw, _prevID) <= 0) continue;
-                SetPreviousUser((i - 1 + users.Count) % users.Count);
+                if (users[i].CompareTo(_init, _tbw, _id) <= 0) continue;
+                SetCurrentUser((i - 1 + users.Count) % users.Count);
                 return;
             }
-            SetPreviousUser(users.Count - 1);
+            SetCurrentUser(users.Count - 1);
         }
-        private void SetPreviousUser(int previousIndex){
-            TurnUser prev = users[previousIndex];
-            _prevIndex = previousIndex;
-            CurrentUser  = prev;
-            _prevInit  = prev.Initiative;
-            _prevTbw   = prev.Tbw;
-            _prevID    = prev.Id;
+        private void SetCurrentUser(int newIndex){
+            TurnUser newUser = users[newIndex];
+            _user  = newUser;
+            _index = newIndex;
+            _init  = newUser.Initiative;
+            _tbw   = newUser.Tbw;
+            _id    = newUser.Id;
         }
 
         private void Awake() => _i = this;

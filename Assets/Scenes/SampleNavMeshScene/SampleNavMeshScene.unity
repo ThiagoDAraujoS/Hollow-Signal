@@ -467,6 +467,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa942c6185893e47ade38c7011445de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  users: []
+  onWheelChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &472228085
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1005,7 +1009,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initiative: 5
-  onInitiativeChanged:
+  tieBreakingWeight: 5
+  turnEnd:
+    m_PersistentCalls:
+      m_Calls: []
+  turnStart:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &1316347515
