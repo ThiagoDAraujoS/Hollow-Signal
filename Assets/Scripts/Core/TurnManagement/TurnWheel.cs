@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -17,7 +18,7 @@ namespace Core.TurnManagement{
             onTurnEndEvent,
             onTurnStartEvent,
             onRoundEndEvent,
-            onWheelChanged;
+            onWheelChangedEvent;
         
         public CoroutineComponent[]
             onTurnEndRoutine,
@@ -32,25 +33,39 @@ namespace Core.TurnManagement{
             _index = -1, 
             _tbw, 
             _init;
-        
-        private void AddUser(TurnUser user){
-            if (users.Contains(user) || user == null) return;
-            users.Add(user);
-            RecalculateTurnElements();
-            onWheelChanged?.Invoke();
+
+        private bool _isPassingTurn = false;
+
+        public static void PassTurn(){
+            if(!_i._isPassingTurn)
+                _i.StartCoroutine(_i.EndTurnRoutine());
         }
-        private void RemoveUser(TurnUser user){
-            if (!users.Contains(user) || user == null) return;
-            users.Remove(user);
+        public static void AddUser(TurnUser user){
+            if (_i.users.Contains(user) || user == null) return;
+            _i.users.Add(user);
             RecalculateTurnElements();
-            onWheelChanged?.Invoke();
+            user.OnEnterTurnSystem();
+            _i.onWheelChangedEvent?.Invoke();
+            if(_i.users.Count == 1)
+                PassTurn();
+        }
+        public static void RemoveUser(TurnUser user){
+            if (!_i.users.Contains(user) || user == null) return;
+            _i.users.Remove(user);
+            RecalculateTurnElements();
+            user.OnLeaveTurnSystem();
+            _i.onWheelChangedEvent?.Invoke();
         }
         private IEnumerator EndTurnRoutine(){
+            _isPassingTurn = true;
+            User?.OnTurnEnd();
             onTurnEndEvent?.Invoke();
             yield return this.Multicast(onTurnEndRoutine);
             yield return NextTurn();
             onTurnStartEvent?.Invoke();
             yield return this.Multicast(onTurnStartRoutine);
+            User!.OnTurnStart();
+            _isPassingTurn = false;
         }
         
         private IEnumerator NextTurn(){
@@ -63,8 +78,11 @@ namespace Core.TurnManagement{
                 SetCurrentUser(_index);
                 onRoundEndEvent?.Invoke();
                 yield return this.Multicast(onRoundEndRoutine);
+                foreach (TurnUser user in users)
+                    user.OnRoundEnd();
             }
-            SetCurrentUser(_index);
+            else
+                SetCurrentUser(_index);
         }
         public static void RecalculateTurnElements(){
             _i.users.RemoveAll(item => item == null);
