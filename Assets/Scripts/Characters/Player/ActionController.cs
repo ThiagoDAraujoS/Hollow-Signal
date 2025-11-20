@@ -18,15 +18,15 @@ namespace Characters.Player{
             Sheet.mp.Restore();
         }
         public void Awake(){
-            Sheet.ap.onPointZeroed.AddListener(OnOutOfTurnResources);
-            Sheet.mp.onPointZeroed.AddListener(OnOutOfTurnResources);
+            Sheet.ap.onValueZeroed.AddListener(OnOutOfTurnResources);
+            Sheet.mp.onValueZeroed.AddListener(OnOutOfTurnResources);
             TurnUser.onTurnStart.AddListener(RefreshTurnResources);
             TurnUser.onEnterTurnSystem.AddListener(RefreshTurnResources);
         }
 
         public void OnDestroy(){
-            Sheet.ap.onPointZeroed.RemoveListener(OnOutOfTurnResources);
-            Sheet.mp.onPointZeroed.RemoveListener(OnOutOfTurnResources);
+            Sheet.ap.onValueZeroed.RemoveListener(OnOutOfTurnResources);
+            Sheet.mp.onValueZeroed.RemoveListener(OnOutOfTurnResources);
             TurnUser.onTurnStart.RemoveListener(RefreshTurnResources);
             TurnUser.onEnterTurnSystem.RemoveListener(RefreshTurnResources);
         }

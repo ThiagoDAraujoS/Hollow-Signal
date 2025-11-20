@@ -6,16 +6,16 @@ namespace Utils{
     [Serializable]
     public class Resource{
         [SerializeField] private int value;
-        [SerializeField] private int capacity;
-        
-        public UnityEvent 
-            onPointAdded,
-            onPointRemoved,
-            onPointZeroed,
-            onPointCapped,
-            onCapacityIncreased,
-            onCapacityDecreased;
-        
+        [SerializeField] private int limit;
+
+        public UnityEvent
+            onValueAdded,
+            onValueRemoved,
+            onValueZeroed,
+            onValueCapped,
+            onLimitIncreased,
+            onLimitDecreased;
+
         public int Value{
             get => value;
             set{
@@ -23,40 +23,42 @@ namespace Utils{
                     return;
 
                 int oldValue = this.value;
-                int newValue = Mathf.Clamp(value, 0, capacity);
+                int newValue = Mathf.Clamp(value, 0, limit);
 
                 this.value = newValue;
                 if (newValue > oldValue)
-                    onPointAdded?.Invoke();
+                    onValueAdded?.Invoke();
                 else if (newValue < oldValue)
-                    onPointRemoved?.Invoke();
+                    onValueRemoved?.Invoke();
                 if (newValue == 0)
-                    onPointZeroed?.Invoke();
-                else if (newValue == capacity)
-                    onPointCapped?.Invoke();
+                    onValueZeroed?.Invoke();
+                else if (newValue == limit)
+                    onValueCapped?.Invoke();
             }
         }
-        public int Capacity{
-            get => capacity;
+
+        public int Limit{
+            get => limit;
             set{
-                if (value == capacity)
+                if (value == limit)
                     return;
 
-                int oldCap = capacity;
+                int oldCap = limit;
                 int newCap = Mathf.Max(0, value);
-                
-                capacity = newCap;
+
+                limit = newCap;
                 if (newCap > oldCap)
-                    onCapacityIncreased?.Invoke();
+                    onLimitIncreased?.Invoke();
                 else if (newCap < oldCap)
-                    onCapacityDecreased?.Invoke();
-                
-                int clamped = Mathf.Clamp(this.value, 0, capacity);
+                    onLimitDecreased?.Invoke();
+
+                int clamped = Mathf.Clamp(this.value, 0, limit);
                 if (clamped != this.value)
                     Value = clamped;
             }
         }
-        public void Restore() => Value = Capacity;
+
+        public                          void Restore()  => Value = Limit;
         public static implicit operator int(Resource p) => p.Value;
     }
 }
