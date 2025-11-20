@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 using Utils;
 
 namespace Core.TurnManagement{
@@ -34,7 +32,7 @@ namespace Core.TurnManagement{
             _tbw, 
             _init;
 
-        private bool _isPassingTurn = false;
+        private bool _isPassingTurn;
 
         public static void PassTurn(){
             if(!_i._isPassingTurn)

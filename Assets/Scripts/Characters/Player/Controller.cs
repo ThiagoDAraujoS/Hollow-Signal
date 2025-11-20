@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 
 namespace Characters.Player{
     public class Controller : Component{
