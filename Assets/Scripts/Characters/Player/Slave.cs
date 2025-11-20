@@ -3,12 +3,14 @@ using UnityEngine;
 
 namespace Characters.Player{
     public interface ISlave{
-        public Master     Master    { get; set; }
-        public Transform  Entity    { get; set; }
-        public Controller Controller{ get; set; }
-        public Animator   Animator  { get; set; }
-        public Compass    Compass   { get; set; }
-        public TurnUser   TurnUser  { get; set; }
+        public Master           Master    { get; set; }
+        public Transform        Entity    { get; set; }
+        public Controller       Controller{ get; set; }
+        public Animator         Animator  { get; set; }
+        public Compass          Compass   { get; set; }
+        public TurnUser         TurnUser  { get; set; }
+        public ActionController Actions   { get; set; }
+        public CharacterSheet   Sheet     { get; set; }
     }
 
     public static class SlaveExtensions{
@@ -19,24 +21,30 @@ namespace Characters.Player{
             slave.Animator   = Master.Animator;
             slave.Compass    = Master.Compass;
             slave.TurnUser   = Master.TurnUser;
+            slave.Actions    = Master.Actions;
+            slave.Sheet      = Master.Sheet;
         }
     }
-    
+
     public abstract class Slave : StateMachineBehaviour, ISlave{
-        public Master     Master    { get; set; }
-        public Transform  Entity    { get; set; }
-        public Controller Controller{ get; set; }
-        public Animator   Animator  { get; set; }
-        public Compass    Compass   { get; set; }
-        public TurnUser   TurnUser  { get; set; }
+        public Master           Master    { get; set; }
+        public Transform        Entity    { get; set; }
+        public Controller       Controller{ get; set; }
+        public Animator         Animator  { get; set; }
+        public Compass          Compass   { get; set; }
+        public TurnUser         TurnUser  { get; set; }
+        public ActionController Actions   { get; set; }
+        public CharacterSheet   Sheet     { get; set; }
     }
 
     public abstract class Component : MonoBehaviour, ISlave{
-        public Master     Master    { get; set; }
-        public Transform  Entity    { get; set; }
-        public Controller Controller{ get; set; }
-        public Animator   Animator  { get; set; }
-        public Compass    Compass   { get; set; }
-        public TurnUser   TurnUser  { get; set; }
+        public Master           Master    { get; set; }
+        public Transform        Entity    { get; set; }
+        public Controller       Controller{ get; set; }
+        public Animator         Animator  { get; set; }
+        public Compass          Compass   { get; set; }
+        public TurnUser         TurnUser  { get; set; }
+        public ActionController Actions   { get; set; }
+        public CharacterSheet   Sheet     { get; set; }
     }
 }
