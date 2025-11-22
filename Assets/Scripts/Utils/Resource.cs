@@ -30,6 +30,7 @@ namespace Utils{
                     onValueAdded?.Invoke();
                 else if (newValue < oldValue)
                     onValueRemoved?.Invoke();
+                
                 if (newValue == 0)
                     onValueZeroed?.Invoke();
                 else if (newValue == limit)
@@ -58,7 +59,8 @@ namespace Utils{
             }
         }
 
-        public                          void Restore()  => Value = Limit;
+        public void Restore() => Value = Limit;
+        
         public static implicit operator int(Resource p) => p.Value;
     }
 }
