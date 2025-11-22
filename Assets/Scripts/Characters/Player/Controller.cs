@@ -60,6 +60,7 @@ namespace Characters.Player{
             if (!_isMoving) return;
             float speed = moveSpeedScale * moveSpeedCurve.Evaluate(_speed);
             Vector3 forwardPosition = Entity.forward * (speed * Time.deltaTime) + Entity.transform.position;
+            forwardPosition = Actions.ProcessMovementRequest(forwardPosition);
             NavMesh.SamplePosition(forwardPosition, out NavMeshHit hit, 1.0f, NavMesh.AllAreas);
             Entity.position = hit.position;
         }
@@ -105,7 +106,10 @@ namespace Characters.Player{
         private void Update(){
             //Face target rotation
             Quaternion previousRotation = Entity.rotation;
+            
+            //TODO: This rotation update has to be moved into a state base update to avoid bugs
             Entity.rotation = Quaternion.Slerp(Entity.rotation, _targetRotation, rotateSpeed * Time.deltaTime);
+            
             _speed = Mathf.Lerp(_speed, CalculateTargetSpeed(), accelerationCatchUpSpeed * Time.deltaTime);
             _rotation = Mathf.Lerp(_rotation, CalculateAngularVelocity(previousRotation), rotationCatchUpSpeed * Time.deltaTime);
             Animator.SetFloat(AnimatorForward, _speed);
