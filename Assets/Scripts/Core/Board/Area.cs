@@ -11,6 +11,39 @@ namespace Core.Board{
         
         public Area[]    neighbors;
         public ZoneShape shape;
+        public Transform[] goalPositions;
+
+        /// <summary>
+        /// Gets the nearest predefined goal position in this Area to the given reference position.
+        /// If no goal positions are defined or assigned, returns the Area's transform position.
+        /// </summary>
+        public Vector3 GetNearestGoalPosition(Vector3 referencePosition) {
+            if (goalPositions == null || goalPositions.Length == 0)
+                return transform.position;
+
+            Vector3 nearest = transform.position;
+            float minDistanceSqr = float.MaxValue;
+
+            foreach (Transform goal in goalPositions) {
+                if (goal == null) continue;
+                float distSqr = (goal.position - referencePosition).sqrMagnitude;
+                if (distSqr < minDistanceSqr) {
+                    minDistanceSqr = distSqr;
+                    nearest = goal.position;
+                }
+            }
+
+            return nearest;
+        }
+
+        /// <summary>
+        /// Gets the default predefined goal position (first element) or Area center if none exist.
+        /// </summary>
+        public Vector3 GetDefaultGoalPosition() {
+            if (goalPositions != null && goalPositions.Length > 0 && goalPositions[0] != null)
+                return goalPositions[0].position;
+            return transform.position;
+        }
 
         public void OnValidate(){
             if (shape == null)
