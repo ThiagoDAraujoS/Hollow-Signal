@@ -9,14 +9,52 @@ namespace Core.TurnManagement{
     [DefaultExecutionOrder(-100)]
     public class TurnWheel : MonoBehaviour{
         private static TurnWheel _i;
+
+        [SerializeField] private bool isCrisis;
+        
+        public static bool IsCrisis{
+            get => _i.isCrisis;
+            set{
+                if (_i.isCrisis == value) return;
+                _i.isCrisis = value;
+                if (_i.isCrisis) _i.onCrisisStartEvent.Invoke();
+                else _i.onCrisisEndEvent.Invoke();
+            }
+        }
+        public static event UnityAction OnCrisisStart{
+            add => _i.onCrisisStartEvent.AddListener(value);
+            remove => _i.onCrisisStartEvent.RemoveListener(value);
+        }
+        public static event UnityAction OnCrisisEnd{
+            add => _i.onCrisisEndEvent.AddListener(value);
+            remove => _i.onCrisisEndEvent.RemoveListener(value);
+        }
+        public static event UnityAction OnTurnStart{
+            add => _i.onTurnStartEvent.AddListener(value);
+            remove => _i.onTurnStartEvent.RemoveListener(value);
+        }
+        public static event UnityAction OnTurnEnd{
+            add => _i.onTurnEndEvent.AddListener(value);
+            remove => _i.onTurnEndEvent.RemoveListener(value);
+        }
+        public static event UnityAction OnRoundEnd{
+            add => _i.onRoundEndEvent.AddListener(value);
+            remove => _i.onRoundEndEvent.RemoveListener(value);
+        }
+        public static event UnityAction OnWheelChanged{
+            add => _i.onWheelChangedEvent.AddListener(value);
+            remove => _i.onWheelChangedEvent.RemoveListener(value);
+        }
         
         public List<TurnUser> users = new(15);
-
+        
         public UnityEvent
             onTurnEndEvent,
             onTurnStartEvent,
             onRoundEndEvent,
-            onWheelChangedEvent;
+            onWheelChangedEvent,
+            onCrisisStartEvent,
+            onCrisisEndEvent;
         
         public CoroutineComponent[]
             onTurnEndRoutine,
@@ -31,7 +69,7 @@ namespace Core.TurnManagement{
             _index = -1, 
             _tbw, 
             _init;
-
+        
         private bool _isPassingTurn;
 
         public static void PassTurn(){

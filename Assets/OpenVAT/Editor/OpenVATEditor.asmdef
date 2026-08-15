@@ -1,0 +1,25 @@
+{
+    "name": "OpenVATEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ede1ac9b4fdf47a429f408e29559f6db",
+        "Unity.Newtonsoft.Json"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+      "versionDefines": [
+    {
+      "name": "com.unity.nuget.newtonsoft-json",
+      "expression": "3.0.0",
+      "define": "HAS_NEWTONSOFT_JSON"
+    }
+  ],
+    "noEngineReferences": false
+}

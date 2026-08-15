@@ -1,17 +1,29 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor;
+using Random = UnityEngine.Random;
 
 namespace Core.Board{
+    [RequireComponent(typeof(ZoneShape))]
     public class Area : MonoBehaviour{
-        public Area[]      neighbors;
-        public AreaManager manager;
+        [HideInInspector] public AreaManager manager;
+        
+        public Area[]    neighbors;
+        public ZoneShape shape;
+
+        public void OnValidate(){
+            if (shape == null)
+                shape = GetComponent<ZoneShape>();
+#if UNITY_EDITOR
+            _gizmoColor = Color.HSVToRGB(Random.value, 1f, Random.Range(0.6f, 1f));
+#endif
+        }
+
 
 #if UNITY_EDITOR
         private Color _gizmoColor;
-
-        private void OnValidate() =>
-            _gizmoColor = Color.HSVToRGB(Random.value, 1f, Random.Range(0.6f, 1f));
-
+        
         private void OnDrawGizmos(){
             if (manager == null || manager.navmeshPolygon2D == null)
                 return;
@@ -19,7 +31,7 @@ namespace Core.Board{
             Vector2 p = To2D(transform.position);
 
             // START WITH NAVMESH POLYGON
-            List<Vector2> poly = new List<Vector2>(manager.navmeshPolygon2D);
+            List<Vector2> poly = new(manager.navmeshPolygon2D);
 
             // CLIP AGAINST EACH NEIGHBOR
             foreach (Area area in neighbors){
@@ -31,13 +43,26 @@ namespace Core.Board{
             // DRAW FINAL POLYGON
             Gizmos.color = _gizmoColor;
             DrawPolygon(poly, transform.position.y + 0.05f);
-        }
 
-        private static Vector2 To2D(Vector3 pos) =>
-            new Vector2(pos.x, pos.z);
+            Gizmos.color = _gizmoColor*0.5f;
+            foreach (Area area in neighbors){
+                
+                Vector3 start      = transform.position;
+                Vector3 end        = area.transform.position;
+                Vector3 sToEVector = end - start;
+                Vector3 center     = start + sToEVector * 0.5f;
+                Vector3 lineEnd    = (sToEVector.magnitude * 0.5f - 0.1f) * sToEVector.normalized + start;
+     
+                Gizmos.DrawLine(start, lineEnd);
+                Handles.color = Color.red;
+                Handles.DrawWireDisc(center, Vector3.up, 0.1f);
+            }
+        }
+        
+        private static Vector2 To2D(Vector3 pos) => new(pos.x, pos.z);
 
         private static List<Vector2> Clip(List<Vector2> poly, Vector2 p, Vector2 n){
-            List<Vector2> output = new List<Vector2>();
+            List<Vector2> output = new();
 
             Vector2 mid    = (p + n) * 0.5f;
             Vector2 normal = (p - n).normalized;

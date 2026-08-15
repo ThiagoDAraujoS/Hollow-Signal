@@ -49,7 +49,7 @@ namespace Core.Board
             if (points.Count <= 3)
                 return new List<Vector2>(points);
 
-            points.Sort((a, b) => a.x == b.x ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x));
+            points.Sort((a, b) => Mathf.Approximately(a.x, b.x) ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x));
 
             List<Vector2> hull = new List<Vector2>();
 
