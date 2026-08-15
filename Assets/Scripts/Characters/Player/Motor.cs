@@ -24,17 +24,60 @@ namespace Characters.Player{
         private float _speed;
         private Quaternion _lastRotation;
 
-        /// Read the input system to build a move input vector
+        private Vector3 _targetDestination;
+        private bool    _hasDestination;
+        [SerializeField] private float stoppingDistance = 0.2f;
+
+        /// Sets a point-and-click destination for the character.
+        public void SetDestination(Vector3 destination) {
+            _targetDestination = destination;
+            _hasDestination = true;
+            _isMoving = true;
+        }
+
+        /// Stops point-and-click movement.
+        public void Stop() {
+            _hasDestination = false;
+            _isMoving = false;
+            _rawMoveInput = Vector2.zero;
+        }
+
+        /// Read point-and-click click action or legacy move input.
+        public void OnPointAndClickUpdate(InputAction.CallbackContext context) {
+            if (context.performed) {
+                Camera mainCamera = Camera.main;
+                if (mainCamera == null) return;
+
+                Vector2 pointerPos = Pointer.current != null ? Pointer.current.position.ReadValue() : Mouse.current.position.ReadValue();
+                Ray ray = mainCamera.ScreenPointToRay(pointerPos);
+
+                if (Physics.Raycast(ray, out RaycastHit hit, 100f)) {
+                    // Check if hit an Area or object inside an Area
+                    Core.Board.Area area = hit.collider.GetComponentInParent<Core.Board.Area>();
+                    Vector3 goalPoint = hit.point;
+
+                    if (area != null) {
+                        goalPoint = area.GetNearestGoalPosition(hit.point);
+                    }
+
+                    SetDestination(goalPoint);
+                }
+            }
+        }
+
+        /// Read the input system to build a move input vector (legacy or direct stick fallback)
         public void OnMoveInputUpdate(InputAction.CallbackContext context){
             if (context.performed){
                 _rawMoveInput = context.ReadValue<Vector2>();
                 if (_rawMoveInput.magnitude > 1)
                     _rawMoveInput.Normalize();
                 _isMoving = true;
+                _hasDestination = false;
             }
             else if (context.canceled){
                 _rawMoveInput = Vector2.zero;
-                _isMoving     = false;
+                if (!_hasDestination)
+                    _isMoving = false;
             }
 
             Vector3 direction = Compass.Forward * _rawMoveInput.y + Compass.Right * _rawMoveInput.x;
@@ -52,9 +95,22 @@ namespace Characters.Player{
                 _rawRunningInput = false;
         }
         
-        /// Verify if the entity can move in the navmesh, if yes, then move forward the look rotation direction.
+        /// Verify if the entity can move in the navmesh, if yes, then move forward or towards target destination.
         public void MoveForward(){
             if (!_isMoving) return;
+
+            if (_hasDestination) {
+                Vector3 toDest = _targetDestination - Entity.position;
+                toDest.y = 0f;
+
+                if (toDest.sqrMagnitude <= stoppingDistance * stoppingDistance) {
+                    Stop();
+                    return;
+                }
+
+                _targetRotation = Quaternion.LookRotation(toDest.normalized, Vector3.up);
+            }
+
             float   speed           = moveSpeedScale * moveSpeedCurve.Evaluate(_speed);
             Vector3 forwardPosition = Entity.forward * (speed * Time.deltaTime) + Entity.transform.position;
             forwardPosition = Actions.ValidateAndConsumeMove(forwardPosition);
@@ -89,7 +145,7 @@ namespace Characters.Player{
         }
 
         private float CalculateTargetSpeed(){
-            float targetSpeed = _rawMoveInput.magnitude;
+            float targetSpeed = _hasDestination ? 1.0f : _rawMoveInput.magnitude;
             float alignment   = Mathf.Abs(Vector3.Dot(Entity.forward, _targetRotation * Vector3.forward));
 
             targetSpeed *= Mathf.Lerp(0.75f, 1f, Mathf.Abs(alignment));
