@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Characters.Player{
     public class MovingState : Slave{
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-            Motor.MoveForward();
+            //Motor.MoveForward();
         }
         
         // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state

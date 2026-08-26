@@ -1,7 +1,7 @@
-using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace Core.Board{
@@ -11,6 +11,12 @@ namespace Core.Board{
         
         public Area[]    neighbors;
         public ZoneShape shape;
+        public Vector3[] anchors = new Vector3[5];
+
+        public void Awake(){
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+                transform.position = hit.position;
+        }
 
         public void OnValidate(){
             if (shape == null)

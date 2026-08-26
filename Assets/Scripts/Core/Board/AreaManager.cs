@@ -1,30 +1,32 @@
 using UnityEngine;
-using UnityEngine.AI;
 using System.Collections.Generic;
 
-namespace Core.Board
-{
-    public class AreaManager : MonoBehaviour
-    {
-        public List<Vector2> navmeshPolygon2D;
+namespace Core.Board{
+    public class AreaManager : MonoBehaviour{
+        private static AreaManager   _instance;
+        public         List<Vector2> navmeshPolygon2D;
 
-        private void Awake()
-        {
-            // Assign manager references
-            Area[] areas = GetComponentsInChildren<Area>();
-            foreach (Area area in areas)
+        public static Area[] Areas => _instance._areas;
+        private       Area[] _areas;
+
+        private void Awake(){
+            _instance = this;
+            _areas    = GetComponentsInChildren<Area>();
+            foreach (Area area in _areas)
                 area.manager = this;
 
+            /* DEPRECATING NAV POLYGON RECONSTRUCTION
             // Build navmesh polygon once
             navmeshPolygon2D = BuildNavmeshPolygon();
+            */
         }
 
-        private List<Vector2> BuildNavmeshPolygon()
-        {
+        /*DEPRECATING NAV POLYGON RECONSTRUCTION
+        private List<Vector2> BuildNavmeshPolygon(){
             NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
 
             Vector3[] verts = triangulation.vertices;
-            int[] tris = triangulation.indices;
+            int[]     tris  = triangulation.indices;
 
             // --- VERY IMPORTANT ---
             // For clarity, I will first give you a "simple convex hull"
@@ -44,8 +46,7 @@ namespace Core.Board
         // -------------------------
         // GRAHAM SCAN CONVEX HULL
         // -------------------------
-        private List<Vector2> ConvexHull(List<Vector2> points)
-        {
+        private List<Vector2> ConvexHull(List<Vector2> points){
             if (points.Count <= 3)
                 return new List<Vector2>(points);
 
@@ -54,8 +55,7 @@ namespace Core.Board
             List<Vector2> hull = new List<Vector2>();
 
             // Lower
-            foreach (var p in points)
-            {
+            foreach (var p in points){
                 while (hull.Count >= 2 && Cross(hull[hull.Count - 2], hull[hull.Count - 1], p) <= 0)
                     hull.RemoveAt(hull.Count - 1);
                 hull.Add(p);
@@ -63,8 +63,7 @@ namespace Core.Board
 
             // Upper
             int lowerCount = hull.Count + 1;
-            for (int i = points.Count - 1; i >= 0; i--)
-            {
+            for (int i = points.Count - 1; i >= 0; i--){
                 var p = points[i];
                 while (hull.Count >= lowerCount && Cross(hull[hull.Count - 2], hull[hull.Count - 1], p) <= 0)
                     hull.RemoveAt(hull.Count - 1);
@@ -75,9 +74,9 @@ namespace Core.Board
             return hull;
         }
 
-        private float Cross(Vector2 o, Vector2 a, Vector2 b)
-        {
+        private float Cross(Vector2 o, Vector2 a, Vector2 b){
             return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
         }
+        */
     }
 }

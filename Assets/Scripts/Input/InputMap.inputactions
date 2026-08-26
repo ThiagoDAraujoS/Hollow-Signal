@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "InputMap",
     "maps": [
         {
@@ -185,6 +186,34 @@
                     "processors": "",
                     "groups": "",
                     "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Exploration",
+            "id": "bbc0f49c-ae3f-4055-8e53-31d1a71b5e5a",
+            "actions": [
+                {
+                    "name": "PrimaryClick",
+                    "type": "Button",
+                    "id": "f7984514-ec0a-428e-b5af-8b914305b1bf",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "521a7300-95e1-4fe5-a823-31193626c42d",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Tap,Hold",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

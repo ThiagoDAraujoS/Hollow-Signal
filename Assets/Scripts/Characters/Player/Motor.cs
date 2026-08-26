@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 namespace Characters.Player{
     public class Motor : Component{
+        /*
         private static readonly int
             AnimatorTurn    = Animator.StringToHash("InputSide"),
             AnimatorForward = Animator.StringToHash("InputForward");
@@ -129,5 +130,6 @@ namespace Characters.Player{
             Gizmos.DrawRay(Entity.transform.position, Entity.rotation * Vector3.forward);
         }
 #endif
+*/
     }
 }
