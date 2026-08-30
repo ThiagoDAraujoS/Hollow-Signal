@@ -1,0 +1,51 @@
+RustedMechanism,"A lever, winch, or gear system fused by time and weather.",FixMachinery,"You clear the grit and realign the components, coaxing the mechanism back into working order.","The rusted parts grind against each other, completely seized up despite your efforts."
+,,,"You systematically scrape away the hard-packed oxidation and realign the seized parts, restoring the mechanism's movement.","The corroded metal groans and then snaps under your tools, leaving the inner workings permanently fused."
+,,Tinker,"With a few clever adjustments and bypassed parts, you get it working just enough to function.","Your improvised fix snaps under tension, leaving the mechanism permanently jammed."
+,,Smash,You bypass the rust entirely by forcing the mechanism into place with a brutal strike.,"You just end up bending the metal, lodging the mechanism even tighter."
+MechanicalLock,"Standard tumbler locks on doors, chests, or cages.",PickLocks,"With a satisfying click, the tumblers fall into alignment and the lock gives way.","Your tools slip and bind, failing to catch the rusted tumblers inside."
+,,Smash,You deliver a crushing blow that shatters the locking mechanism completely.,"Your strike rattles your bones, but the heavy lock refuses to break."
+,,SabotageMachinery,"You dismantle the locking assembly from the outside, rendering it useless.","You strip the housing, but the core deadbolt remains firmly engaged."
+ArcaneBarrier,A glowing seal or active energy field blocking passage.,HackCircuits,"You rewire the arcane flow, finding a backdoor that safely dissipates the energy.","The energy matrix shifts before you can bypass it, locking you out completely."
+,,OverloadCircuits,"You feed too much power into the barrier, causing it to violently shatter and fade.","The barrier simply absorbs the excess energy, glowing even brighter than before."
+,,BreakArcaneCircuits,"You sever the critical ley-lines powering the field, collapsing it instantly.","The severed connections immediately regenerate, keeping the barrier perfectly intact."
+HeavyDebris,Collapsed architecture or massive boulders in the way.,LiftHeavyObjects,"Straining your muscles to the limit, you heave the blockage out of the way.","No matter how hard you push, the sheer weight refuses to budge."
+,,Smash,"You strike the weakest structural point, reducing the obstruction to rubble.","Your blow glances off the dense mass, leaving the path completely blocked."
+,,FireHeavyOrdnance,A deafening blast blows the obstruction into a shower of harmless shrapnel.,"The smoke clears, revealing the blockage is scorched but still structurally intact."
+ConcealedTrap,"Tripwires, pressure plates, or rigged explosives.",DefuseTraps,"With steady hands, you disconnect the trigger mechanism and neutralize the danger.","Your hand slips, and you hear the terrifying click of the trigger engaging."
+,,Perceive,"You spot the hidden mechanism just in time, allowing you to carefully bypass it.",You realize too late that what you thought was safe ground is actually rigged.
+,,Tinker,"You jam the firing mechanism with a makeshift wedge, rendering it harmless.","Your makeshift jam slips out of place, letting the trap snap back into alignment."
+,,ReactQuickly,"The trap springs, but you dive out of the way just before it fully connects.","You try to dodge, but the mechanism is simply too fast for you to escape."
+ToxicEnvironment,"An enclosed area flooded with spores, gas, or poison.",EndureToxins,"You grit your teeth and force your way through, ignoring the burning in your lungs.","The fumes overwhelm your senses, forcing you to retreat before you collapse."
+,,FixMachinery,"You manage to engage the local ventilation system, clearing the hazardous air.","The rusty exhaust fans sputter and die, leaving the toxic cloud untouched."
+,,FireHeavyOrdnance,You use a concussive blast to physically blow the toxic cloud out of your path.,"The blast merely stirs the air, causing the toxic cloud to swirl thicker around you."
+,,BrewAlchemy,You quickly mix a neutralizing agent that safely dissolves the airborne hazard.,"Your mixture reacts poorly with the environment, doing nothing to clear the hazard."
+CognitiveHazard,A psychic anomaly or maddening artifact aura.,EndureCognitiveStrain,"You anchor your mind against the maddening whispers, retaining your sanity.",A piercing headache brings you to your knees as the anomaly invades your thoughts.
+,,EndurePsychicAttacks,"You forcefully project a mental shield, deflecting the unseen psychic pressure.","Your mental defenses crumble, leaving you disoriented and deeply shaken."
+,,ChannelDivinity,"You call upon holy wards to cleanse the area, pushing back the unnatural aura.","Your prayers are swallowed by the overwhelming, oppressive atmosphere of the hazard."
+SteepChasm,A sheer drop or broken bridge requiring traversal.,Climb,"Finding reliable handholds, you scale the sheer drop with steady precision.","The surface crumbles under your grip, forcing you to abandon the ascent."
+,,Jump,"With a running start, you launch yourself across the gap and land safely.",You misjudge the distance and barely manage to catch the ledge to pull yourself back.
+,,Sprint,"You build up incredible momentum, effortlessly clearing the hazard in a dead run.","You lose your footing right at the edge, stumbling back to avoid a fatal fall."
+UnknownRelic,"A dormant piece of ancient, unidentified technology.",AnalyzeArtifacts,"You decipher the ancient design, unlocking the true purpose of the device.","The strange geometry defies your understanding, leaving the device a complete mystery."
+,,CommuneWithArtifacts,You reach out with your mind and feel the dormant pulse of the object awaken.,You feel only cold silence; the object refuses to yield its secrets to your mind.
+,,ExperimentWithArtifacts,"Through trial and error, you successfully coax a reaction out of the dormant tech.",Your tampering causes the object to spark dangerously and lock down completely.
+CrypticTerminal,"A dead computer, datapad, or arcane data node.",RestorePowerNodes,"You reroute the auxiliary power, and the dead screen flickers back to life.","The circuits fry as you try to jumpstart it, leaving the terminal completely dead."
+,,HackCircuits,You bypass the security protocols and gain full access to the hidden data.,The system detects your intrusion and permanently encrypts the remaining files.
+,,ScryDocuments,"You rapidly scan the corrupted data streams, extracting exactly what you need.",The text is too fragmented and degraded for you to make any sense of it.
+RitualSite,"An abandoned altar, occult crime scene, or temple ruin.",RecallReligiousHistory,"You piece together the iconography, deducing exactly what transpired here.",The symbols are a confusing mix of heresies that tell you absolutely nothing.
+,,AnalyzeArchitecture,"By studying the layout of the stones, you uncover the site's hidden focal point.",The structural arrangement seems completely random and offers no clues.
+,,PerformRituals,"You enact the proper rites, safely neutralizing the lingering energy of the site.","You mispronounce a key incantation, causing the lingering energy to lash out."
+,,InterpretOmens,"You read the subtle atmospheric shifts, understanding the dark warning left behind.","The signs are muddy and contradictory, leaving you completely guessing at their meaning."
+BeastTracks,"Footprints, claw marks, or territorial markings in the mud.",Track,"You isolate the exact trail, determining exactly where the creature went.","The markings get lost in the rough terrain, leaving the trail completely cold."
+,,IdentifyBeasts,You examine the marks and immediately know exactly what kind of monstrosity left them.,"The prints are distorted, looking like no creature you have ever studied."
+,,Spot,You notice a faint disturbance in the dirt that gives away the creature's hiding spot.,"You strain your eyes, but everything just looks like natural weathering."
+HostileGuard,Armed sentries refusing entry or demanding a toll.,ParleyGuards,"Speaking their language, you ease their suspicions and they let you pass.","Your words fall on deaf ears, and they tighten their grip on their weapons."
+,,Bargain,A quick negotiation and a small exchange is enough to buy their cooperation.,They are deeply insulted by your offer and refuse to deal with you any further.
+,,Intimidate,"You step forward with a terrifying glare, and they back down out of sheer fear.","They see right through your bluff and stand their ground, unimpressed."
+,,Deceive,"You feed them a flawless lie, and they eagerly step aside to let you through.",They catch the inconsistency in your story and immediately raise the alarm.
+StreetInformant,"A local beggar, fence, or thug holding key information.",MingleStreets,"You blend in perfectly, earning their trust and the information you need.","You stick out like a sore thumb, causing them to clam up and walk away."
+,,Persuade,"You appeal to their better nature, convincing them to spill what they know.","Your arguments fail to move them, and they refuse to say another word."
+,,ParleyUnderground,"You speak the local slang flawlessly, establishing a rapport that gets them talking.","You use the wrong slang, marking yourself as an outsider they will not trust."
+,,Intimidate,A thinly veiled threat is all it takes to loosen their tongue.,"They call your bluff and laugh in your face, keeping their secrets."
+BureaucraticBlock,An official refusing to sign papers or grant access.,NavigateBureaucracy,You cite the exact obscure regulation needed to force them to stamp your request.,"You get lost in the red tape, and they gleefully stamp your request 'Denied'."
+,,ParleyAristocrats,"You casually drop the right high-society names, and the official immediately complies.","Your attempt at name-dropping fails, deeply offending the official instead."
+,,Persuade,"You make a compelling, logical case that leaves them no choice but to agree.",The official remains completely unmoved by your pleas and dismisses you.

@@ -43,6 +43,9 @@ namespace Core{
             
             string systemPath = Path.Combine(folder, $"system_{language}.txt");
             ParseFileToDictionary(systemPath, _instance._baseDatabase);
+            
+            string masteriesPath = Path.Combine(folder, $"masteries_{language}.txt");
+            ParseFileToDictionary(masteriesPath, _instance._baseDatabase);
 
             string itemsPath = Path.Combine(folder, $"items_{language}.txt");
             ParseFileToDictionary(itemsPath, _instance._baseDatabase);

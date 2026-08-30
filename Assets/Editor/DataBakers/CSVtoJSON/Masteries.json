@@ -1,0 +1,733 @@
+{
+  "Industrial Magnate": {
+    "name": "Industrial Magnate",
+    "description": "You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning.",
+    "image": "",
+    "bonuses": [
+      "ParleyAristocrats",
+      "NavigateBureaucracy",
+      "Command",
+      "Bargain",
+      "AppraiseArtifacts",
+      "OperateMachinery"
+    ]
+  },
+  "High Society Broker": {
+    "name": "High Society Broker",
+    "description": "You navigate the treacherous ballrooms and salons of the elite, trading in whispers, favors, and lucrative alliances.",
+    "image": "",
+    "bonuses": [
+      "ParleyAristocrats",
+      "Deceive",
+      "Persuade",
+      "ReadIntentions",
+      "Persuade"
+    ]
+  },
+  "Artifact Speculator": {
+    "name": "Artifact Speculator",
+    "description": "You fund the expeditions and take the financial risks, gambling your fortune on the unearthing of the next great pre-fall machine.",
+    "image": "",
+    "bonuses": [
+      "AppraiseArtifacts",
+      "Bargain",
+      "AnalyzeArtifacts",
+      "RecallArtifactLore",
+      "EndureCognitiveStrain"
+    ]
+  },
+  "Underworld Patron": {
+    "name": "Underworld Patron",
+    "description": "You are the velvet glove over a rusted iron fist, quietly funding the city's criminal element to execute your unsavory errands.",
+    "image": "",
+    "bonuses": [
+      "MingleStreets",
+      "Deceive",
+      "Command",
+      "ParleyUnderground",
+      "PlanTactics"
+    ]
+  },
+  "Guild Sponsor": {
+    "name": "Guild Sponsor",
+    "description": "You hold the purse strings for the gruff explorers braving the jungle, managing their contracts and reaping the glory of their discoveries.",
+    "image": "",
+    "bonuses": [
+      "ParleyExplorers",
+      "NavigateBureaucracy",
+      "Bargain",
+      "RecallArtifactLore",
+      "AnalyzeArchitecture"
+    ]
+  },
+  "Scandal Deflector": {
+    "name": "Scandal Deflector",
+    "description": "You are a master of public relations, making the lethal malfunctions of aristocratic vanity projects quietly disappear from the public eye.",
+    "image": "",
+    "bonuses": [
+      "Deceive",
+      "Persuade",
+      "NavigateBureaucracy",
+      "ReadIntentions",
+      "Intimidate"
+    ]
+  },
+  "Arcane Investor": {
+    "name": "Arcane Investor",
+    "description": "You pour your immense wealth into the laboratories of the Wizards, securing exclusive rights to the latest magical circuitry and experimental tech.",
+    "image": "",
+    "bonuses": [
+      "ParleyAristocrats",
+      "IdentifyArcanePurpose",
+      "Tinker",
+      "Bargain",
+      "ParleyWizards"
+    ]
+  },
+  "Wasteland Survivor": {
+    "name": "Wasteland Survivor",
+    "description": "You have survived the brutal elements beyond the city walls longer than most, hardened by starvation, thirst, and the unforgiving jungle.",
+    "image": "",
+    "bonuses": [
+      "EndureDehydration",
+      "EndureHunger",
+      "FindPaths",
+      "Scavenge",
+      "ChannelDivinity"
+    ]
+  },
+  "Monster Hunter": {
+    "name": "Monster Hunter",
+    "description": "You specialize in tracking and slaughtering the nightmarish aberrations that stalk the ruins, knowing precisely where to strike for the kill.",
+    "image": "",
+    "bonuses": [
+      "IdentifyBeasts",
+      "ExploitWeakness",
+      "PlanTactics",
+      "ShootGuns",
+      "Track"
+    ]
+  },
+  "Ruin Delver": {
+    "name": "Ruin Delver",
+    "description": "You treat collapsed temples and buried facilities as puzzles, expertly navigating ancient architecture and disarming lethal traps.",
+    "image": "",
+    "bonuses": [
+      "AnalyzeArchitecture",
+      "Climb",
+      "DefuseTraps",
+      "Perceive",
+      "AnalyzeArtifacts"
+    ]
+  },
+  "Myth Seeker": {
+    "name": "Myth Seeker",
+    "description": "You chase the campfire stories and forbidden legends of the wastes, guided by an intuition for where the greatest artifacts lie hidden.",
+    "image": "",
+    "bonuses": [
+      "RecallArtifactLore",
+      "FindPaths",
+      "SenseDanger",
+      "AnalyzeArtifacts",
+      "ParleyAristocrats"
+    ]
+  },
+  "Wasteland Ward": {
+    "name": "Wasteland Ward",
+    "description": "You act as a living oasis for your expedition, projecting the city's divine influence to ward your allies against the blistering heat and the brutal hazards of the sands.",
+    "image": "",
+    "bonuses": [
+      "PerformRituals",
+      "ChannelDivinity",
+      "SenseReligiousDanger",
+      "EndurePsychicAttacks",
+      "EndureToxins"
+    ]
+  },
+  "Dune Tracker": {
+    "name": "Dune Tracker",
+    "description": "You can find a trail in the middle of a blinding sandstorm, using the harsh winds of Bren's arid wastes to mask your movements.",
+    "image": "",
+    "bonuses": [
+      "Track",
+      "FindPaths",
+      "EndurePhysicalStrain",
+      "Spot",
+      "EndureDehydration"
+    ]
+  },
+  "Brute Beast Hunter": {
+    "name": "Brute Beast Hunter",
+    "description": "You bring down the desert's most resilient monstrosities, relying on overwhelming force and brutish tactics to physically shatter their natural defenses.",
+    "image": "",
+    "bonuses": [
+      "IdentifyBeasts",
+      "Smash",
+      "ShatterArmor",
+      "SwingHammers",
+      "Brawl"
+    ]
+  },
+  "Circle Hierophant": {
+    "name": "Circle Hierophant",
+    "description": "You sit at the upper echelons of the faith, commanding the masses and safeguarding the deepest, most dangerous secrets of the city's plane-formation.",
+    "image": "",
+    "bonuses": [
+      "PerformRituals",
+      "ChannelDivinity",
+      "Command",
+      "RecallReligiousSecrets",
+      "Persuade"
+    ]
+  },
+  "Maintenance Priest": {
+    "name": "Maintenance Priest",
+    "description": "You view the city's massive engines as holy relics, blending religious devotion with the greasy, hands-on work of keeping the gears turning.",
+    "image": "",
+    "bonuses": [
+      "FixMachinery",
+      "RestorePowerNodes",
+      "Climb",
+      "OperateMachinery",
+      "ScribeArcaneCircuits",
+      "FixArcaneCircuits"
+    ]
+  },
+  "Inquisitor of the Circle": {
+    "name": "Inquisitor of the Circle",
+    "description": "You are the terrifying hand of the church, rooting out heresy, unauthorized magic, and those who ask too many questions.",
+    "image": "",
+    "bonuses": [
+      "IdentifyHeretics",
+      "SenseReligiousDanger",
+      "ReadIntentions",
+      "Intimidate",
+      "SwingSwords"
+    ]
+  },
+  "Mass Celebrant": {
+    "name": "Mass Celebrant",
+    "description": "You are the charismatic voice of the faith, leading the congregations in grand rituals and keeping the populace pacified and devout.",
+    "image": "",
+    "bonuses": [
+      "PreachGospel",
+      "Perform",
+      "ParleyClergy",
+      "DebateMorality"
+    ]
+  },
+  "Temple Scholar": {
+    "name": "Temple Scholar",
+    "description": "You dwell in the dust of the holy libraries, piecing together the true history of Bren and the sacred blueprints of its architecture.",
+    "image": "",
+    "bonuses": [
+      "RecallReligiousHistory",
+      "RecallReligiousSecrets",
+      "InterpretOmens",
+      "AnalyzeArchitecture",
+      "ParleyWizards"
+    ]
+  },
+  "Omen Reader": {
+    "name": "Omen Reader",
+    "description": "You study the subtle shifts in arcane energy and natural phenomena, predicting disasters and divine will through artifacts and the weather.",
+    "image": "",
+    "bonuses": [
+      "InterpretOmens",
+      "SenseReligiousDanger",
+      "CommuneWithArtifacts",
+      "SenseDanger",
+      "Listen"
+    ]
+  },
+  "Moral Arbiter": {
+    "name": "Moral Arbiter",
+    "description": "You are the judge of spiritual purity in the city, using theological debate and strict law to steer the populace away from forbidden temptations.",
+    "image": "",
+    "bonuses": [
+      "DebateMorality",
+      "ParleyClergy",
+      "ReadIntentions",
+      "Persuade"
+    ]
+  },
+  "Underbelly Stowaway": {
+    "name": "Underbelly Stowaway",
+    "description": "You are a ghost in the city's slums, surviving in the forgotten cracks of Bren by staying unseen and scavenging what the rich throw away.",
+    "image": "",
+    "bonuses": [
+      "Hide",
+      "Sneak",
+      "MingleStreets",
+      "Scavenge",
+      "ParleyUnderground",
+      "Steal",
+      "PerformSleightOfHand"
+    ]
+  },
+  "Corporate Saboteur": {
+    "name": "Corporate Saboteur",
+    "description": "You are paid to cripple rival industries, slipping into heavily guarded factories to sever arcane circuits and jam the gears.",
+    "image": "",
+    "bonuses": [
+      "SabotageMachinery",
+      "BreakArcaneCircuits",
+      "HackCircuits",
+      "Sneak",
+      "Deceive"
+    ]
+  },
+  "Cat Burglar": {
+    "name": "Cat Burglar",
+    "description": "You scale the sheer walls of aristocratic estates, bypassing locks and security measures to steal priceless artifacts from under their noses.",
+    "image": "",
+    "bonuses": [
+      "Climb",
+      "Balance",
+      "Steal",
+      "PickLocks",
+      "Evade"
+    ]
+  },
+  "Chameleon Infiltrator": {
+    "name": "Chameleon Infiltrator",
+    "description": "You are a master of disguise and social blending, able to walk into a high-society gala or a dockside tavern and belong perfectly.",
+    "image": "",
+    "bonuses": [
+      "Perform",
+      "Deceive",
+      "Hide",
+      "MingleStreets",
+      "ParleyUnderground",
+      "ParleyAristocrats"
+    ]
+  },
+  "Arcane Disruptor": {
+    "name": "Arcane Disruptor",
+    "description": "You understand just enough magic to break it, short-circuiting magical locks and overloading defensive runes with a flick of the wrist.",
+    "image": "",
+    "bonuses": [
+      "OverloadCircuits",
+      "HackCircuits",
+      "DetectArcaneEnergy",
+      "PerformSleightOfHand",
+      "CommuneWithArtifacts"
+    ]
+  },
+  "Shadow Courier": {
+    "name": "Shadow Courier",
+    "description": "You move illicit goods across the city's rooftops and sewers, relying on speed and absolute silence to avoid the guard patrols.",
+    "image": "",
+    "bonuses": [
+      "Sneak",
+      "Evade",
+      "FindPaths",
+      "ReactQuickly"
+    ]
+  },
+  "Alleyway Informant": {
+    "name": "Alleyway Informant",
+    "description": "You are the eyes and ears of the streets, trading secrets, reading people, and knowing exactly who to talk to when trouble brews.",
+    "image": "",
+    "bonuses": [
+      "Listen",
+      "Spot",
+      "ReadIntentions",
+      "ParleyUnderground",
+      "MingleStreets"
+    ]
+  },
+  "Contract Thief": {
+    "name": "Contract Thief",
+    "description": "You are a professional acquirer of things, meticulously planning heists to lift specific, highly guarded artifacts for wealthy clients.",
+    "image": "",
+    "bonuses": [
+      "PickLocks",
+      "Steal",
+      "Search",
+      "DefuseTraps"
+    ]
+  },
+  "Beat Cop": {
+    "name": "Beat Cop",
+    "description": "You walk the grimy streets of the lower tiers, relying on your fists, your commanding presence, and your knowledge of the local gangs to keep order.",
+    "image": "",
+    "bonuses": [
+      "TalkTough",
+      "Spot",
+      "Brawl",
+      "ParleyGuards"
+    ]
+  },
+  "Precinct Investigator": {
+    "name": "Precinct Investigator",
+    "description": "You piece together the aftermath of the city's crimes, tracking suspects, scrying through forged documents, and finding the truth.",
+    "image": "",
+    "bonuses": [
+      "ScryDocuments",
+      "Search",
+      "ReadIntentions",
+      "Track"
+    ]
+  },
+  "Heavy Enforcer": {
+    "name": "Heavy Enforcer",
+    "description": "You are the blunt instrument of the law, heavily armored and armed with crushing weapons to break up riots and smash resistance.",
+    "image": "",
+    "bonuses": [
+      "SwingHammers",
+      "Smash",
+      "Intimidate",
+      "Grapple",
+      "TalkTough"
+    ]
+  },
+  "Gate Watchman": {
+    "name": "Gate Watchman",
+    "description": "You stand between the safety of Bren and the horrors of the jungle, trained to spot smugglers, monsters, and trouble from a mile away.",
+    "image": "",
+    "bonuses": [
+      "Perceive",
+      "SenseDanger",
+      "ParleyOutsiders",
+      "ShootGuns"
+    ]
+  },
+  "Circle Swordsman": {
+    "name": "Circle Swordsman",
+    "description": "You are an elite, highly trained duelist for the city, using disciplined martial tactics to disarm and dismantle your opponents.",
+    "image": "",
+    "bonuses": [
+      "SwingSwords",
+      "ReactQuickly",
+      "PlanTactics",
+      "ShatterArmor"
+    ]
+  },
+  "Riot Suppressor": {
+    "name": "Riot Suppressor",
+    "description": "You hold the line when the commonry boils over, trained in crowd control, physical endurance, and the psychological tactics of mass intimidation.",
+    "image": "",
+    "bonuses": [
+      "DisruptAttacks",
+      "Intimidate",
+      "EndurePhysicalStrain",
+      "Command"
+    ]
+  },
+  "Military General": {
+    "name": "Military General",
+    "description": "You orchestrate the macro-defenses of the city, navigating aristocratic politics while commanding the tactical deployment of troops.",
+    "image": "",
+    "bonuses": [
+      "Command",
+      "PlanTactics",
+      "NavigateBureaucracy",
+      "ParleyGuards"
+    ]
+  },
+  "Master Mason": {
+    "name": "Master Mason",
+    "description": "You built the walls that keep the jungle out, possessing an intimate understanding of structural integrity and the sheer strength to shape stone.",
+    "image": "",
+    "bonuses": [
+      "AnalyzeArchitecture",
+      "LiftHeavyObjects",
+      "Smash",
+      "EndurePhysicalStrain"
+    ]
+  },
+  "Circle Farmer": {
+    "name": "Circle Farmer",
+    "description": "You coax life from the toxic, dry soil of the city's outskirts, surviving the grueling elements to feed the masses.",
+    "image": "",
+    "bonuses": [
+      "EndureDehydration",
+      "EndureHunger",
+      "ForageReagents",
+      "MingleStreets"
+    ]
+  },
+  "Street Alchemist": {
+    "name": "Street Alchemist",
+    "description": "You brew volatile mixtures in makeshift labs, creating cheap medicines, chemical explosives, and chemical solutions for everyday problems.",
+    "image": "",
+    "bonuses": [
+      "BrewAlchemy",
+      "ForageReagents",
+      "Tinker",
+      "Bargain"
+    ]
+  },
+  "Factory Hand": {
+    "name": "Factory Hand",
+    "description": "You have survived years in the deafening, toxic belly of Bren's industrial sector, learning how to keep the rusted machines from exploding.",
+    "image": "",
+    "bonuses": [
+      "OperateMachinery",
+      "FixMachinery",
+      "EndureToxins",
+      "LiftHeavyObjects"
+    ]
+  },
+  "Caravan Driver": {
+    "name": "Caravan Driver",
+    "description": "You haul goods across the treacherous roads of the city and its immediate borders, skilled in rapid repairs and evasive driving.",
+    "image": "",
+    "bonuses": [
+      "DriveVehicles",
+      "FixVehicles",
+      "FindPaths",
+      "ReactQuickly"
+    ]
+  },
+  "Market Trader": {
+    "name": "Market Trader",
+    "description": "You run the bustling bazaars, haggling over scraps and reading the intentions of desperate buyers and shady suppliers alike.",
+    "image": "",
+    "bonuses": [
+      "Bargain",
+      "Persuade",
+      "MingleStreets",
+      "ReadIntentions"
+    ]
+  },
+  "Tough Laborer": {
+    "name": "Tough Laborer",
+    "description": "You are the backbone of the city's physical expansion, relying on raw strength, calloused hands, and a high tolerance for pain.",
+    "image": "",
+    "bonuses": [
+      "LiftHeavyObjects",
+      "Grapple",
+      "EndurePhysicalStrain",
+      "TalkTough"
+    ]
+  },
+  "Circuit Engineer": {
+    "name": "Circuit Engineer",
+    "description": "You design the magical pathways that power Bren's revolution, merging arcane theory with the practical reality of copper and wire.",
+    "image": "",
+    "bonuses": [
+      "ScribeArcaneCircuits",
+      "RestorePowerNodes",
+      "Tinker",
+      "IdentifyArcanePurpose"
+    ]
+  },
+  "Artifact Researcher": {
+    "name": "Artifact Researcher",
+    "description": "You push your mind to the brink of madness trying to understand the terrifying relics pulled from the ruins, uncovering their true nature.",
+    "image": "",
+    "bonuses": [
+      "AnalyzeArtifacts",
+      "ExperimentWithArtifacts",
+      "RecallArtifactLore",
+      "EndureCognitiveStrain"
+    ]
+  },
+  "Containment Specialist": {
+    "name": "Containment Specialist",
+    "description": "You are called when an artifact wakes up, using dampening fields and arcane wards to prevent catastrophic magical meltdowns.",
+    "image": "",
+    "bonuses": [
+      "ContainArtifacts",
+      "EndurePsychicAttacks",
+      "AnalyzeArtifacts",
+      "Spot"
+    ]
+  },
+  "Arcane Inventor": {
+    "name": "Arcane Inventor",
+    "description": "You tinker at the bleeding edge of science and magic, creating prototype tools and experimental mixtures that defy natural law.",
+    "image": "",
+    "bonuses": [
+      "ScribeArcaneCircuits",
+      "Tinker",
+      "FixArcaneCircuits",
+      "AnalyzeArtifacts",
+      "RestorePowerNodes"
+    ]
+  },
+  "Industrial Technomancer": {
+    "name": "Industrial Technomancer",
+    "description": "You interface directly with the city's largest, most dangerous engines, keeping the volatile mix of steam and magic stable.",
+    "image": "",
+    "bonuses": [
+      "OperateHeavyMachinery",
+      "RestorePowerNodes",
+      "OverloadCircuits",
+      "FixMachinery",
+      "FixArcaneCircuits"
+    ]
+  },
+  "Wasteland Scholar": {
+    "name": "Wasteland Scholar",
+    "description": "You document the esoteric lore of the jungle and its ruins, bridging the gap between high academia and the gritty reality of the explorers.",
+    "image": "",
+    "bonuses": [
+      "CommuneWithArtifacts",
+      "IdentifyArcanePurpose",
+      "ParleyExplorers",
+      "RecallArtifactLore",
+      "AnalyzeArtifacts"
+    ]
+  },
+  "Rogue Arcanist": {
+    "name": "Rogue Arcanist",
+    "description": "You operate outside the sanctioned labs, conducting highly illegal, dangerous experiments with artifacts that the Aristocracy deems too volatile.",
+    "image": "",
+    "bonuses": [
+      "ExperimentWithArtifacts",
+      "CommuneWithArtifacts",
+      "HackCircuits",
+      "EndureToxins",
+      "EndurePhysicalStrain"
+    ]
+  },
+  "Scrap-Waste Heretic": {
+    "name": "Scrap-Waste Heretic",
+    "description": "You are a feral outcast of the wastes, surviving the toxic sands by forming sacred, heretical bonds with the desert's mechanical beasts and the dark entities that command them.",
+    "image": "",
+    "bonuses": [
+      "CommuneWithArtifacts",
+      "RecallReligiousSecrets",
+      "ChannelDivinity",
+      "EndureToxins",
+      "IdentifyBeasts"
+    ]
+  },
+  "Hair-Trigger Senses": {
+    "name": "Hair-Trigger Senses",
+    "description": "The wastes do not forgive the blind or the deaf. Your senses have been sharpened to a razor's edge, giving you the twitch-reflexes needed to survive the unseen horrors of the desert.",
+    "image": "",
+    "bonuses": [
+      "Spot",
+      "Listen",
+      "Perceive",
+      "ReactQuickly"
+    ]
+  },
+  "Sword Fighter": {
+    "name": "Sword Fighter",
+    "description": "You are a blur of steel in the wastes, keeping your eyes locked on your opponent to sidestep their strikes and punish their slightest mistakes.",
+    "image": "",
+    "bonuses": [
+      "SwingSwords",
+      "Evade",
+      "ExploitWeakness",
+      "Spot"
+    ]
+  },
+  "Hammer Figher": {
+    "name": "Hammer Figher",
+    "description": "You are a walking engine of blunt force, built to shrug off punishing blows while you crush armor, bone, and morale under the massive weight of your hammer.",
+    "image": "",
+    "bonuses": [
+      "SwingHammers",
+      "Smash",
+      "EndurePhysicalStrain",
+      "ShatterArmor"
+    ]
+  },
+  "Arcane Bombardier": {
+    "name": "Arcane Bombardier",
+    "description": "Subtlety is a luxury you discarded for raw, explosive power. You can read the invisible currents of arcane energy and reduce heavily armored targets to smoking craters from a distance.",
+    "image": "",
+    "bonuses": [
+      "FireHeavyOrdnance",
+      "Throw",
+      "Spot",
+      "DetectArcaneEnergy",
+      "SetTraps"
+    ]
+  },
+  "Natural Charmer": {
+    "name": "Natural Charmer",
+    "description": "You have an uncanny ability to read a room and tell people exactly what they want to hear, defusing tension or swindling fools with a disarming smile.",
+    "image": "",
+    "bonuses": [
+      "Persuade",
+      "Deceive",
+      "ReadIntentions",
+      "Bargain"
+    ]
+  },
+  "Iron-Willed": {
+    "name": "Iron-Willed",
+    "description": "You simply refuse to yield. Whether facing psychic intrusion, unbearable pain, or someone trying to manipulate you, your mind is an absolute fortress.",
+    "image": "",
+    "bonuses": [
+      "EndureCognitiveStrain",
+      "EndurePsychicAttacks",
+      "DebateMorality",
+      "Intimidate"
+    ]
+  },
+  "Calloused Survivor": {
+    "name": "Calloused Survivor",
+    "description": "You have been beaten, broken, and burned so many times that pain has just become another background noise you can easily ignore.",
+    "image": "",
+    "bonuses": [
+      "EndurePhysicalStrain",
+      "EndureToxins",
+      "Brawl",
+      "TalkTough"
+    ]
+  },
+  "Contortionist": {
+    "name": "Contortionist",
+    "description": "You possess an uncanny, almost unnatural flexibility, allowing you to slip out of grapples, squeeze into rusted ventilation shafts, and maintain perfect footing.",
+    "image": "",
+    "bonuses": [
+      "Evade",
+      "Balance",
+      "Jump",
+      "Grapple"
+    ]
+  },
+  "Heavyweight": {
+    "name": "Heavyweight",
+    "description": "You are built like a brick wall. Your sheer mass makes you incredibly difficult to move, and when you put your weight into something, it breaks.",
+    "image": "",
+    "bonuses": [
+      "LiftHeavyObjects",
+      "Smash",
+      "Grapple",
+      "Intimidate"
+    ]
+  },
+  "Fate-Touched": {
+    "name": "Fate-Touched",
+    "description": "You shouldn't be alive, yet things always seem to inexplicably work out in your favor right before disaster strikes.",
+    "image": "",
+    "bonuses": [
+      "SenseDanger",
+      "ReactQuickly",
+      "Evade",
+      "InterpretOmens"
+    ]
+  },
+  "Lore Savant": {
+    "name": "Lore Savant",
+    "description": "Once you see a schematic or read an ancient text, it is permanently burned into your mind, making you a walking encyclopedia of the old world.",
+    "image": "",
+    "bonuses": [
+      "RecallArtifactLore",
+      "RecallReligiousHistory",
+      "RecallReligiousSecrets",
+      "AnalyzeArchitecture"
+    ]
+  },
+  "Jury-Rigger": {
+    "name": "Jury-Rigger",
+    "description": "You can look at a pile of rusted trash and see a solution. You have an innate knack for cobbling together temporary fixes from completely unrelated parts.",
+    "image": "",
+    "bonuses": [
+      "Tinker",
+      "Scavenge",
+      "FixMachinery",
+      "ForageReagents",
+      "BrewAlchemy"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyMethodMayBeStaticInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="3">
+            <item index="0" class="java.lang.String" itemvalue="numpy" />
+            <item index="1" class="java.lang.String" itemvalue="scipy" />
+            <item index="2" class="java.lang.String" itemvalue="geomdl" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E701" />
+          <option value="E722" />
+          <option value="E221" />
+          <option value="E251" />
+          <option value="E501" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="flask_server.data.Bank.to_json" />
+          <option value="flask_server.app.bank.Data.to_json" />
+          <option value="flask_server.app.bank.Data.from_json" />
+          <option value="flask_server.app.card_bank.Data.from_json" />
+          <option value="flask_server.app.image_bank.Data.from_json" />
+          <option value="flask_server.app.image_bank.ImageBankData.from_json" />
+          <option value="flask_server.app.card_bank.CardBankData.from_json" />
+          <option value="PIL.Image.Image._getexif" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

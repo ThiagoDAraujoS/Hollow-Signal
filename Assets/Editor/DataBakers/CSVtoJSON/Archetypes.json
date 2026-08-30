@@ -1,0 +1,434 @@
+{
+  "RustedMechanism": {
+    "FixMachinery": {
+      "success": [
+        "You clear the grit and realign the components, coaxing the mechanism back into working order.",
+        "You systematically scrape away the hard-packed oxidation and realign the seized parts, restoring the mechanism's movement."
+      ],
+      "failures": [
+        "The rusted parts grind against each other, completely seized up despite your efforts.",
+        "The corroded metal groans and then snaps under your tools, leaving the inner workings permanently fused."
+      ]
+    },
+    "Tinker": {
+      "success": [
+        "With a few clever adjustments and bypassed parts, you get it working just enough to function."
+      ],
+      "failures": [
+        "Your improvised fix snaps under tension, leaving the mechanism permanently jammed."
+      ]
+    },
+    "Smash": {
+      "success": [
+        "You bypass the rust entirely by forcing the mechanism into place with a brutal strike."
+      ],
+      "failures": [
+        "You just end up bending the metal, lodging the mechanism even tighter."
+      ]
+    }
+  },
+  "MechanicalLock": {
+    "PickLocks": {
+      "success": [
+        "With a satisfying click, the tumblers fall into alignment and the lock gives way."
+      ],
+      "failures": [
+        "Your tools slip and bind, failing to catch the rusted tumblers inside."
+      ]
+    },
+    "Smash": {
+      "success": [
+        "You deliver a crushing blow that shatters the locking mechanism completely."
+      ],
+      "failures": [
+        "Your strike rattles your bones, but the heavy lock refuses to break."
+      ]
+    },
+    "SabotageMachinery": {
+      "success": [
+        "You dismantle the locking assembly from the outside, rendering it useless."
+      ],
+      "failures": [
+        "You strip the housing, but the core deadbolt remains firmly engaged."
+      ]
+    }
+  },
+  "ArcaneBarrier": {
+    "HackCircuits": {
+      "success": [
+        "You rewire the arcane flow, finding a backdoor that safely dissipates the energy."
+      ],
+      "failures": [
+        "The energy matrix shifts before you can bypass it, locking you out completely."
+      ]
+    },
+    "OverloadCircuits": {
+      "success": [
+        "You feed too much power into the barrier, causing it to violently shatter and fade."
+      ],
+      "failures": [
+        "The barrier simply absorbs the excess energy, glowing even brighter than before."
+      ]
+    },
+    "BreakArcaneCircuits": {
+      "success": [
+        "You sever the critical ley-lines powering the field, collapsing it instantly."
+      ],
+      "failures": [
+        "The severed connections immediately regenerate, keeping the barrier perfectly intact."
+      ]
+    }
+  },
+  "HeavyDebris": {
+    "LiftHeavyObjects": {
+      "success": [
+        "Straining your muscles to the limit, you heave the blockage out of the way."
+      ],
+      "failures": [
+        "No matter how hard you push, the sheer weight refuses to budge."
+      ]
+    },
+    "Smash": {
+      "success": [
+        "You strike the weakest structural point, reducing the obstruction to rubble."
+      ],
+      "failures": [
+        "Your blow glances off the dense mass, leaving the path completely blocked."
+      ]
+    },
+    "FireHeavyOrdnance": {
+      "success": [
+        "A deafening blast blows the obstruction into a shower of harmless shrapnel."
+      ],
+      "failures": [
+        "The smoke clears, revealing the blockage is scorched but still structurally intact."
+      ]
+    }
+  },
+  "ConcealedTrap": {
+    "DefuseTraps": {
+      "success": [
+        "With steady hands, you disconnect the trigger mechanism and neutralize the danger."
+      ],
+      "failures": [
+        "Your hand slips, and you hear the terrifying click of the trigger engaging."
+      ]
+    },
+    "Perceive": {
+      "success": [
+        "You spot the hidden mechanism just in time, allowing you to carefully bypass it."
+      ],
+      "failures": [
+        "You realize too late that what you thought was safe ground is actually rigged."
+      ]
+    },
+    "Tinker": {
+      "success": [
+        "You jam the firing mechanism with a makeshift wedge, rendering it harmless."
+      ],
+      "failures": [
+        "Your makeshift jam slips out of place, letting the trap snap back into alignment."
+      ]
+    },
+    "ReactQuickly": {
+      "success": [
+        "The trap springs, but you dive out of the way just before it fully connects."
+      ],
+      "failures": [
+        "You try to dodge, but the mechanism is simply too fast for you to escape."
+      ]
+    }
+  },
+  "ToxicEnvironment": {
+    "EndureToxins": {
+      "success": [
+        "You grit your teeth and force your way through, ignoring the burning in your lungs."
+      ],
+      "failures": [
+        "The fumes overwhelm your senses, forcing you to retreat before you collapse."
+      ]
+    },
+    "FixMachinery": {
+      "success": [
+        "You manage to engage the local ventilation system, clearing the hazardous air."
+      ],
+      "failures": [
+        "The rusty exhaust fans sputter and die, leaving the toxic cloud untouched."
+      ]
+    },
+    "FireHeavyOrdnance": {
+      "success": [
+        "You use a concussive blast to physically blow the toxic cloud out of your path."
+      ],
+      "failures": [
+        "The blast merely stirs the air, causing the toxic cloud to swirl thicker around you."
+      ]
+    },
+    "BrewAlchemy": {
+      "success": [
+        "You quickly mix a neutralizing agent that safely dissolves the airborne hazard."
+      ],
+      "failures": [
+        "Your mixture reacts poorly with the environment, doing nothing to clear the hazard."
+      ]
+    }
+  },
+  "CognitiveHazard": {
+    "EndureCognitiveStrain": {
+      "success": [
+        "You anchor your mind against the maddening whispers, retaining your sanity."
+      ],
+      "failures": [
+        "A piercing headache brings you to your knees as the anomaly invades your thoughts."
+      ]
+    },
+    "EndurePsychicAttacks": {
+      "success": [
+        "You forcefully project a mental shield, deflecting the unseen psychic pressure."
+      ],
+      "failures": [
+        "Your mental defenses crumble, leaving you disoriented and deeply shaken."
+      ]
+    },
+    "ChannelDivinity": {
+      "success": [
+        "You call upon holy wards to cleanse the area, pushing back the unnatural aura."
+      ],
+      "failures": [
+        "Your prayers are swallowed by the overwhelming, oppressive atmosphere of the hazard."
+      ]
+    }
+  },
+  "SteepChasm": {
+    "Climb": {
+      "success": [
+        "Finding reliable handholds, you scale the sheer drop with steady precision."
+      ],
+      "failures": [
+        "The surface crumbles under your grip, forcing you to abandon the ascent."
+      ]
+    },
+    "Jump": {
+      "success": [
+        "With a running start, you launch yourself across the gap and land safely."
+      ],
+      "failures": [
+        "You misjudge the distance and barely manage to catch the ledge to pull yourself back."
+      ]
+    },
+    "Sprint": {
+      "success": [
+        "You build up incredible momentum, effortlessly clearing the hazard in a dead run."
+      ],
+      "failures": [
+        "You lose your footing right at the edge, stumbling back to avoid a fatal fall."
+      ]
+    }
+  },
+  "UnknownRelic": {
+    "AnalyzeArtifacts": {
+      "success": [
+        "You decipher the ancient design, unlocking the true purpose of the device."
+      ],
+      "failures": [
+        "The strange geometry defies your understanding, leaving the device a complete mystery."
+      ]
+    },
+    "CommuneWithArtifacts": {
+      "success": [
+        "You reach out with your mind and feel the dormant pulse of the object awaken."
+      ],
+      "failures": [
+        "You feel only cold silence; the object refuses to yield its secrets to your mind."
+      ]
+    },
+    "ExperimentWithArtifacts": {
+      "success": [
+        "Through trial and error, you successfully coax a reaction out of the dormant tech."
+      ],
+      "failures": [
+        "Your tampering causes the object to spark dangerously and lock down completely."
+      ]
+    }
+  },
+  "CrypticTerminal": {
+    "RestorePowerNodes": {
+      "success": [
+        "You reroute the auxiliary power, and the dead screen flickers back to life."
+      ],
+      "failures": [
+        "The circuits fry as you try to jumpstart it, leaving the terminal completely dead."
+      ]
+    },
+    "HackCircuits": {
+      "success": [
+        "You bypass the security protocols and gain full access to the hidden data."
+      ],
+      "failures": [
+        "The system detects your intrusion and permanently encrypts the remaining files."
+      ]
+    },
+    "ScryDocuments": {
+      "success": [
+        "You rapidly scan the corrupted data streams, extracting exactly what you need."
+      ],
+      "failures": [
+        "The text is too fragmented and degraded for you to make any sense of it."
+      ]
+    }
+  },
+  "RitualSite": {
+    "RecallReligiousHistory": {
+      "success": [
+        "You piece together the iconography, deducing exactly what transpired here."
+      ],
+      "failures": [
+        "The symbols are a confusing mix of heresies that tell you absolutely nothing."
+      ]
+    },
+    "AnalyzeArchitecture": {
+      "success": [
+        "By studying the layout of the stones, you uncover the site's hidden focal point."
+      ],
+      "failures": [
+        "The structural arrangement seems completely random and offers no clues."
+      ]
+    },
+    "PerformRituals": {
+      "success": [
+        "You enact the proper rites, safely neutralizing the lingering energy of the site."
+      ],
+      "failures": [
+        "You mispronounce a key incantation, causing the lingering energy to lash out."
+      ]
+    },
+    "InterpretOmens": {
+      "success": [
+        "You read the subtle atmospheric shifts, understanding the dark warning left behind."
+      ],
+      "failures": [
+        "The signs are muddy and contradictory, leaving you completely guessing at their meaning."
+      ]
+    }
+  },
+  "BeastTracks": {
+    "Track": {
+      "success": [
+        "You isolate the exact trail, determining exactly where the creature went."
+      ],
+      "failures": [
+        "The markings get lost in the rough terrain, leaving the trail completely cold."
+      ]
+    },
+    "IdentifyBeasts": {
+      "success": [
+        "You examine the marks and immediately know exactly what kind of monstrosity left them."
+      ],
+      "failures": [
+        "The prints are distorted, looking like no creature you have ever studied."
+      ]
+    },
+    "Spot": {
+      "success": [
+        "You notice a faint disturbance in the dirt that gives away the creature's hiding spot."
+      ],
+      "failures": [
+        "You strain your eyes, but everything just looks like natural weathering."
+      ]
+    }
+  },
+  "HostileGuard": {
+    "ParleyGuards": {
+      "success": [
+        "Speaking their language, you ease their suspicions and they let you pass."
+      ],
+      "failures": [
+        "Your words fall on deaf ears, and they tighten their grip on their weapons."
+      ]
+    },
+    "Bargain": {
+      "success": [
+        "A quick negotiation and a small exchange is enough to buy their cooperation."
+      ],
+      "failures": [
+        "They are deeply insulted by your offer and refuse to deal with you any further."
+      ]
+    },
+    "Intimidate": {
+      "success": [
+        "You step forward with a terrifying glare, and they back down out of sheer fear."
+      ],
+      "failures": [
+        "They see right through your bluff and stand their ground, unimpressed."
+      ]
+    },
+    "Deceive": {
+      "success": [
+        "You feed them a flawless lie, and they eagerly step aside to let you through."
+      ],
+      "failures": [
+        "They catch the inconsistency in your story and immediately raise the alarm."
+      ]
+    }
+  },
+  "StreetInformant": {
+    "MingleStreets": {
+      "success": [
+        "You blend in perfectly, earning their trust and the information you need."
+      ],
+      "failures": [
+        "You stick out like a sore thumb, causing them to clam up and walk away."
+      ]
+    },
+    "Persuade": {
+      "success": [
+        "You appeal to their better nature, convincing them to spill what they know."
+      ],
+      "failures": [
+        "Your arguments fail to move them, and they refuse to say another word."
+      ]
+    },
+    "ParleyUnderground": {
+      "success": [
+        "You speak the local slang flawlessly, establishing a rapport that gets them talking."
+      ],
+      "failures": [
+        "You use the wrong slang, marking yourself as an outsider they will not trust."
+      ]
+    },
+    "Intimidate": {
+      "success": [
+        "A thinly veiled threat is all it takes to loosen their tongue."
+      ],
+      "failures": [
+        "They call your bluff and laugh in your face, keeping their secrets."
+      ]
+    }
+  },
+  "BureaucraticBlock": {
+    "NavigateBureaucracy": {
+      "success": [
+        "You cite the exact obscure regulation needed to force them to stamp your request."
+      ],
+      "failures": [
+        "You get lost in the red tape, and they gleefully stamp your request 'Denied'."
+      ]
+    },
+    "ParleyAristocrats": {
+      "success": [
+        "You casually drop the right high-society names, and the official immediately complies."
+      ],
+      "failures": [
+        "Your attempt at name-dropping fails, deeply offending the official instead."
+      ]
+    },
+    "Persuade": {
+      "success": [
+        "You make a compelling, logical case that leaves them no choice but to agree."
+      ],
+      "failures": [
+        "The official remains completely unmoved by your pleas and dismisses you."
+      ]
+    }
+  }
+}
