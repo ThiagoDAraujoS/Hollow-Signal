@@ -1,5 +1,5 @@
 # Auto-Generated Masteries English Database - Do not edit manually!
-# Generated on: 2026-08-30 11:42:55
+# Generated on: 2026-08-30 15:36:31
 
 MASTERY_NAME_MASTERY_INDUSTRIAL_MAGNATE = Industrial Magnate
 MASTERY_DESC_MASTERY_INDUSTRIAL_MAGNATE = You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning.

@@ -7,21 +7,6 @@ import sys
 
 
 class JsonBuilder:
-    def build_skill_list(self, path):
-        skills = []
-        with open(path, 'r', encoding='utf-8') as file:
-            for line in file:
-                clean_line = line.strip()
-                if not clean_line:
-                    continue
-
-                parts = clean_line.split(',')
-                if len(parts) >= 2:
-                    skill_name = parts[1].strip()
-                    skills.append(skill_name)
-        self.export_to_json(skills, str(Path(path).with_suffix('.json')))
-        return skills
-
     def build_masteries_map(self, path):
         masteries = {}
 
@@ -34,7 +19,7 @@ class JsonBuilder:
                 name = row[0].strip()
                 description = row[1].strip() if len(row) > 1 else ""
                 image = row[2].strip() if len(row) > 2 else ""
-                bonuses = [skill.strip() for skill in row[3:] if skill.strip()]
+                bonuses = [skill.strip().replace(" ", "") for skill in row[3:] if skill.strip()]
                 masteries[name] = {
                     "name": name,
                     "description": description,
@@ -58,7 +43,8 @@ class JsonBuilder:
                 row += [""] * (5 - len(row))
 
                 archetype_col = row[0].strip()
-                skill_col = row[2].strip()
+                # Clean up outer spaces, then strip ALL internal spaces!
+                skill_col = row[2].strip().replace(" ", "")
                 success_col = row[3].strip()
                 failure_col = row[4].strip()
 
@@ -102,7 +88,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Convert Bren Game CSVs to JSON.")
 
     # Add optional arguments for each of your file types
-    parser.add_argument('--skills', type=str, help='Path to the skills CSV')
     parser.add_argument('--masteries', type=str, help='Path to the masteries CSV')
     parser.add_argument('--archetypes', type=str, help='Path to the archetypes CSV')
     parser.add_argument('--auto', action='store_true', help='Auto select CSV files in the script\'s folder')
@@ -116,7 +101,6 @@ if __name__ == '__main__':
     if args.auto:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         auto_targets = {
-            'skills.csv': builder.build_skill_list,
             'masteries.csv': builder.build_masteries_map,
             'archetypes.csv': builder.build_archetypes_map
         }
@@ -128,11 +112,6 @@ if __name__ == '__main__':
                 print(f"Success: Auto-processed -> {filename}")
                 processed_any = True
     else:
-        if args.skills:
-            builder.build_skill_list(args.skills)
-            print(f"Success: Processed Skills -> {args.skills}")
-            processed_any = True
-
         if args.masteries:
             builder.build_masteries_map(args.masteries)
             print(f"Success: Processed Masteries -> {args.masteries}")

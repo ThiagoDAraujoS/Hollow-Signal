@@ -1,93 +1,93 @@
-Arcane,BreakArcaneCircuits
-Arcane,OverloadCircuits
-Arcane,DetectArcaneEnergy
-Arcane,HackCircuits
-Arcane,IdentifyArcanePurpose
-Arcane,RestorePowerNodes
-Arcane,ScryDocuments
-Arcane,ScribeArcaneCircuits
-Arcane,FixArcaneCircuits
-Artifacts,AnalyzeArtifacts
-Artifacts,AppraiseArtifacts
-Artifacts,EndureCognitiveStrain
-Artifacts,ContainArtifacts
-Artifacts,ExperimentWithArtifacts
-Artifacts,RecallArtifactLore
-Artifacts,EndurePhysicalStrain
-Artifacts,CommuneWithArtifacts
+Arcane,Break Arcane Circuits
+Arcane,Overload Circuits
+Arcane,Detect Arcane Energy
+Arcane,Hack Circuits
+Arcane,Identify Arcane Purpose
+Arcane,Restore Power Nodes
+Arcane,Scry Documents
+Arcane,Scribe Arcane Circuits
+Arcane,Fix Arcane Circuits
+Artifacts,Analyze Artifacts
+Artifacts,Appraise Artifacts
+Artifacts,Endure Cognitive Strain
+Artifacts,Contain Artifacts
+Artifacts,Experiment With Artifacts
+Artifacts,Recall Artifact Lore
+Artifacts,Endure Physical Strain
+Artifacts,Commune With Artifacts
 Athletics,Balance
 Athletics,Climb
-Athletics,EndureDehydration
+Athletics,Endure Dehydration
 Athletics,Evade
-Athletics,LiftHeavyObjects
+Athletics,Lift Heavy Objects
 Athletics,Grapple
-Athletics,EndureHunger
+Athletics,Endure Hunger
 Athletics,Jump
-Athletics,ReactQuickly
+Athletics,React Quickly
 Athletics,Smash
 Athletics,Sprint
-Athletics,EndureToxins
-Awareness,SenseDanger
+Athletics,Endure Toxins
+Awareness,Sense Danger
 Awareness,Listen
 Awareness,Perceive
 Awareness,Spot
-Combat,ShatterArmor
-Combat,ShootGuns
-Combat,SwingHammers
-Combat,FireHeavyOrdnance
-Combat,DisruptAttacks
+Combat,Shatter Armor
+Combat,Shoot Guns
+Combat,Swing Hammers
+Combat,Fire Heavy Ordnance
+Combat,Disrupt Attacks
 Combat,Brawl
-Combat,EndurePsychicAttacks
-Combat,SwingSwords
-Combat,PlanTactics
+Combat,Endure Psychic Attacks
+Combat,Swing Swords
+Combat,Plan Tactics
 Combat,Throw
-Combat,ExploitWeakness
-Crafting,BrewAlchemy
-Crafting,ForageReagents
+Combat,Exploit Weakness
+Crafting,Brew Alchemy
+Crafting,Forage Reagents
 Crafting,Tinker
-Culture,ParleyAristocrats
-Culture,NavigateBureaucracy
-Culture,ParleyExplorers
-Culture,ParleyGuards
-Culture,ParleyUnderground
-Culture,ParleyOutsiders
-Culture,ParleyClergy
-Culture,MingleStreets
-Culture,TalkTough
-Culture,ParleyWizards
+Culture,Parley Aristocrats
+Culture,Navigate Bureaucracy
+Culture,Parley Explorers
+Culture,Parley Guards
+Culture,Parley Underground
+Culture,Parley Outsiders
+Culture,Parley Clergy
+Culture,Mingle Streets
+Culture,Talk Tough
+Culture,Parley Wizards
 Infiltration,Hide
-Infiltration,PickLocks
-Infiltration,PerformSleightOfHand
+Infiltration,Pick Locks
+Infiltration,Perform Sleight Of Hand
 Infiltration,Search
 Infiltration,Sneak
 Infiltration,Steal
-Mechanics,OperateHeavyMachinery
-Mechanics,DefuseTraps
-Mechanics,FixMachinery
-Mechanics,OperateMachinery
-Mechanics,SabotageMachinery
-Mechanics,SetTraps
-Mechanics,DriveVehicles
-Mechanics,FixVehicles
-Religion,ChannelDivinity
-Religion,IdentifyHeretics
-Religion,SenseReligiousDanger
-Religion,InterpretOmens
-Religion,PreachGospel
-Religion,RecallReligiousHistory
-Religion,DebateMorality
-Religion,PerformRituals
-Religion,RecallReligiousSecrets
+Mechanics,Operate Heavy Machinery
+Mechanics,Defuse Traps
+Mechanics,Fix Machinery
+Mechanics,Operate Machinery
+Mechanics,Sabotage Machinery
+Mechanics,Set Traps
+Mechanics,Drive Vehicles
+Mechanics,Fix Vehicles
+Religion,Channel Divinity
+Religion,Identify Heretics
+Religion,Sense Religious Danger
+Religion,Interpret Omens
+Religion,Preach Gospel
+Religion,Recall Religious History
+Religion,Debate Morality
+Religion,Perform Rituals
+Religion,Recall Religious Secrets
 Speech,Bargain
 Speech,Deceive
-Speech,ReadIntentions
+Speech,Read Intentions
 Speech,Intimidate
 Speech,Command
 Speech,Perform
 Speech,Persuade
 Speech,Provoke
-Survival,AnalyzeArchitecture
-Survival,IdentifyBeasts
-Survival,FindPaths
+Survival,Analyze Architecture
+Survival,Identify Beasts
+Survival,Find Paths
 Survival,Scavenge
 Survival,Track

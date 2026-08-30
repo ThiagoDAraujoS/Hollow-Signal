@@ -67,8 +67,8 @@ namespace Editor.DataBakers{
 
         /// Reads the CSV file line-by-line, discards the category column, and extracts unique skill names.
         private static List<string> ParseSkillsFromCsv(string csvPath){
-            List<string>    skillNames   = new List<string>();
-            HashSet<string> uniqueSkills = new HashSet<string>();
+            List<string>    skillNames   = new();
+            HashSet<string> uniqueSkills = new();
 
             try{
                 string[] lines = File.ReadAllLines(csvPath);
@@ -80,7 +80,7 @@ namespace Editor.DataBakers{
 
                     string rawSkillName = parts[1].Trim();
 
-                    rawSkillName = rawSkillName.Replace("\"", "").Replace("'", "").Trim();
+                    rawSkillName = rawSkillName.Replace("\"", "").Replace("'", "").Replace(" ", "").Trim();
 
                     if (string.IsNullOrEmpty(rawSkillName)) continue;
 
@@ -220,16 +220,16 @@ namespace Editor.DataBakers{
 
         /// Converts the list of raw string bonuses to type-safe Skill enums, preserving duplicates.
         private static List<Skill> ParseAssociatedSkills(string masteryName, List<string> rawSkills){
-            List<Skill> list = new List<Skill>();
+            List<Skill> list = new ();
             if (rawSkills == null) return list;
 
             foreach (string rawSkill in rawSkills){
-                if (Enum.TryParse(rawSkill, true, out Skill parsedSkill))
+                string sanitizedSkill = rawSkill.Replace(" ", ""); 
+                if (Enum.TryParse(sanitizedSkill, true, out Skill parsedSkill))
                     list.Add(parsedSkill);
                 else
-                    Debug.LogWarning($"[MasteryImporter] Mastery '{masteryName}' contains unknown Skill identifier '{rawSkill}'.");
+                    Debug.LogWarning($"[MasteryImporter] Mastery '{masteryName}' contains unknown Skill identifier '{sanitizedSkill}'.");
             }
-
             return list;
         }
 
