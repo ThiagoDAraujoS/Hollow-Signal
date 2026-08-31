@@ -18,3 +18,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   associatedSkills: 4000000006000000020000004200000009000000
   penalizedSkills: 
+  prerequisites: []

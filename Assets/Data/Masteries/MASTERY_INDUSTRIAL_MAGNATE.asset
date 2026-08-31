@@ -18,3 +18,11 @@ MonoBehaviour:
   icon: {fileID: 0}
   associatedSkills: 300000003100000055000000510000000b00000043000000
   penalizedSkills: 
+  prerequisites:
+  - key: is_rich
+    args:
+    - 300
+  - key: has_any_mastery
+    args:
+    - GuildSponsor
+    - ArcaneInvestor
