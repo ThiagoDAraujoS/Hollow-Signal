@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_DUNE_TRACKER
   nameKey: NAME_MASTERY_DUNE_TRACKER
   descKey: DESC_MASTERY_DUNE_TRACKER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 5d0000005b000000100000002100000014000000
   penalizedSkills: 

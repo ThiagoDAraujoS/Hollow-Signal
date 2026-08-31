@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_MILITARY_GENERAL
   nameKey: NAME_MASTERY_MILITARY_GENERAL
   descKey: DESC_MASTERY_MILITARY_GENERAL
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 550000002a0000003100000033000000
   penalizedSkills: 

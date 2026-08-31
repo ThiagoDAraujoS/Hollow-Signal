@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_WASTELAND_WARD
   nameKey: NAME_MASTERY_WASTELAND_WARD
   descKey: DESC_MASTERY_WASTELAND_WARD
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4f000000480000004a000000280000001d000000
   penalizedSkills: 

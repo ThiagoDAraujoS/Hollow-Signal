@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CONTORTIONIST
   nameKey: NAME_MASTERY_CONTORTIONIST
   descKey: DESC_MASTERY_CONTORTIONIST
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 15000000120000001900000017000000
   penalizedSkills: 

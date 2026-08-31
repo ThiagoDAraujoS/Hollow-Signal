@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CORPORATE_SABOTEUR
   nameKey: NAME_MASTERY_CORPORATE_SABOTEUR
   descKey: DESC_MASTERY_CORPORATE_SABOTEUR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4400000001000000040000003e00000052000000
   penalizedSkills: 

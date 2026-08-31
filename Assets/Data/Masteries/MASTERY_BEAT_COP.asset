@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_BEAT_COP
   nameKey: NAME_MASTERY_BEAT_COP
   descKey: DESC_MASTERY_BEAT_COP
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 38000000210000002700000033000000
   penalizedSkills: 

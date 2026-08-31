@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_ARCANE_INVESTOR
   nameKey: NAME_MASTERY_ARCANE_INVESTOR
   descKey: DESC_MASTERY_ARCANE_INVESTOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 30000000050000002f0000005100000039000000
   penalizedSkills: 

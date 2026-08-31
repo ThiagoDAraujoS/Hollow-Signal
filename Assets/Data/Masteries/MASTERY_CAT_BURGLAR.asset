@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CAT_BURGLAR
   nameKey: NAME_MASTERY_CAT_BURGLAR
   descKey: DESC_MASTERY_CAT_BURGLAR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 13000000120000003f0000003b00000015000000
   penalizedSkills: 

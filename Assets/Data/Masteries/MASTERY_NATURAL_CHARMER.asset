@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_NATURAL_CHARMER
   nameKey: NAME_MASTERY_NATURAL_CHARMER
   descKey: DESC_MASTERY_NATURAL_CHARMER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 57000000520000005300000051000000
   penalizedSkills: 

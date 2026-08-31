@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Core.Data{
     [Serializable]
-    public struct RequirementRule{
+    public class RequirementRule{
         public string key;
         public string[] args;
 
@@ -21,6 +21,17 @@ namespace Core.Data{
         }
     }
 
+    public class MasteryImportData{
+        public string                id;
+        public string                nameKey;
+        public string                descKey;
+        public List<RequirementRule> prerequisites;
+        public int                   levelRequirement;
+        
+        public readonly List<Skill> associatedSkills = new();
+        public readonly List<Skill> penalizedSkills  = new();
+    }
+
     /// Represents a design-defined Mastery archetype containing localized identity keys and stacking skill bonuses.
     [CreateAssetMenu(fileName = "NewMastery", menuName = "CRPG/Mastery")]
     public class Mastery : ScriptableObject{
@@ -33,6 +44,9 @@ namespace Core.Data{
         private string 
             nameKey, 
             descKey;
+
+        [SerializeField, HideInInspector] 
+        private int level;
 
         [Header("Visuals")] 
         [Tooltip("Drag and drop the visual icon sprite for this mastery here.")] [SerializeField]
@@ -54,20 +68,21 @@ namespace Core.Data{
         public string LocalizedName        => LocalizationManager.Get(nameKey);
         public string LocalizedDescription => LocalizationManager.Get(descKey);
         public Sprite Icon                 => icon;
+        public int    Level                => level;
         
         public IReadOnlyList<Skill>           AssociatedSkills     => associatedSkills;
         public IReadOnlyList<Skill>           PenalizedSkills      => penalizedSkills;
         public IReadOnlyList<RequirementRule> Prerequisites        => prerequisites;
 
         /// Populates or updates the mastery's parameters during automatic importing.
-        public void Initialize(string masteryId, string nameK, string descK, List<Skill> associated, List<Skill> penalized, List<RequirementRule> prerequisitesList){
-            id      = masteryId;
-            nameKey = nameK;
-            descKey = descK;
-            
-            associatedSkills = associated;
-            penalizedSkills  = penalized;
-            prerequisites    = prerequisitesList;
+        public void Initialize(MasteryImportData data){
+            id               = data.id;
+            nameKey          = data.nameKey;
+            descKey          = data.descKey;
+            associatedSkills = data.associatedSkills;
+            penalizedSkills  = data.penalizedSkills;
+            prerequisites    = data.prerequisites;
+            level            = data.levelRequirement;
         }
     }
 }

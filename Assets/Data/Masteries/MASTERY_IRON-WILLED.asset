@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_IRON-WILLED
   nameKey: NAME_MASTERY_IRON-WILLED
   descKey: DESC_MASTERY_IRON-WILLED
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 0c000000280000004e00000054000000
   penalizedSkills: 

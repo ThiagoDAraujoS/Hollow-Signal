@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_TEMPLE_SCHOLAR
   nameKey: NAME_MASTERY_TEMPLE_SCHOLAR
   descKey: DESC_MASTERY_TEMPLE_SCHOLAR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4d000000500000004b0000005900000039000000
   penalizedSkills: 

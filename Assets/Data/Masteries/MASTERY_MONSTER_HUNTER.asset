@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_MONSTER_HUNTER
   nameKey: NAME_MASTERY_MONSTER_HUNTER
   descKey: DESC_MASTERY_MONSTER_HUNTER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 5a0000002c0000002a000000230000005d000000
   penalizedSkills: 

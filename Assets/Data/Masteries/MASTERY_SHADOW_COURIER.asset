@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_SHADOW_COURIER
   nameKey: NAME_MASTERY_SHADOW_COURIER
   descKey: DESC_MASTERY_SHADOW_COURIER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 3e000000150000005b0000001a000000
   penalizedSkills: 

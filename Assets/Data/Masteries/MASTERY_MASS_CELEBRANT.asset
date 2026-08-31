@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_MASS_CELEBRANT
   nameKey: NAME_MASTERY_MASS_CELEBRANT
   descKey: DESC_MASTERY_MASS_CELEBRANT
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4c00000056000000360000004e000000
   penalizedSkills: 

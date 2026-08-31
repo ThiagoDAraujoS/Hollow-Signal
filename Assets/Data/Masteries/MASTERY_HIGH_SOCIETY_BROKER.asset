@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_HIGH_SOCIETY_BROKER
   nameKey: NAME_MASTERY_HIGH_SOCIETY_BROKER
   descKey: DESC_MASTERY_HIGH_SOCIETY_BROKER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 3000000052000000570000005300000057000000
   penalizedSkills: 

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_WASTELAND_SCHOLAR
   nameKey: NAME_MASTERY_WASTELAND_SCHOLAR
   descKey: DESC_MASTERY_WASTELAND_SCHOLAR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 1100000005000000320000000f0000000a000000
   penalizedSkills: 

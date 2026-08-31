@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_HAMMER_FIGHER
   nameKey: NAME_MASTERY_HAMMER_FIGHER
   descKey: DESC_MASTERY_HAMMER_FIGHER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 240000001b0000001000000022000000
   penalizedSkills: 

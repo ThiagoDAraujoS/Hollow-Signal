@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_WASTELAND_SURVIVOR
   nameKey: NAME_MASTERY_WASTELAND_SURVIVOR
   descKey: DESC_MASTERY_WASTELAND_SURVIVOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 14000000180000005b0000005c00000048000000
   penalizedSkills: 

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_MORAL_ARBITER
   nameKey: NAME_MASTERY_MORAL_ARBITER
   descKey: DESC_MASTERY_MORAL_ARBITER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4e000000360000005300000057000000
   penalizedSkills: 

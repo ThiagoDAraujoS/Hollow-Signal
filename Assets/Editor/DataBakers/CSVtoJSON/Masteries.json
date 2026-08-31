@@ -1,5 +1,6 @@
 {
   "Industrial Magnate": {
+    "level": "1",
     "name": "Industrial Magnate",
     "description": "You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning.",
     "requirements": [
@@ -23,6 +24,7 @@
     ]
   },
   "High Society Broker": {
+    "level": "1",
     "name": "High Society Broker",
     "description": "You navigate the treacherous ballrooms and salons of the elite, trading in whispers, favors, and lucrative alliances.",
     "requirements": [],
@@ -35,6 +37,7 @@
     ]
   },
   "Artifact Speculator": {
+    "level": "1",
     "name": "Artifact Speculator",
     "description": "You fund the expeditions and take the financial risks, gambling your fortune on the unearthing of the next great pre-fall machine.",
     "requirements": [],
@@ -47,6 +50,7 @@
     ]
   },
   "Underworld Patron": {
+    "level": "1",
     "name": "Underworld Patron",
     "description": "You are the velvet glove over a rusted iron fist, quietly funding the city's criminal element to execute your unsavory errands.",
     "requirements": [],
@@ -59,6 +63,7 @@
     ]
   },
   "Guild Sponsor": {
+    "level": "1",
     "name": "Guild Sponsor",
     "description": "You hold the purse strings for the gruff explorers braving the jungle, managing their contracts and reaping the glory of their discoveries.",
     "requirements": [],
@@ -71,6 +76,7 @@
     ]
   },
   "Scandal Deflector": {
+    "level": "1",
     "name": "Scandal Deflector",
     "description": "You are a master of public relations, making the lethal malfunctions of aristocratic vanity projects quietly disappear from the public eye.",
     "requirements": [],
@@ -83,6 +89,7 @@
     ]
   },
   "Arcane Investor": {
+    "level": "1",
     "name": "Arcane Investor",
     "description": "You pour your immense wealth into the laboratories of the Wizards, securing exclusive rights to the latest magical circuitry and experimental tech.",
     "requirements": [],
@@ -95,6 +102,7 @@
     ]
   },
   "Wasteland Survivor": {
+    "level": "1",
     "name": "Wasteland Survivor",
     "description": "You have survived the brutal elements beyond the city walls longer than most, hardened by starvation, thirst, and the unforgiving jungle.",
     "requirements": [],
@@ -107,6 +115,7 @@
     ]
   },
   "Monster Hunter": {
+    "level": "1",
     "name": "Monster Hunter",
     "description": "You specialize in tracking and slaughtering the nightmarish aberrations that stalk the ruins, knowing precisely where to strike for the kill.",
     "requirements": [],
@@ -119,6 +128,7 @@
     ]
   },
   "Ruin Delver": {
+    "level": "1",
     "name": "Ruin Delver",
     "description": "You treat collapsed temples and buried facilities as puzzles, expertly navigating ancient architecture and disarming lethal traps.",
     "requirements": [],
@@ -131,6 +141,7 @@
     ]
   },
   "Myth Seeker": {
+    "level": "1",
     "name": "Myth Seeker",
     "description": "You chase the campfire stories and forbidden legends of the wastes, guided by an intuition for where the greatest artifacts lie hidden.",
     "requirements": [],
@@ -143,6 +154,7 @@
     ]
   },
   "Wasteland Ward": {
+    "level": "1",
     "name": "Wasteland Ward",
     "description": "You act as a living oasis for your expedition, projecting the city's divine influence to ward your allies against the blistering heat and the brutal hazards of the sands.",
     "requirements": [],
@@ -155,6 +167,7 @@
     ]
   },
   "Dune Tracker": {
+    "level": "1",
     "name": "Dune Tracker",
     "description": "You can find a trail in the middle of a blinding sandstorm, using the harsh winds of Bren's arid wastes to mask your movements.",
     "requirements": [],
@@ -167,6 +180,7 @@
     ]
   },
   "Brute Beast Hunter": {
+    "level": "1",
     "name": "Brute Beast Hunter",
     "description": "You bring down the desert's most resilient monstrosities, relying on overwhelming force and brutish tactics to physically shatter their natural defenses.",
     "requirements": [],
@@ -179,6 +193,7 @@
     ]
   },
   "Circle Hierophant": {
+    "level": "1",
     "name": "Circle Hierophant",
     "description": "You sit at the upper echelons of the faith, commanding the masses and safeguarding the deepest, most dangerous secrets of the city's plane-formation.",
     "requirements": [],
@@ -191,6 +206,7 @@
     ]
   },
   "Maintenance Priest": {
+    "level": "1",
     "name": "Maintenance Priest",
     "description": "You view the city's massive engines as holy relics, blending religious devotion with the greasy, hands-on work of keeping the gears turning.",
     "requirements": [],
@@ -204,6 +220,7 @@
     ]
   },
   "Inquisitor of the Circle": {
+    "level": "1",
     "name": "Inquisitor of the Circle",
     "description": "You are the terrifying hand of the church, rooting out heresy, unauthorized magic, and those who ask too many questions.",
     "requirements": [],
@@ -216,6 +233,7 @@
     ]
   },
   "Mass Celebrant": {
+    "level": "1",
     "name": "Mass Celebrant",
     "description": "You are the charismatic voice of the faith, leading the congregations in grand rituals and keeping the populace pacified and devout.",
     "requirements": [],
@@ -227,6 +245,7 @@
     ]
   },
   "Temple Scholar": {
+    "level": "1",
     "name": "Temple Scholar",
     "description": "You dwell in the dust of the holy libraries, piecing together the true history of Bren and the sacred blueprints of its architecture.",
     "requirements": [],
@@ -239,6 +258,7 @@
     ]
   },
   "Omen Reader": {
+    "level": "1",
     "name": "Omen Reader",
     "description": "You study the subtle shifts in arcane energy and natural phenomena, predicting disasters and divine will through artifacts and the weather.",
     "requirements": [],
@@ -251,6 +271,7 @@
     ]
   },
   "Moral Arbiter": {
+    "level": "1",
     "name": "Moral Arbiter",
     "description": "You are the judge of spiritual purity in the city, using theological debate and strict law to steer the populace away from forbidden temptations.",
     "requirements": [],
@@ -262,6 +283,7 @@
     ]
   },
   "Underbelly Stowaway": {
+    "level": "1",
     "name": "Underbelly Stowaway",
     "description": "You are a ghost in the city's slums, surviving in the forgotten cracks of Bren by staying unseen and scavenging what the rich throw away.",
     "requirements": [],
@@ -276,6 +298,7 @@
     ]
   },
   "Corporate Saboteur": {
+    "level": "1",
     "name": "Corporate Saboteur",
     "description": "You are paid to cripple rival industries, slipping into heavily guarded factories to sever arcane circuits and jam the gears.",
     "requirements": [],
@@ -288,6 +311,7 @@
     ]
   },
   "Cat Burglar": {
+    "level": "1",
     "name": "Cat Burglar",
     "description": "You scale the sheer walls of aristocratic estates, bypassing locks and security measures to steal priceless artifacts from under their noses.",
     "requirements": [],
@@ -300,6 +324,7 @@
     ]
   },
   "Chameleon Infiltrator": {
+    "level": "1",
     "name": "Chameleon Infiltrator",
     "description": "You are a master of disguise and social blending, able to walk into a high-society gala or a dockside tavern and belong perfectly.",
     "requirements": [],
@@ -313,6 +338,7 @@
     ]
   },
   "Arcane Disruptor": {
+    "level": "1",
     "name": "Arcane Disruptor",
     "description": "You understand just enough magic to break it, short-circuiting magical locks and overloading defensive runes with a flick of the wrist.",
     "requirements": [],
@@ -325,6 +351,7 @@
     ]
   },
   "Shadow Courier": {
+    "level": "1",
     "name": "Shadow Courier",
     "description": "You move illicit goods across the city's rooftops and sewers, relying on speed and absolute silence to avoid the guard patrols.",
     "requirements": [],
@@ -336,6 +363,7 @@
     ]
   },
   "Alleyway Informant": {
+    "level": "1",
     "name": "Alleyway Informant",
     "description": "You are the eyes and ears of the streets, trading secrets, reading people, and knowing exactly who to talk to when trouble brews.",
     "requirements": [],
@@ -348,6 +376,7 @@
     ]
   },
   "Contract Thief": {
+    "level": "1",
     "name": "Contract Thief",
     "description": "You are a professional acquirer of things, meticulously planning heists to lift specific, highly guarded artifacts for wealthy clients.",
     "requirements": [],
@@ -359,6 +388,7 @@
     ]
   },
   "Beat Cop": {
+    "level": "1",
     "name": "Beat Cop",
     "description": "You walk the grimy streets of the lower tiers, relying on your fists, your commanding presence, and your knowledge of the local gangs to keep order.",
     "requirements": [],
@@ -370,6 +400,7 @@
     ]
   },
   "Precinct Investigator": {
+    "level": "1",
     "name": "Precinct Investigator",
     "description": "You piece together the aftermath of the city's crimes, tracking suspects, scrying through forged documents, and finding the truth.",
     "requirements": [],
@@ -381,6 +412,7 @@
     ]
   },
   "Heavy Enforcer": {
+    "level": "1",
     "name": "Heavy Enforcer",
     "description": "You are the blunt instrument of the law, heavily armored and armed with crushing weapons to break up riots and smash resistance.",
     "requirements": [],
@@ -393,6 +425,7 @@
     ]
   },
   "Gate Watchman": {
+    "level": "1",
     "name": "Gate Watchman",
     "description": "You stand between the safety of Bren and the horrors of the jungle, trained to spot smugglers, monsters, and trouble from a mile away.",
     "requirements": [],
@@ -404,6 +437,7 @@
     ]
   },
   "Circle Swordsman": {
+    "level": "1",
     "name": "Circle Swordsman",
     "description": "You are an elite, highly trained duelist for the city, using disciplined martial tactics to disarm and dismantle your opponents.",
     "requirements": [],
@@ -415,6 +449,7 @@
     ]
   },
   "Riot Suppressor": {
+    "level": "1",
     "name": "Riot Suppressor",
     "description": "You hold the line when the commonry boils over, trained in crowd control, physical endurance, and the psychological tactics of mass intimidation.",
     "requirements": [],
@@ -426,6 +461,7 @@
     ]
   },
   "Military General": {
+    "level": "1",
     "name": "Military General",
     "description": "You orchestrate the macro-defenses of the city, navigating aristocratic politics while commanding the tactical deployment of troops.",
     "requirements": [],
@@ -437,6 +473,7 @@
     ]
   },
   "Master Mason": {
+    "level": "1",
     "name": "Master Mason",
     "description": "You built the walls that keep the jungle out, possessing an intimate understanding of structural integrity and the sheer strength to shape stone.",
     "requirements": [],
@@ -448,6 +485,7 @@
     ]
   },
   "Circle Farmer": {
+    "level": "1",
     "name": "Circle Farmer",
     "description": "You coax life from the toxic, dry soil of the city's outskirts, surviving the grueling elements to feed the masses.",
     "requirements": [],
@@ -459,6 +497,7 @@
     ]
   },
   "Street Alchemist": {
+    "level": "1",
     "name": "Street Alchemist",
     "description": "You brew volatile mixtures in makeshift labs, creating cheap medicines, chemical explosives, and chemical solutions for everyday problems.",
     "requirements": [],
@@ -470,6 +509,7 @@
     ]
   },
   "Factory Hand": {
+    "level": "1",
     "name": "Factory Hand",
     "description": "You have survived years in the deafening, toxic belly of Bren's industrial sector, learning how to keep the rusted machines from exploding.",
     "requirements": [],
@@ -481,6 +521,7 @@
     ]
   },
   "Caravan Driver": {
+    "level": "1",
     "name": "Caravan Driver",
     "description": "You haul goods across the treacherous roads of the city and its immediate borders, skilled in rapid repairs and evasive driving.",
     "requirements": [],
@@ -492,6 +533,7 @@
     ]
   },
   "Market Trader": {
+    "level": "1",
     "name": "Market Trader",
     "description": "You run the bustling bazaars, haggling over scraps and reading the intentions of desperate buyers and shady suppliers alike.",
     "requirements": [],
@@ -503,6 +545,7 @@
     ]
   },
   "Tough Laborer": {
+    "level": "1",
     "name": "Tough Laborer",
     "description": "You are the backbone of the city's physical expansion, relying on raw strength, calloused hands, and a high tolerance for pain.",
     "requirements": [],
@@ -514,6 +557,7 @@
     ]
   },
   "Circuit Engineer": {
+    "level": "1",
     "name": "Circuit Engineer",
     "description": "You design the magical pathways that power Bren's revolution, merging arcane theory with the practical reality of copper and wire.",
     "requirements": [],
@@ -525,6 +569,7 @@
     ]
   },
   "Artifact Researcher": {
+    "level": "1",
     "name": "Artifact Researcher",
     "description": "You push your mind to the brink of madness trying to understand the terrifying relics pulled from the ruins, uncovering their true nature.",
     "requirements": [],
@@ -536,6 +581,7 @@
     ]
   },
   "Containment Specialist": {
+    "level": "1",
     "name": "Containment Specialist",
     "description": "You are called when an artifact wakes up, using dampening fields and arcane wards to prevent catastrophic magical meltdowns.",
     "requirements": [],
@@ -547,6 +593,7 @@
     ]
   },
   "Arcane Inventor": {
+    "level": "1",
     "name": "Arcane Inventor",
     "description": "You tinker at the bleeding edge of science and magic, creating prototype tools and experimental mixtures that defy natural law.",
     "requirements": [],
@@ -559,6 +606,7 @@
     ]
   },
   "Industrial Technomancer": {
+    "level": "1",
     "name": "Industrial Technomancer",
     "description": "You interface directly with the city's largest, most dangerous engines, keeping the volatile mix of steam and magic stable.",
     "requirements": [],
@@ -571,6 +619,7 @@
     ]
   },
   "Wasteland Scholar": {
+    "level": "1",
     "name": "Wasteland Scholar",
     "description": "You document the esoteric lore of the jungle and its ruins, bridging the gap between high academia and the gritty reality of the explorers.",
     "requirements": [],
@@ -583,6 +632,7 @@
     ]
   },
   "Rogue Arcanist": {
+    "level": "1",
     "name": "Rogue Arcanist",
     "description": "You operate outside the sanctioned labs, conducting highly illegal, dangerous experiments with artifacts that the Aristocracy deems too volatile.",
     "requirements": [],
@@ -595,6 +645,7 @@
     ]
   },
   "Scrap-Waste Heretic": {
+    "level": "1",
     "name": "Scrap-Waste Heretic",
     "description": "You are a feral outcast of the wastes, surviving the toxic sands by forming sacred, heretical bonds with the desert's mechanical beasts and the dark entities that command them.",
     "requirements": [],
@@ -607,6 +658,7 @@
     ]
   },
   "Hair-Trigger Senses": {
+    "level": "1",
     "name": "Hair-Trigger Senses",
     "description": "The wastes do not forgive the blind or the deaf. Your senses have been sharpened to a razor's edge, giving you the twitch-reflexes needed to survive the unseen horrors of the desert.",
     "requirements": [],
@@ -618,6 +670,7 @@
     ]
   },
   "Sword Fighter": {
+    "level": "1",
     "name": "Sword Fighter",
     "description": "You are a blur of steel in the wastes, keeping your eyes locked on your opponent to sidestep their strikes and punish their slightest mistakes.",
     "requirements": [],
@@ -629,6 +682,7 @@
     ]
   },
   "Hammer Figher": {
+    "level": "1",
     "name": "Hammer Figher",
     "description": "You are a walking engine of blunt force, built to shrug off punishing blows while you crush armor, bone, and morale under the massive weight of your hammer.",
     "requirements": [],
@@ -640,6 +694,7 @@
     ]
   },
   "Arcane Bombardier": {
+    "level": "1",
     "name": "Arcane Bombardier",
     "description": "Subtlety is a luxury you discarded for raw, explosive power. You can read the invisible currents of arcane energy and reduce heavily armored targets to smoking craters from a distance.",
     "requirements": [],
@@ -652,6 +707,7 @@
     ]
   },
   "Natural Charmer": {
+    "level": "1",
     "name": "Natural Charmer",
     "description": "You have an uncanny ability to read a room and tell people exactly what they want to hear, defusing tension or swindling fools with a disarming smile.",
     "requirements": [],
@@ -663,6 +719,7 @@
     ]
   },
   "Iron-Willed": {
+    "level": "1",
     "name": "Iron-Willed",
     "description": "You simply refuse to yield. Whether facing psychic intrusion, unbearable pain, or someone trying to manipulate you, your mind is an absolute fortress.",
     "requirements": [],
@@ -674,6 +731,7 @@
     ]
   },
   "Calloused Survivor": {
+    "level": "1",
     "name": "Calloused Survivor",
     "description": "You have been beaten, broken, and burned so many times that pain has just become another background noise you can easily ignore.",
     "requirements": [],
@@ -685,6 +743,7 @@
     ]
   },
   "Contortionist": {
+    "level": "1",
     "name": "Contortionist",
     "description": "You possess an uncanny, almost unnatural flexibility, allowing you to slip out of grapples, squeeze into rusted ventilation shafts, and maintain perfect footing.",
     "requirements": [],
@@ -696,6 +755,7 @@
     ]
   },
   "Heavyweight": {
+    "level": "1",
     "name": "Heavyweight",
     "description": "You are built like a brick wall. Your sheer mass makes you incredibly difficult to move, and when you put your weight into something, it breaks.",
     "requirements": [],
@@ -707,6 +767,7 @@
     ]
   },
   "Fate-Touched": {
+    "level": "1",
     "name": "Fate-Touched",
     "description": "You shouldn't be alive, yet things always seem to inexplicably work out in your favor right before disaster strikes.",
     "requirements": [],
@@ -718,6 +779,7 @@
     ]
   },
   "Lore Savant": {
+    "level": "1",
     "name": "Lore Savant",
     "description": "Once you see a schematic or read an ancient text, it is permanently burned into your mind, making you a walking encyclopedia of the old world.",
     "requirements": [],
@@ -729,6 +791,7 @@
     ]
   },
   "Jury-Rigger": {
+    "level": "1",
     "name": "Jury-Rigger",
     "description": "You can look at a pile of rusted trash and see a solution. You have an innate knack for cobbling together temporary fixes from completely unrelated parts.",
     "requirements": [],
@@ -741,6 +804,7 @@
     ]
   },
   "Biometal Sepsis": {
+    "level": "1",
     "name": "Biometal Sepsis",
     "description": "Your blood is fighting a losing battle against the invasive metallic corruption introduced by a wound from the sharp iron barbs and toxic grease of Bren's biometal fauna. The infection stiffens your joints and sends agonizing, erratic shocks through your nervous system, making rapid movement or delicate mechanical work incredibly painful.",
     "requirements": [],
@@ -752,6 +816,7 @@
     ]
   },
   "Precognitive Migraine": {
+    "level": "1",
     "name": "Precognitive Migraine",
     "description": "Lingering exposure to volatile agricultural oil has left a chaotic hum in your skull, forcing you to suffer agonizing precognitive nightmares even while awake. These terrifying, momentary flashes of the future interrupt your focus, making it incredibly difficult to concentrate on complex investigations or hold a steady conversation without losing your train of thought.",
     "requirements": [],

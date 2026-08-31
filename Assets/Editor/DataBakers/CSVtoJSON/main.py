@@ -16,22 +16,28 @@ class JsonBuilder:
                 if not row:
                     continue
 
-                name = row[0].strip()
-                description = row[1].strip() if len(row) > 1 else ""
-                raw_requirements = row[2].strip() if len(row) > 2 else ""
+                row_iter = iter(row)
+                level = next(row_iter, "").strip()
+                name = next(row_iter, "").strip()
+                description = next(row_iter, "").strip()
+
+                raw_requirements = next(row_iter, "").strip()
                 req_elements = [req.strip() for req in raw_requirements.split(';') if req.strip()]
                 requirements = []
                 for req in req_elements:
                     parts = [part.strip() for part in req.split(':') if part.strip()]
                     if parts:
                         requirements.append(parts)
-                bonuses = [skill.strip().replace(" ", "") for skill in row[3:] if skill.strip()]
+
+                bonuses = [skill.strip().replace(" ", "") for skill in row_iter if skill.strip()]
                 masteries[name] = {
+                    "level": level,
                     "name": name,
                     "description": description,
                     "requirements": requirements,
                     "bonuses": bonuses
                 }
+
         self.export_to_json(masteries, str(Path(path).with_suffix('.json')))
         return masteries
 

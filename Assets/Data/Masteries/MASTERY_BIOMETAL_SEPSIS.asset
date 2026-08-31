@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_BIOMETAL_SEPSIS
   nameKey: NAME_MASTERY_BIOMETAL_SEPSIS
   descKey: DESC_MASTERY_BIOMETAL_SEPSIS
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 
   penalizedSkills: 0c00000015000000130000001c000000

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_GUILD_SPONSOR
   nameKey: NAME_MASTERY_GUILD_SPONSOR
   descKey: DESC_MASTERY_GUILD_SPONSOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 3200000031000000510000000f00000059000000
   penalizedSkills: 

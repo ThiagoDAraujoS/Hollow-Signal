@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_UNDERWORLD_PATRON
   nameKey: NAME_MASTERY_UNDERWORLD_PATRON
   descKey: DESC_MASTERY_UNDERWORLD_PATRON
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 370000005200000055000000340000002a000000
   penalizedSkills: 

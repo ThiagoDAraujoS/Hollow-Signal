@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CIRCLE_FARMER
   nameKey: NAME_MASTERY_CIRCLE_FARMER
   descKey: DESC_MASTERY_CIRCLE_FARMER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 14000000180000002e00000037000000
   penalizedSkills: 

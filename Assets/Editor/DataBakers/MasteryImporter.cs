@@ -20,6 +20,7 @@ namespace Editor.DataBakers{
         // ReSharper disable once ClassNeverInstantiated.Local
         private class MasteryJsonData{
             public string
+                level,
                 name,
                 description;
 
@@ -32,7 +33,7 @@ namespace Editor.DataBakers{
             string jsonPath = ResolveJsonPath();
             if (string.IsNullOrEmpty(jsonPath)) return;
             string jsonContent = File.ReadAllText(jsonPath);
-            
+
             Dictionary<string, MasteryJsonData> masteriesMap = DeserializeMasteries(jsonContent);
             if (masteriesMap == null || masteriesMap.Count == 0){
                 Debug.LogError("[MasteryImporter] Masteries database is empty or could not be parsed.");
@@ -79,7 +80,7 @@ namespace Editor.DataBakers{
                     List<MasteryJsonData> flatList = JsonConvert.DeserializeObject<List<MasteryJsonData>>(jsonContent);
 
                     Dictionary<string, MasteryJsonData> map = new();
-                    
+
                     if (flatList == null) return map;
                     foreach (MasteryJsonData item in flatList)
                         if (!string.IsNullOrWhiteSpace(item.name))
@@ -105,55 +106,43 @@ namespace Editor.DataBakers{
         /// Iterates over all masteries, processes localization, parses skills, and creates/updates assets.
         private static int ImportAllMasteries(Dictionary<string, MasteryJsonData> masteriesMap, StringBuilder locBuilder){
             int count = 0;
-
             foreach (KeyValuePair<string, MasteryJsonData> kvp in masteriesMap){
                 MasteryJsonData data = kvp.Value;
                 if (data == null || string.IsNullOrWhiteSpace(data.name)) continue;
 
-                string rawName   = data.name.Trim();
-                string cleanId   = "MASTERY_" + rawName.ToUpper().Replace(" ", "_");
-                string assetName = cleanId + ".asset";
-                string assetPath = Path.Combine(TargetAssetFolder, assetName);
+                string rawName = data.name.Trim();
+                
+                MasteryImportData importData = new();
+                importData.id               = "MASTERY_" + rawName.ToUpper().Replace(" ", "_");
+                importData.levelRequirement = int.TryParse(data.level?.Trim() ?? "0", out int lvl) ? lvl : 0;
+                importData.prerequisites    = (data.requirements ?? new List<List<string>>()).Select(args => new RequirementRule(args)).ToList();
+                importData.nameKey          = $"NAME_{importData.id}";
+                importData.descKey          = $"DESC_{importData.id}";
+                string assetPath = Path.Combine(TargetAssetFolder, $"{importData.id}.asset");
 
-                AppendLocalizationKeys(locBuilder, cleanId, rawName, data.description);
-                ParseMasterySkills(rawName, data.bonuses, out List<Skill> positiveSkills, out List<Skill> penalizedSkills);
-                SaveMasteryAsset(assetPath, cleanId, positiveSkills, penalizedSkills, data.requirements ?? new List<List<string>>());
-
+                AppendLocalizationKeys(locBuilder, importData, rawName, data.description);
+                ParseMasterySkills(importData, data.bonuses);
+                SaveMasteryAsset(assetPath, importData);
                 count++;
             }
             return count;
         }
 
         /// Appends Name and Description keys for a mastery to the localization StringBuilder.
-        private static void AppendLocalizationKeys(StringBuilder locBuilder, string cleanId, string rawName, string description){
-            string nameKey = $"NAME_{cleanId}";
-            string descKey = $"DESC_{cleanId}";
-
-            locBuilder.AppendLine($"{nameKey} = \"{rawName}\"");
-            locBuilder.AppendLine($"{descKey} = \"{description?.Trim().Replace("\"", "\\\"") ?? ""}\"");
+        private static void AppendLocalizationKeys(StringBuilder locBuilder, MasteryImportData importData, string rawName, string description){
+            locBuilder.AppendLine($"{importData.nameKey} = \"{rawName}\"");
+            locBuilder.AppendLine($"{importData.descKey} = \"{description?.Trim().Replace("\"", "\\\"") ?? ""}\"");
             locBuilder.AppendLine();
         }
 
         /// Loads an existing Mastery asset or creates a new one, initializes it, and saves it.
-        private static void SaveMasteryAsset(string assetPath, string cleanId, List<Skill> positiveSkills, List<Skill> penalizedSkills, List<List<string>> requirements){
-            string nameKey = $"NAME_{cleanId}";
-            string descKey = $"DESC_{cleanId}";
-
-            Mastery masteryAsset = AssetDatabase.LoadAssetAtPath<Mastery>(assetPath);
-            bool    isNew        = false;
-
-            if (masteryAsset == null){
-                masteryAsset = ScriptableObject.CreateInstance<Mastery>();
-                isNew        = true;
-            }
-            
-            List<RequirementRule> requirementsRules = requirements.Select(args => new RequirementRule(args)).ToList();
-            masteryAsset.Initialize(cleanId, nameKey, descKey, positiveSkills, penalizedSkills, requirementsRules);
-
-            if (isNew)
-                AssetDatabase.CreateAsset(masteryAsset, assetPath);
-            else
+        private static void SaveMasteryAsset(string assetPath, MasteryImportData importData){
+            Mastery masteryAsset = AssetDatabase.LoadAssetAtPath<Mastery>(assetPath) ?? ScriptableObject.CreateInstance<Mastery>();
+            masteryAsset.Initialize(importData);
+            if (AssetDatabase.Contains(masteryAsset))
                 EditorUtility.SetDirty(masteryAsset);
+            else
+                AssetDatabase.CreateAsset(masteryAsset, assetPath);
         }
 
         /// Writes the final localization output to disk.
@@ -175,10 +164,7 @@ namespace Editor.DataBakers{
         }
 
         /// Splits bonuses list into positive skills and penalized skills.
-        private static void ParseMasterySkills(string masteryName, List<string> rawSkills, out List<Skill> positive, out List<Skill> penalized){
-            positive  = new List<Skill>();
-            penalized = new List<Skill>();
-
+        private static void ParseMasterySkills(MasteryImportData importData, List<string> rawSkills){
             if (rawSkills == null) return;
 
             foreach (string rawSkill in rawSkills){
@@ -195,12 +181,13 @@ namespace Editor.DataBakers{
                 string sanitizedSkill = trimmedSkill.Replace(" ", "");
 
                 if (!Enum.TryParse(sanitizedSkill, true, out Skill parsedSkill))
-                    Debug.LogWarning($"[MasteryImporter] Mastery '{masteryName}' contains unknown Skill identifier '{rawSkill}'.");
-                else
+                    Debug.LogWarning($"[MasteryImporter] Mastery '{importData.id}' contains unknown Skill identifier '{rawSkill}'.");
+                else{
                     if (isNegative)
-                        penalized.Add(parsedSkill);
+                        importData.penalizedSkills.Add(parsedSkill);
                     else
-                        positive.Add(parsedSkill);
+                        importData.associatedSkills.Add(parsedSkill);
+                }
             }
         }
     }

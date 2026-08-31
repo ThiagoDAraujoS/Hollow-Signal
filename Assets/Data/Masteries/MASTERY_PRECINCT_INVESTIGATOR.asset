@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_PRECINCT_INVESTIGATOR
   nameKey: NAME_MASTERY_PRECINCT_INVESTIGATOR
   descKey: DESC_MASTERY_PRECINCT_INVESTIGATOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 070000003d000000530000005d000000
   penalizedSkills: 

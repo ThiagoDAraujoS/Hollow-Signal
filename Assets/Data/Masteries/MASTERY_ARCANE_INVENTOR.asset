@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_ARCANE_INVENTOR
   nameKey: NAME_MASTERY_ARCANE_INVENTOR
   descKey: DESC_MASTERY_ARCANE_INVENTOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 080000002f000000090000000a00000006000000
   penalizedSkills: 

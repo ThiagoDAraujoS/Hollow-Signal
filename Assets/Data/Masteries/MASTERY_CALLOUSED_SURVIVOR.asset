@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CALLOUSED_SURVIVOR
   nameKey: NAME_MASTERY_CALLOUSED_SURVIVOR
   descKey: DESC_MASTERY_CALLOUSED_SURVIVOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 100000001d0000002700000038000000
   penalizedSkills: 

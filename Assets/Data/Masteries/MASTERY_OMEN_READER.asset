@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_OMEN_READER
   nameKey: NAME_MASTERY_OMEN_READER
   descKey: DESC_MASTERY_OMEN_READER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 4b0000004a000000110000001e0000001f000000
   penalizedSkills: 

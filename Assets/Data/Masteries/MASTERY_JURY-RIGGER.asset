@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_JURY-RIGGER
   nameKey: NAME_MASTERY_JURY-RIGGER
   descKey: DESC_MASTERY_JURY-RIGGER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 2f0000005c000000420000002e0000002d000000
   penalizedSkills: 

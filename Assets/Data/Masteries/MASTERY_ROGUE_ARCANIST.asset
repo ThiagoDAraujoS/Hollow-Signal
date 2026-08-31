@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_ROGUE_ARCANIST
   nameKey: NAME_MASTERY_ROGUE_ARCANIST
   descKey: DESC_MASTERY_ROGUE_ARCANIST
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 0e00000011000000040000001d00000010000000
   penalizedSkills: 

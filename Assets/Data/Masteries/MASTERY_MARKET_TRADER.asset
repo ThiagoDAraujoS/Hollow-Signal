@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_MARKET_TRADER
   nameKey: NAME_MASTERY_MARKET_TRADER
   descKey: DESC_MASTERY_MARKET_TRADER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 51000000570000003700000053000000
   penalizedSkills: 

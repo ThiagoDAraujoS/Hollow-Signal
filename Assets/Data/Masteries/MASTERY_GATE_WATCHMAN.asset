@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_GATE_WATCHMAN
   nameKey: NAME_MASTERY_GATE_WATCHMAN
   descKey: DESC_MASTERY_GATE_WATCHMAN
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 200000001e0000003500000023000000
   penalizedSkills: 

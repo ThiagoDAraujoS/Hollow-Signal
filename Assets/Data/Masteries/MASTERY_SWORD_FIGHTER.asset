@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_SWORD_FIGHTER
   nameKey: NAME_MASTERY_SWORD_FIGHTER
   descKey: DESC_MASTERY_SWORD_FIGHTER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 29000000150000002c00000021000000
   penalizedSkills: 

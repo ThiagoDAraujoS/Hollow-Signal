@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CIRCUIT_ENGINEER
   nameKey: NAME_MASTERY_CIRCUIT_ENGINEER
   descKey: DESC_MASTERY_CIRCUIT_ENGINEER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 08000000060000002f00000005000000
   penalizedSkills: 

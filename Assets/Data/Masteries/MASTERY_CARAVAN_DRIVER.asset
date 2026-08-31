@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CARAVAN_DRIVER
   nameKey: NAME_MASTERY_CARAVAN_DRIVER
   descKey: DESC_MASTERY_CARAVAN_DRIVER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 46000000470000005b0000001a000000
   penalizedSkills: 

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_CIRCLE_SWORDSMAN
   nameKey: NAME_MASTERY_CIRCLE_SWORDSMAN
   descKey: DESC_MASTERY_CIRCLE_SWORDSMAN
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 290000001a0000002a00000022000000
   penalizedSkills: 

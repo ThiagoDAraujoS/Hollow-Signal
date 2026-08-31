@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_HEAVY_ENFORCER
   nameKey: NAME_MASTERY_HEAVY_ENFORCER
   descKey: DESC_MASTERY_HEAVY_ENFORCER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 240000001b000000540000001700000038000000
   penalizedSkills: 

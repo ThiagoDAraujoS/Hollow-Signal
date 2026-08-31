@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_ARCANE_BOMBARDIER
   nameKey: NAME_MASTERY_ARCANE_BOMBARDIER
   descKey: DESC_MASTERY_ARCANE_BOMBARDIER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 250000002b000000210000000300000045000000
   penalizedSkills: 

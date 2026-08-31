@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_HEAVYWEIGHT
   nameKey: NAME_MASTERY_HEAVYWEIGHT
   descKey: DESC_MASTERY_HEAVYWEIGHT
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 160000001b0000001700000054000000
   penalizedSkills: 

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_RUIN_DELVER
   nameKey: NAME_MASTERY_RUIN_DELVER
   descKey: DESC_MASTERY_RUIN_DELVER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 590000001300000041000000200000000a000000
   penalizedSkills: 

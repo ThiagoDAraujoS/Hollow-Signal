@@ -10,7 +10,6 @@ namespace Core.Data{
         private static readonly Dictionary<string, Func<Character, string[], bool>> PREDICATE_DICT = new(){
             { "has_background",  (character, arg) => true }, // character.Background.Equals(arg, StringComparison.OrdinalIgnoreCase) }
             { "has_witnessed",   (character, arg) => true }, //Blackboard.GetBool(arg) }
-            { "has_level",       (character, arg) => true }, //int.TryParse(arg, out int lvl) && character.Level >= lvl 
             { "has_skill",       (character, arg) => true },
             { "is_rich:",        (character, arg) => true },
             { "has_any_mastery", (character, arg) => true }
@@ -19,6 +18,10 @@ namespace Core.Data{
         // 2. The Sequence Evaluation Method
         // Performs a sequence of logical ANDs across all requirements on the mastery.
         public static bool MeetsPrerequisites(Character character, Mastery mastery){
+            //TODO: release this code once character is done.
+            //if (character.Level < mastery.Level)
+            //   return false;
+            
             if (mastery.Prerequisites == null || mastery.Prerequisites.Count == 0)
                 return true;
 

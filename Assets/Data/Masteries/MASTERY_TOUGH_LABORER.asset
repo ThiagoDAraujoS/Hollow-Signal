@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_TOUGH_LABORER
   nameKey: NAME_MASTERY_TOUGH_LABORER
   descKey: DESC_MASTERY_TOUGH_LABORER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 16000000170000001000000038000000
   penalizedSkills: 

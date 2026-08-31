@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_ARCANE_DISRUPTOR
   nameKey: NAME_MASTERY_ARCANE_DISRUPTOR
   descKey: DESC_MASTERY_ARCANE_DISRUPTOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 0200000004000000030000003c00000011000000
   penalizedSkills: 

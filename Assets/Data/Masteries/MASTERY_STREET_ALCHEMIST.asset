@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_STREET_ALCHEMIST
   nameKey: NAME_MASTERY_STREET_ALCHEMIST
   descKey: DESC_MASTERY_STREET_ALCHEMIST
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 2d0000002e0000002f00000051000000
   penalizedSkills: 

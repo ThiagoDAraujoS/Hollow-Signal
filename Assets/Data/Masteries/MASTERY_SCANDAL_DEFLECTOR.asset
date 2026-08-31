@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_SCANDAL_DEFLECTOR
   nameKey: NAME_MASTERY_SCANDAL_DEFLECTOR
   descKey: DESC_MASTERY_SCANDAL_DEFLECTOR
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 5200000057000000310000005300000054000000
   penalizedSkills: 

@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_FACTORY_HAND
   nameKey: NAME_MASTERY_FACTORY_HAND
   descKey: DESC_MASTERY_FACTORY_HAND
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 43000000420000001d00000016000000
   penalizedSkills: 

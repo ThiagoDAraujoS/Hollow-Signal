@@ -15,6 +15,7 @@ MonoBehaviour:
   id: MASTERY_BRUTE_BEAST_HUNTER
   nameKey: NAME_MASTERY_BRUTE_BEAST_HUNTER
   descKey: DESC_MASTERY_BRUTE_BEAST_HUNTER
+  level: 1
   icon: {fileID: 0}
   associatedSkills: 5a0000001b000000220000002400000027000000
   penalizedSkills: 
