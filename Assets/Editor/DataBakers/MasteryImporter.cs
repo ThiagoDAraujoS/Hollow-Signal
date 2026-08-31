@@ -9,250 +9,147 @@ using UnityEngine;
 
 namespace Editor.DataBakers{
     /// Unity Editor Tool to parse raw JSON databases, generate or update Mastery ScriptableObjects,
-    /// generate Skill Enums from raw CSVs, and compile English localization values without breaking asset links.
+    /// and compile English localization values without breaking asset links.
     public static class MasteryImporter{
         private const string
             DefaultJsonPath      = "Assets/StreamingAssets/masteries.json",
             TargetAssetFolder    = "Assets/Data/Masteries",
-            LocalizationFilePath = "Assets/StreamingAssets/Localization/masteries_en.txt",
-            DefaultCsvPath       = "Assets/StreamingAssets/skills.csv",
-            SkillEnumScriptPath  = "Assets/Scripts/Core/Data/Skill.cs";
+            LocalizationFilePath = "Assets/StreamingAssets/Localization/masteries_en.txt";
 
-        /// Context Menu command to trigger the Skill Enum generation from CSV.
-        [MenuItem("Tools/CRPG/Import Skills Enum")]
-        public static void ImportSkills(){
-            string csvFilePath = ResolveCsvPath();
-            if (string.IsNullOrEmpty(csvFilePath)) return;
-
-            List<string> skillNames = ParseSkillsFromCsv(csvFilePath);
-            if (skillNames == null || skillNames.Count == 0) return;
-
-            GenerateSkillEnumFile(skillNames);
+        [Serializable]
+        private class MasteryJsonData{
+            public string       name;
+            public string       description;
+            public List<string> bonuses;
         }
 
-        /// Context Menu command to trigger the Mastery ScriptableObject generation.
         [MenuItem("Tools/CRPG/Import Masteries Database")]
-        public static void ImportMasteries(){
-            string jsonFilePath = ResolveJsonPath();
-            if (string.IsNullOrEmpty(jsonFilePath)) return;
-
-            Dictionary<string, RawMasteryData> rawDatabase = LoadDatabase(jsonFilePath);
-            if (rawDatabase == null || rawDatabase.Count == 0) return;
-
-            Debug.Log($"[MasteryImporter] Beginning import of {rawDatabase.Count} masteries...");
-            EnsureDirectoriesExist();
-
-            StringBuilder localizationBuilder = InitializeLocalizationHeader();
-            int           createdCount        = 0;
-            int           updatedCount        = 0;
-
-            foreach (KeyValuePair<string, RawMasteryData> entry in rawDatabase)
-                ProcessMasteryEntry(entry.Key, entry.Value, localizationBuilder, ref createdCount, ref updatedCount);
-
-            FinalizeImport(localizationBuilder.ToString(), createdCount, updatedCount, rawDatabase.Count);
-        }
-
-        // ==========================================
-        // --- SKILLS IMPORTING HELPERS ---
-        // ==========================================
-
-        /// Locates the skills.csv database, prompting the user if the default path is missing.
-        private static string ResolveCsvPath(){
-            if (File.Exists(DefaultCsvPath)) return DefaultCsvPath;
-
-            Debug.LogWarning($"[MasteryImporter] Default skills CSV not found at {DefaultCsvPath}. Opening file panel...");
-            string path = EditorUtility.OpenFilePanel("Select Skills CSV File", "Assets", "csv");
-            return path;
-        }
-
-        /// Reads the CSV file line-by-line, discards the category column, and extracts unique skill names.
-        private static List<string> ParseSkillsFromCsv(string csvPath){
-            List<string>    skillNames   = new();
-            HashSet<string> uniqueSkills = new();
-
-            try{
-                string[] lines = File.ReadAllLines(csvPath);
-                foreach (string line in lines){
-                    if (string.IsNullOrWhiteSpace(line)) continue;
-
-                    string[] parts = line.Split(',');
-                    if (parts.Length < 2) continue;
-
-                    string rawSkillName = parts[1].Trim();
-
-                    rawSkillName = rawSkillName.Replace("\"", "").Replace("'", "").Replace(" ", "").Trim();
-
-                    if (string.IsNullOrEmpty(rawSkillName)) continue;
-
-                    if (uniqueSkills.Add(rawSkillName))
-                        skillNames.Add(rawSkillName);
+        public static void ImportMasteriesDatabase(){
+            string jsonPath = DefaultJsonPath;
+            if (!File.Exists(jsonPath)){
+                // Fallback: Show file panel if not found at default location
+                jsonPath = EditorUtility.OpenFilePanel("Select Masteries JSON Database", "Assets", "json");
+                if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath)){
+                    Debug.LogError($"[MasteryImporter] Masteries JSON database not found at: {DefaultJsonPath}");
+                    return;
                 }
             }
-            catch (Exception ex){
-                Debug.LogError($"[MasteryImporter] Error reading skills CSV file: {ex.Message}");
-                return null;
-            }
 
-            return skillNames;
-        }
+            string jsonContent = File.ReadAllText(jsonPath);
 
-        /// Generates a perfectly formatted, type-safe Skill.cs C# Enum file inside Core.Data.
-        private static void GenerateSkillEnumFile(List<string> skillNames){
+            Dictionary<string, MasteryJsonData> masteriesDict = null;
+
             try{
-                string directory = Path.GetDirectoryName(SkillEnumScriptPath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("//------------------------------------------------------------------------------");
-                sb.AppendLine("// <auto-generated>");
-                sb.AppendLine("//     This code was generated by the CRPG Skill Importer tool.");
-                sb.AppendLine("//     Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                sb.AppendLine("//     Changes to this file may cause incorrect behavior and will be lost if");
-                sb.AppendLine("//     the code is regenerated.");
-                sb.AppendLine("// </auto-generated>");
-                sb.AppendLine("//------------------------------------------------------------------------------");
-                sb.AppendLine();
-                sb.AppendLine("namespace Core.Data{");
-                sb.AppendLine("    /// <summary>");
-                sb.AppendLine("    /// Auto-generated Enum representing all invisible mechanical game skills.");
-                sb.AppendLine("    /// This acts as the absolute type-safe identifier layer for calculations.");
-                sb.AppendLine("    /// </summary>");
-                sb.AppendLine("    public enum Skill{");
-                sb.AppendLine("        None = 0,");
-
-                for (int i = 0; i < skillNames.Count; i++){
-                    string comma = (i == skillNames.Count - 1) ? "" : ",";
-                    sb.AppendLine($"        {skillNames[i]}{comma}");
+                masteriesDict = JsonConvert.DeserializeObject<Dictionary<string, MasteryJsonData>>(jsonContent);
+            }
+            catch (Exception){
+                try{
+                    List<MasteryJsonData> masteriesList = JsonConvert.DeserializeObject<List<MasteryJsonData>>(jsonContent);
+                    if (masteriesList != null){
+                        masteriesDict = new Dictionary<string, MasteryJsonData>();
+                        foreach (MasteryJsonData item in masteriesList)
+                            if (!string.IsNullOrWhiteSpace(item.name))
+                                masteriesDict[item.name] = item;
+                    }
                 }
-
-                sb.AppendLine("    }");
-                sb.AppendLine("}");
-
-                File.WriteAllText(SkillEnumScriptPath, sb.ToString());
-                AssetDatabase.Refresh();
-
-                Debug.Log($"<color=green>[MasteryImporter] SUCCESS! Generated {skillNames.Count} Skills into Skill.cs Enum under Core.Data namespace.</color>");
+                catch (Exception ex){
+                    Debug.LogError($"[MasteryImporter] Failed to parse JSON database: {ex.Message}");
+                    return;
+                }
             }
-            catch (Exception ex){
-                Debug.LogError($"[MasteryImporter] Error writing Skill.cs enum script: {ex.Message}");
+
+            if (masteriesDict == null || masteriesDict.Count == 0){
+                Debug.LogError("[MasteryImporter] Masteries database is empty or could not be parsed.");
+                return;
             }
-        }
-
-        // ==========================================
-        // --- MASTERY IMPORTING HELPERS ---
-        // ==========================================
-
-        /// Locates the masteries.json database, prompting the user if the default path is missing.
-        private static string ResolveJsonPath(){
-            if (File.Exists(DefaultJsonPath)) return DefaultJsonPath;
-
-            Debug.LogWarning($"[MasteryImporter] Default database not found at {DefaultJsonPath}. Opening file panel...");
-            string path = EditorUtility.OpenFilePanel("Select Masteries JSON File", "Assets", "json");
-            return path;
-        }
-
-        /// Reads the physical JSON file and parses it into the temporary data transfer model.
-        private static Dictionary<string, RawMasteryData> LoadDatabase(string path){
-            try{
-                string rawJson = File.ReadAllText(path);
-                
-                Dictionary<string, RawMasteryData> rawDatabase = JsonConvert.DeserializeObject<Dictionary<string, RawMasteryData>>(rawJson);
-
-                if (rawDatabase == null || rawDatabase.Count == 0)
-                    Debug.LogError("[MasteryImporter] Aborted: Loaded JSON is empty or incorrectly structured.");
-                return rawDatabase;
-            }
-            catch (Exception ex){
-                Debug.LogError($"[MasteryImporter] Error reading/deserializing JSON database: {ex.Message}");
-                return null;
-            }
-        }
-
-        /// Guarantees that target folders for both ScriptableObjects and localization data exist on disk.
-        private static void EnsureDirectoriesExist(){
             if (!Directory.Exists(TargetAssetFolder))
                 Directory.CreateDirectory(TargetAssetFolder);
 
-            string locDirectory = Path.GetDirectoryName(LocalizationFilePath);
-            if (!string.IsNullOrEmpty(locDirectory) && !Directory.Exists(locDirectory))
-                Directory.CreateDirectory(locDirectory);
-        }
+            StringBuilder locBuilder = new ();
+            locBuilder.AppendLine("# --- Auto-Generated Mastery Localization Keys ---");
+            locBuilder.AppendLine($"# Generated on: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            locBuilder.AppendLine();
 
-        /// Sets up the initial header configuration lines for the generated localization file.
-        private static StringBuilder InitializeLocalizationHeader(){
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# Auto-Generated Masteries English Database - Do not edit manually!");
-            sb.AppendLine("# Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\n");
-            return sb;
-        }
+            int importedCount = 0;
 
-        /// Handles the generation, keys allocation, and in-place reference update for a single Mastery database record.
-        private static void ProcessMasteryEntry(string rawName, RawMasteryData data, StringBuilder localizationBuilder, ref int createdCount, ref int updatedCount){
-            // 1. Generate identity values & localization keys
-            string cleanId = "MASTERY_" + rawName.ToUpper().Replace(" ", "_");
-            string nameKey = $"MASTERY_NAME_{cleanId}";
-            string descKey = $"MASTERY_DESC_{cleanId}";
+            foreach ((string key, MasteryJsonData data) in masteriesDict){
+                string displayName = string.IsNullOrWhiteSpace(data.name) ? key : data.name;
+                if (string.IsNullOrWhiteSpace(displayName)) continue;
 
-            // 2. Append lines to our localization builder
-            localizationBuilder.AppendLine($"{nameKey} = {data.name}");
-            localizationBuilder.AppendLine($"{descKey} = {data.description}\n");
+                string rawName   = displayName.Trim();
+                string cleanId   = "MASTERY_" + rawName.ToUpper().Replace(" ", "_");
+                string assetName = cleanId + ".asset";
+                string assetPath = Path.Combine(TargetAssetFolder, assetName);
+                
+                string nameKey = $"NAME_{cleanId}";
+                string descKey = $"DESC_{cleanId}";
 
-            // 3. Resolve list of skills to type-safe enums
-            List<Skill> associatedSkills = ParseAssociatedSkills(rawName, data.bonuses);
+                locBuilder.AppendLine($"{nameKey} = \"{rawName}\"");
+                locBuilder.AppendLine($"{descKey} = \"{data.description?.Trim().Replace("\"", "\\\"") ?? ""}\"");
+                locBuilder.AppendLine();
+                
+                ParseMasterySkills(rawName, data.bonuses, out List<Skill> positiveSkills, out List<Skill> penalizedSkills);
+                
+                Mastery masteryAsset = AssetDatabase.LoadAssetAtPath<Mastery>(assetPath);
+                bool    isNew        = false;
 
-            // 4. Save or update the ScriptableObject asset
-            string  assetPath    = $"{TargetAssetFolder}/Mastery_{cleanId}.asset";
-            Mastery masteryAsset = AssetDatabase.LoadAssetAtPath<Mastery>(assetPath);
+                if (masteryAsset == null){
+                    masteryAsset = ScriptableObject.CreateInstance<Mastery>();
+                    isNew        = true;
+                }
 
-            if (masteryAsset == null){
-                masteryAsset = ScriptableObject.CreateInstance<Mastery>();
-                masteryAsset.Initialize(cleanId, nameKey, descKey, associatedSkills);
-                AssetDatabase.CreateAsset(masteryAsset, assetPath);
-                createdCount++;
-            }
-            else{
-                masteryAsset.Initialize(cleanId, nameKey, descKey, associatedSkills);
-                EditorUtility.SetDirty(masteryAsset);
-                updatedCount++;
-            }
-        }
+                masteryAsset.Initialize(cleanId, nameKey, descKey, positiveSkills, penalizedSkills);
 
-        /// Converts the list of raw string bonuses to type-safe Skill enums, preserving duplicates.
-        private static List<Skill> ParseAssociatedSkills(string masteryName, List<string> rawSkills){
-            List<Skill> list = new ();
-            if (rawSkills == null) return list;
-
-            foreach (string rawSkill in rawSkills){
-                string sanitizedSkill = rawSkill.Replace(" ", ""); 
-                if (Enum.TryParse(sanitizedSkill, true, out Skill parsedSkill))
-                    list.Add(parsedSkill);
+                if (isNew)
+                    AssetDatabase.CreateAsset(masteryAsset, assetPath);
                 else
-                    Debug.LogWarning($"[MasteryImporter] Mastery '{masteryName}' contains unknown Skill identifier '{sanitizedSkill}'.");
-            }
-            return list;
-        }
+                    EditorUtility.SetDirty(masteryAsset);
 
-        /// Writes the final masteries_en.txt localization file, saves modified assets, and refreshes the engine.
-        private static void FinalizeImport(string localizationText, int createdCount, int updatedCount, int totalCount){
+                importedCount++;
+            }
+
             try{
-                File.WriteAllText(LocalizationFilePath, localizationText);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-                Debug.Log($"<color=green>[MasteryImporter] SUCCESS! Imported {totalCount} Masteries. (Created: {createdCount}, Updated In-Place: {updatedCount})</color>");
-                Debug.Log($"[MasteryImporter] Localization written successfully to: {LocalizationFilePath}");
+                string locDirectory = Path.GetDirectoryName(LocalizationFilePath);
+                if (!string.IsNullOrEmpty(locDirectory) && !Directory.Exists(locDirectory))
+                    Directory.CreateDirectory(locDirectory);
+                File.WriteAllText(LocalizationFilePath, locBuilder.ToString(), Encoding.UTF8);
             }
             catch (Exception ex){
-                Debug.LogError($"[MasteryImporter] Error committing imported files to disk: {ex.Message}");
+                Debug.LogError($"[MasteryImporter] Error writing localization values to disk: {ex.Message}");
             }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[MasteryImporter] Successfully imported {importedCount} Masteries and compiled Localization.");
         }
 
-        [Serializable]
-        private class RawMasteryData{
-            public string       name;
-            public string       description;
-            public string       image;
-            public List<string> bonuses;
+        private static void ParseMasterySkills(string masteryName, List<string> rawSkills, out List<Skill> positive, out List<Skill> penalized){
+            positive  = new List<Skill>();
+            penalized = new List<Skill>();
+
+            if (rawSkills == null) return;
+
+            foreach (string rawSkill in rawSkills){
+                if (string.IsNullOrWhiteSpace(rawSkill)) continue;
+
+                string trimmedSkill = rawSkill.Trim();
+                bool   isNegative   = false;
+
+                if (trimmedSkill.EndsWith("-")){
+                    isNegative   = true;
+                    trimmedSkill = trimmedSkill.Substring(0, trimmedSkill.Length - 1).Trim();
+                }
+
+                string sanitizedSkill = trimmedSkill.Replace(" ", "");
+
+                if (!Enum.TryParse(sanitizedSkill, true, out Skill parsedSkill))
+                    Debug.LogWarning($"[MasteryImporter] Mastery '{masteryName}' contains unknown Skill identifier '{rawSkill}'.");
+                else
+                    if (isNegative)
+                        penalized.Add(parsedSkill);
+                    else
+                        positive.Add(parsedSkill);
+            }
         }
     }
 }

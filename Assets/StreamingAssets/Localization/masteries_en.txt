@@ -1,192 +1,198 @@
-# Auto-Generated Masteries English Database - Do not edit manually!
-# Generated on: 2026-08-30 15:36:31
+﻿# --- Auto-Generated Mastery Localization Keys ---
+# Generated on: 2026-08-31 00:02:19
 
-MASTERY_NAME_MASTERY_INDUSTRIAL_MAGNATE = Industrial Magnate
-MASTERY_DESC_MASTERY_INDUSTRIAL_MAGNATE = You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning.
+NAME_MASTERY_INDUSTRIAL_MAGNATE = "Industrial Magnate"
+DESC_MASTERY_INDUSTRIAL_MAGNATE = "You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning."
 
-MASTERY_NAME_MASTERY_HIGH_SOCIETY_BROKER = High Society Broker
-MASTERY_DESC_MASTERY_HIGH_SOCIETY_BROKER = You navigate the treacherous ballrooms and salons of the elite, trading in whispers, favors, and lucrative alliances.
+NAME_MASTERY_HIGH_SOCIETY_BROKER = "High Society Broker"
+DESC_MASTERY_HIGH_SOCIETY_BROKER = "You navigate the treacherous ballrooms and salons of the elite, trading in whispers, favors, and lucrative alliances."
 
-MASTERY_NAME_MASTERY_ARTIFACT_SPECULATOR = Artifact Speculator
-MASTERY_DESC_MASTERY_ARTIFACT_SPECULATOR = You fund the expeditions and take the financial risks, gambling your fortune on the unearthing of the next great pre-fall machine.
+NAME_MASTERY_ARTIFACT_SPECULATOR = "Artifact Speculator"
+DESC_MASTERY_ARTIFACT_SPECULATOR = "You fund the expeditions and take the financial risks, gambling your fortune on the unearthing of the next great pre-fall machine."
 
-MASTERY_NAME_MASTERY_UNDERWORLD_PATRON = Underworld Patron
-MASTERY_DESC_MASTERY_UNDERWORLD_PATRON = You are the velvet glove over a rusted iron fist, quietly funding the city's criminal element to execute your unsavory errands.
+NAME_MASTERY_UNDERWORLD_PATRON = "Underworld Patron"
+DESC_MASTERY_UNDERWORLD_PATRON = "You are the velvet glove over a rusted iron fist, quietly funding the city's criminal element to execute your unsavory errands."
 
-MASTERY_NAME_MASTERY_GUILD_SPONSOR = Guild Sponsor
-MASTERY_DESC_MASTERY_GUILD_SPONSOR = You hold the purse strings for the gruff explorers braving the jungle, managing their contracts and reaping the glory of their discoveries.
+NAME_MASTERY_GUILD_SPONSOR = "Guild Sponsor"
+DESC_MASTERY_GUILD_SPONSOR = "You hold the purse strings for the gruff explorers braving the jungle, managing their contracts and reaping the glory of their discoveries."
 
-MASTERY_NAME_MASTERY_SCANDAL_DEFLECTOR = Scandal Deflector
-MASTERY_DESC_MASTERY_SCANDAL_DEFLECTOR = You are a master of public relations, making the lethal malfunctions of aristocratic vanity projects quietly disappear from the public eye.
+NAME_MASTERY_SCANDAL_DEFLECTOR = "Scandal Deflector"
+DESC_MASTERY_SCANDAL_DEFLECTOR = "You are a master of public relations, making the lethal malfunctions of aristocratic vanity projects quietly disappear from the public eye."
 
-MASTERY_NAME_MASTERY_ARCANE_INVESTOR = Arcane Investor
-MASTERY_DESC_MASTERY_ARCANE_INVESTOR = You pour your immense wealth into the laboratories of the Wizards, securing exclusive rights to the latest magical circuitry and experimental tech.
+NAME_MASTERY_ARCANE_INVESTOR = "Arcane Investor"
+DESC_MASTERY_ARCANE_INVESTOR = "You pour your immense wealth into the laboratories of the Wizards, securing exclusive rights to the latest magical circuitry and experimental tech."
 
-MASTERY_NAME_MASTERY_WASTELAND_SURVIVOR = Wasteland Survivor
-MASTERY_DESC_MASTERY_WASTELAND_SURVIVOR = You have survived the brutal elements beyond the city walls longer than most, hardened by starvation, thirst, and the unforgiving jungle.
+NAME_MASTERY_WASTELAND_SURVIVOR = "Wasteland Survivor"
+DESC_MASTERY_WASTELAND_SURVIVOR = "You have survived the brutal elements beyond the city walls longer than most, hardened by starvation, thirst, and the unforgiving jungle."
 
-MASTERY_NAME_MASTERY_MONSTER_HUNTER = Monster Hunter
-MASTERY_DESC_MASTERY_MONSTER_HUNTER = You specialize in tracking and slaughtering the nightmarish aberrations that stalk the ruins, knowing precisely where to strike for the kill.
+NAME_MASTERY_MONSTER_HUNTER = "Monster Hunter"
+DESC_MASTERY_MONSTER_HUNTER = "You specialize in tracking and slaughtering the nightmarish aberrations that stalk the ruins, knowing precisely where to strike for the kill."
 
-MASTERY_NAME_MASTERY_RUIN_DELVER = Ruin Delver
-MASTERY_DESC_MASTERY_RUIN_DELVER = You treat collapsed temples and buried facilities as puzzles, expertly navigating ancient architecture and disarming lethal traps.
+NAME_MASTERY_RUIN_DELVER = "Ruin Delver"
+DESC_MASTERY_RUIN_DELVER = "You treat collapsed temples and buried facilities as puzzles, expertly navigating ancient architecture and disarming lethal traps."
 
-MASTERY_NAME_MASTERY_MYTH_SEEKER = Myth Seeker
-MASTERY_DESC_MASTERY_MYTH_SEEKER = You chase the campfire stories and forbidden legends of the wastes, guided by an intuition for where the greatest artifacts lie hidden.
+NAME_MASTERY_MYTH_SEEKER = "Myth Seeker"
+DESC_MASTERY_MYTH_SEEKER = "You chase the campfire stories and forbidden legends of the wastes, guided by an intuition for where the greatest artifacts lie hidden."
 
-MASTERY_NAME_MASTERY_WASTELAND_WARD = Wasteland Ward
-MASTERY_DESC_MASTERY_WASTELAND_WARD = You act as a living oasis for your expedition, projecting the city's divine influence to ward your allies against the blistering heat and the brutal hazards of the sands.
+NAME_MASTERY_WASTELAND_WARD = "Wasteland Ward"
+DESC_MASTERY_WASTELAND_WARD = "You act as a living oasis for your expedition, projecting the city's divine influence to ward your allies against the blistering heat and the brutal hazards of the sands."
 
-MASTERY_NAME_MASTERY_DUNE_TRACKER = Dune Tracker
-MASTERY_DESC_MASTERY_DUNE_TRACKER = You can find a trail in the middle of a blinding sandstorm, using the harsh winds of Bren's arid wastes to mask your movements.
+NAME_MASTERY_DUNE_TRACKER = "Dune Tracker"
+DESC_MASTERY_DUNE_TRACKER = "You can find a trail in the middle of a blinding sandstorm, using the harsh winds of Bren's arid wastes to mask your movements."
 
-MASTERY_NAME_MASTERY_BRUTE_BEAST_HUNTER = Brute Beast Hunter
-MASTERY_DESC_MASTERY_BRUTE_BEAST_HUNTER = You bring down the desert's most resilient monstrosities, relying on overwhelming force and brutish tactics to physically shatter their natural defenses.
+NAME_MASTERY_BRUTE_BEAST_HUNTER = "Brute Beast Hunter"
+DESC_MASTERY_BRUTE_BEAST_HUNTER = "You bring down the desert's most resilient monstrosities, relying on overwhelming force and brutish tactics to physically shatter their natural defenses."
 
-MASTERY_NAME_MASTERY_CIRCLE_HIEROPHANT = Circle Hierophant
-MASTERY_DESC_MASTERY_CIRCLE_HIEROPHANT = You sit at the upper echelons of the faith, commanding the masses and safeguarding the deepest, most dangerous secrets of the city's plane-formation.
+NAME_MASTERY_CIRCLE_HIEROPHANT = "Circle Hierophant"
+DESC_MASTERY_CIRCLE_HIEROPHANT = "You sit at the upper echelons of the faith, commanding the masses and safeguarding the deepest, most dangerous secrets of the city's plane-formation."
 
-MASTERY_NAME_MASTERY_MAINTENANCE_PRIEST = Maintenance Priest
-MASTERY_DESC_MASTERY_MAINTENANCE_PRIEST = You view the city's massive engines as holy relics, blending religious devotion with the greasy, hands-on work of keeping the gears turning.
+NAME_MASTERY_MAINTENANCE_PRIEST = "Maintenance Priest"
+DESC_MASTERY_MAINTENANCE_PRIEST = "You view the city's massive engines as holy relics, blending religious devotion with the greasy, hands-on work of keeping the gears turning."
 
-MASTERY_NAME_MASTERY_INQUISITOR_OF_THE_CIRCLE = Inquisitor of the Circle
-MASTERY_DESC_MASTERY_INQUISITOR_OF_THE_CIRCLE = You are the terrifying hand of the church, rooting out heresy, unauthorized magic, and those who ask too many questions.
+NAME_MASTERY_INQUISITOR_OF_THE_CIRCLE = "Inquisitor of the Circle"
+DESC_MASTERY_INQUISITOR_OF_THE_CIRCLE = "You are the terrifying hand of the church, rooting out heresy, unauthorized magic, and those who ask too many questions."
 
-MASTERY_NAME_MASTERY_MASS_CELEBRANT = Mass Celebrant
-MASTERY_DESC_MASTERY_MASS_CELEBRANT = You are the charismatic voice of the faith, leading the congregations in grand rituals and keeping the populace pacified and devout.
+NAME_MASTERY_MASS_CELEBRANT = "Mass Celebrant"
+DESC_MASTERY_MASS_CELEBRANT = "You are the charismatic voice of the faith, leading the congregations in grand rituals and keeping the populace pacified and devout."
 
-MASTERY_NAME_MASTERY_TEMPLE_SCHOLAR = Temple Scholar
-MASTERY_DESC_MASTERY_TEMPLE_SCHOLAR = You dwell in the dust of the holy libraries, piecing together the true history of Bren and the sacred blueprints of its architecture.
+NAME_MASTERY_TEMPLE_SCHOLAR = "Temple Scholar"
+DESC_MASTERY_TEMPLE_SCHOLAR = "You dwell in the dust of the holy libraries, piecing together the true history of Bren and the sacred blueprints of its architecture."
 
-MASTERY_NAME_MASTERY_OMEN_READER = Omen Reader
-MASTERY_DESC_MASTERY_OMEN_READER = You study the subtle shifts in arcane energy and natural phenomena, predicting disasters and divine will through artifacts and the weather.
+NAME_MASTERY_OMEN_READER = "Omen Reader"
+DESC_MASTERY_OMEN_READER = "You study the subtle shifts in arcane energy and natural phenomena, predicting disasters and divine will through artifacts and the weather."
 
-MASTERY_NAME_MASTERY_MORAL_ARBITER = Moral Arbiter
-MASTERY_DESC_MASTERY_MORAL_ARBITER = You are the judge of spiritual purity in the city, using theological debate and strict law to steer the populace away from forbidden temptations.
+NAME_MASTERY_MORAL_ARBITER = "Moral Arbiter"
+DESC_MASTERY_MORAL_ARBITER = "You are the judge of spiritual purity in the city, using theological debate and strict law to steer the populace away from forbidden temptations."
 
-MASTERY_NAME_MASTERY_UNDERBELLY_STOWAWAY = Underbelly Stowaway
-MASTERY_DESC_MASTERY_UNDERBELLY_STOWAWAY = You are a ghost in the city's slums, surviving in the forgotten cracks of Bren by staying unseen and scavenging what the rich throw away.
+NAME_MASTERY_UNDERBELLY_STOWAWAY = "Underbelly Stowaway"
+DESC_MASTERY_UNDERBELLY_STOWAWAY = "You are a ghost in the city's slums, surviving in the forgotten cracks of Bren by staying unseen and scavenging what the rich throw away."
 
-MASTERY_NAME_MASTERY_CORPORATE_SABOTEUR = Corporate Saboteur
-MASTERY_DESC_MASTERY_CORPORATE_SABOTEUR = You are paid to cripple rival industries, slipping into heavily guarded factories to sever arcane circuits and jam the gears.
+NAME_MASTERY_CORPORATE_SABOTEUR = "Corporate Saboteur"
+DESC_MASTERY_CORPORATE_SABOTEUR = "You are paid to cripple rival industries, slipping into heavily guarded factories to sever arcane circuits and jam the gears."
 
-MASTERY_NAME_MASTERY_CAT_BURGLAR = Cat Burglar
-MASTERY_DESC_MASTERY_CAT_BURGLAR = You scale the sheer walls of aristocratic estates, bypassing locks and security measures to steal priceless artifacts from under their noses.
+NAME_MASTERY_CAT_BURGLAR = "Cat Burglar"
+DESC_MASTERY_CAT_BURGLAR = "You scale the sheer walls of aristocratic estates, bypassing locks and security measures to steal priceless artifacts from under their noses."
 
-MASTERY_NAME_MASTERY_CHAMELEON_INFILTRATOR = Chameleon Infiltrator
-MASTERY_DESC_MASTERY_CHAMELEON_INFILTRATOR = You are a master of disguise and social blending, able to walk into a high-society gala or a dockside tavern and belong perfectly.
+NAME_MASTERY_CHAMELEON_INFILTRATOR = "Chameleon Infiltrator"
+DESC_MASTERY_CHAMELEON_INFILTRATOR = "You are a master of disguise and social blending, able to walk into a high-society gala or a dockside tavern and belong perfectly."
 
-MASTERY_NAME_MASTERY_ARCANE_DISRUPTOR = Arcane Disruptor
-MASTERY_DESC_MASTERY_ARCANE_DISRUPTOR = You understand just enough magic to break it, short-circuiting magical locks and overloading defensive runes with a flick of the wrist.
+NAME_MASTERY_ARCANE_DISRUPTOR = "Arcane Disruptor"
+DESC_MASTERY_ARCANE_DISRUPTOR = "You understand just enough magic to break it, short-circuiting magical locks and overloading defensive runes with a flick of the wrist."
 
-MASTERY_NAME_MASTERY_SHADOW_COURIER = Shadow Courier
-MASTERY_DESC_MASTERY_SHADOW_COURIER = You move illicit goods across the city's rooftops and sewers, relying on speed and absolute silence to avoid the guard patrols.
+NAME_MASTERY_SHADOW_COURIER = "Shadow Courier"
+DESC_MASTERY_SHADOW_COURIER = "You move illicit goods across the city's rooftops and sewers, relying on speed and absolute silence to avoid the guard patrols."
 
-MASTERY_NAME_MASTERY_ALLEYWAY_INFORMANT = Alleyway Informant
-MASTERY_DESC_MASTERY_ALLEYWAY_INFORMANT = You are the eyes and ears of the streets, trading secrets, reading people, and knowing exactly who to talk to when trouble brews.
+NAME_MASTERY_ALLEYWAY_INFORMANT = "Alleyway Informant"
+DESC_MASTERY_ALLEYWAY_INFORMANT = "You are the eyes and ears of the streets, trading secrets, reading people, and knowing exactly who to talk to when trouble brews."
 
-MASTERY_NAME_MASTERY_CONTRACT_THIEF = Contract Thief
-MASTERY_DESC_MASTERY_CONTRACT_THIEF = You are a professional acquirer of things, meticulously planning heists to lift specific, highly guarded artifacts for wealthy clients.
+NAME_MASTERY_CONTRACT_THIEF = "Contract Thief"
+DESC_MASTERY_CONTRACT_THIEF = "You are a professional acquirer of things, meticulously planning heists to lift specific, highly guarded artifacts for wealthy clients."
 
-MASTERY_NAME_MASTERY_BEAT_COP = Beat Cop
-MASTERY_DESC_MASTERY_BEAT_COP = You walk the grimy streets of the lower tiers, relying on your fists, your commanding presence, and your knowledge of the local gangs to keep order.
+NAME_MASTERY_BEAT_COP = "Beat Cop"
+DESC_MASTERY_BEAT_COP = "You walk the grimy streets of the lower tiers, relying on your fists, your commanding presence, and your knowledge of the local gangs to keep order."
 
-MASTERY_NAME_MASTERY_PRECINCT_INVESTIGATOR = Precinct Investigator
-MASTERY_DESC_MASTERY_PRECINCT_INVESTIGATOR = You piece together the aftermath of the city's crimes, tracking suspects, scrying through forged documents, and finding the truth.
+NAME_MASTERY_PRECINCT_INVESTIGATOR = "Precinct Investigator"
+DESC_MASTERY_PRECINCT_INVESTIGATOR = "You piece together the aftermath of the city's crimes, tracking suspects, scrying through forged documents, and finding the truth."
 
-MASTERY_NAME_MASTERY_HEAVY_ENFORCER = Heavy Enforcer
-MASTERY_DESC_MASTERY_HEAVY_ENFORCER = You are the blunt instrument of the law, heavily armored and armed with crushing weapons to break up riots and smash resistance.
+NAME_MASTERY_HEAVY_ENFORCER = "Heavy Enforcer"
+DESC_MASTERY_HEAVY_ENFORCER = "You are the blunt instrument of the law, heavily armored and armed with crushing weapons to break up riots and smash resistance."
 
-MASTERY_NAME_MASTERY_GATE_WATCHMAN = Gate Watchman
-MASTERY_DESC_MASTERY_GATE_WATCHMAN = You stand between the safety of Bren and the horrors of the jungle, trained to spot smugglers, monsters, and trouble from a mile away.
+NAME_MASTERY_GATE_WATCHMAN = "Gate Watchman"
+DESC_MASTERY_GATE_WATCHMAN = "You stand between the safety of Bren and the horrors of the jungle, trained to spot smugglers, monsters, and trouble from a mile away."
 
-MASTERY_NAME_MASTERY_CIRCLE_SWORDSMAN = Circle Swordsman
-MASTERY_DESC_MASTERY_CIRCLE_SWORDSMAN = You are an elite, highly trained duelist for the city, using disciplined martial tactics to disarm and dismantle your opponents.
+NAME_MASTERY_CIRCLE_SWORDSMAN = "Circle Swordsman"
+DESC_MASTERY_CIRCLE_SWORDSMAN = "You are an elite, highly trained duelist for the city, using disciplined martial tactics to disarm and dismantle your opponents."
 
-MASTERY_NAME_MASTERY_RIOT_SUPPRESSOR = Riot Suppressor
-MASTERY_DESC_MASTERY_RIOT_SUPPRESSOR = You hold the line when the commonry boils over, trained in crowd control, physical endurance, and the psychological tactics of mass intimidation.
+NAME_MASTERY_RIOT_SUPPRESSOR = "Riot Suppressor"
+DESC_MASTERY_RIOT_SUPPRESSOR = "You hold the line when the commonry boils over, trained in crowd control, physical endurance, and the psychological tactics of mass intimidation."
 
-MASTERY_NAME_MASTERY_MILITARY_GENERAL = Military General
-MASTERY_DESC_MASTERY_MILITARY_GENERAL = You orchestrate the macro-defenses of the city, navigating aristocratic politics while commanding the tactical deployment of troops.
+NAME_MASTERY_MILITARY_GENERAL = "Military General"
+DESC_MASTERY_MILITARY_GENERAL = "You orchestrate the macro-defenses of the city, navigating aristocratic politics while commanding the tactical deployment of troops."
 
-MASTERY_NAME_MASTERY_MASTER_MASON = Master Mason
-MASTERY_DESC_MASTERY_MASTER_MASON = You built the walls that keep the jungle out, possessing an intimate understanding of structural integrity and the sheer strength to shape stone.
+NAME_MASTERY_MASTER_MASON = "Master Mason"
+DESC_MASTERY_MASTER_MASON = "You built the walls that keep the jungle out, possessing an intimate understanding of structural integrity and the sheer strength to shape stone."
 
-MASTERY_NAME_MASTERY_CIRCLE_FARMER = Circle Farmer
-MASTERY_DESC_MASTERY_CIRCLE_FARMER = You coax life from the toxic, dry soil of the city's outskirts, surviving the grueling elements to feed the masses.
+NAME_MASTERY_CIRCLE_FARMER = "Circle Farmer"
+DESC_MASTERY_CIRCLE_FARMER = "You coax life from the toxic, dry soil of the city's outskirts, surviving the grueling elements to feed the masses."
 
-MASTERY_NAME_MASTERY_STREET_ALCHEMIST = Street Alchemist
-MASTERY_DESC_MASTERY_STREET_ALCHEMIST = You brew volatile mixtures in makeshift labs, creating cheap medicines, chemical explosives, and chemical solutions for everyday problems.
+NAME_MASTERY_STREET_ALCHEMIST = "Street Alchemist"
+DESC_MASTERY_STREET_ALCHEMIST = "You brew volatile mixtures in makeshift labs, creating cheap medicines, chemical explosives, and chemical solutions for everyday problems."
 
-MASTERY_NAME_MASTERY_FACTORY_HAND = Factory Hand
-MASTERY_DESC_MASTERY_FACTORY_HAND = You have survived years in the deafening, toxic belly of Bren's industrial sector, learning how to keep the rusted machines from exploding.
+NAME_MASTERY_FACTORY_HAND = "Factory Hand"
+DESC_MASTERY_FACTORY_HAND = "You have survived years in the deafening, toxic belly of Bren's industrial sector, learning how to keep the rusted machines from exploding."
 
-MASTERY_NAME_MASTERY_CARAVAN_DRIVER = Caravan Driver
-MASTERY_DESC_MASTERY_CARAVAN_DRIVER = You haul goods across the treacherous roads of the city and its immediate borders, skilled in rapid repairs and evasive driving.
+NAME_MASTERY_CARAVAN_DRIVER = "Caravan Driver"
+DESC_MASTERY_CARAVAN_DRIVER = "You haul goods across the treacherous roads of the city and its immediate borders, skilled in rapid repairs and evasive driving."
 
-MASTERY_NAME_MASTERY_MARKET_TRADER = Market Trader
-MASTERY_DESC_MASTERY_MARKET_TRADER = You run the bustling bazaars, haggling over scraps and reading the intentions of desperate buyers and shady suppliers alike.
+NAME_MASTERY_MARKET_TRADER = "Market Trader"
+DESC_MASTERY_MARKET_TRADER = "You run the bustling bazaars, haggling over scraps and reading the intentions of desperate buyers and shady suppliers alike."
 
-MASTERY_NAME_MASTERY_TOUGH_LABORER = Tough Laborer
-MASTERY_DESC_MASTERY_TOUGH_LABORER = You are the backbone of the city's physical expansion, relying on raw strength, calloused hands, and a high tolerance for pain.
+NAME_MASTERY_TOUGH_LABORER = "Tough Laborer"
+DESC_MASTERY_TOUGH_LABORER = "You are the backbone of the city's physical expansion, relying on raw strength, calloused hands, and a high tolerance for pain."
 
-MASTERY_NAME_MASTERY_CIRCUIT_ENGINEER = Circuit Engineer
-MASTERY_DESC_MASTERY_CIRCUIT_ENGINEER = You design the magical pathways that power Bren's revolution, merging arcane theory with the practical reality of copper and wire.
+NAME_MASTERY_CIRCUIT_ENGINEER = "Circuit Engineer"
+DESC_MASTERY_CIRCUIT_ENGINEER = "You design the magical pathways that power Bren's revolution, merging arcane theory with the practical reality of copper and wire."
 
-MASTERY_NAME_MASTERY_ARTIFACT_RESEARCHER = Artifact Researcher
-MASTERY_DESC_MASTERY_ARTIFACT_RESEARCHER = You push your mind to the brink of madness trying to understand the terrifying relics pulled from the ruins, uncovering their true nature.
+NAME_MASTERY_ARTIFACT_RESEARCHER = "Artifact Researcher"
+DESC_MASTERY_ARTIFACT_RESEARCHER = "You push your mind to the brink of madness trying to understand the terrifying relics pulled from the ruins, uncovering their true nature."
 
-MASTERY_NAME_MASTERY_CONTAINMENT_SPECIALIST = Containment Specialist
-MASTERY_DESC_MASTERY_CONTAINMENT_SPECIALIST = You are called when an artifact wakes up, using dampening fields and arcane wards to prevent catastrophic magical meltdowns.
+NAME_MASTERY_CONTAINMENT_SPECIALIST = "Containment Specialist"
+DESC_MASTERY_CONTAINMENT_SPECIALIST = "You are called when an artifact wakes up, using dampening fields and arcane wards to prevent catastrophic magical meltdowns."
 
-MASTERY_NAME_MASTERY_ARCANE_INVENTOR = Arcane Inventor
-MASTERY_DESC_MASTERY_ARCANE_INVENTOR = You tinker at the bleeding edge of science and magic, creating prototype tools and experimental mixtures that defy natural law.
+NAME_MASTERY_ARCANE_INVENTOR = "Arcane Inventor"
+DESC_MASTERY_ARCANE_INVENTOR = "You tinker at the bleeding edge of science and magic, creating prototype tools and experimental mixtures that defy natural law."
 
-MASTERY_NAME_MASTERY_INDUSTRIAL_TECHNOMANCER = Industrial Technomancer
-MASTERY_DESC_MASTERY_INDUSTRIAL_TECHNOMANCER = You interface directly with the city's largest, most dangerous engines, keeping the volatile mix of steam and magic stable.
+NAME_MASTERY_INDUSTRIAL_TECHNOMANCER = "Industrial Technomancer"
+DESC_MASTERY_INDUSTRIAL_TECHNOMANCER = "You interface directly with the city's largest, most dangerous engines, keeping the volatile mix of steam and magic stable."
 
-MASTERY_NAME_MASTERY_WASTELAND_SCHOLAR = Wasteland Scholar
-MASTERY_DESC_MASTERY_WASTELAND_SCHOLAR = You document the esoteric lore of the jungle and its ruins, bridging the gap between high academia and the gritty reality of the explorers.
+NAME_MASTERY_WASTELAND_SCHOLAR = "Wasteland Scholar"
+DESC_MASTERY_WASTELAND_SCHOLAR = "You document the esoteric lore of the jungle and its ruins, bridging the gap between high academia and the gritty reality of the explorers."
 
-MASTERY_NAME_MASTERY_ROGUE_ARCANIST = Rogue Arcanist
-MASTERY_DESC_MASTERY_ROGUE_ARCANIST = You operate outside the sanctioned labs, conducting highly illegal, dangerous experiments with artifacts that the Aristocracy deems too volatile.
+NAME_MASTERY_ROGUE_ARCANIST = "Rogue Arcanist"
+DESC_MASTERY_ROGUE_ARCANIST = "You operate outside the sanctioned labs, conducting highly illegal, dangerous experiments with artifacts that the Aristocracy deems too volatile."
 
-MASTERY_NAME_MASTERY_SCRAP-WASTE_HERETIC = Scrap-Waste Heretic
-MASTERY_DESC_MASTERY_SCRAP-WASTE_HERETIC = You are a feral outcast of the wastes, surviving the toxic sands by forming sacred, heretical bonds with the desert's mechanical beasts and the dark entities that command them.
+NAME_MASTERY_SCRAP-WASTE_HERETIC = "Scrap-Waste Heretic"
+DESC_MASTERY_SCRAP-WASTE_HERETIC = "You are a feral outcast of the wastes, surviving the toxic sands by forming sacred, heretical bonds with the desert's mechanical beasts and the dark entities that command them."
 
-MASTERY_NAME_MASTERY_HAIR-TRIGGER_SENSES = Hair-Trigger Senses
-MASTERY_DESC_MASTERY_HAIR-TRIGGER_SENSES = The wastes do not forgive the blind or the deaf. Your senses have been sharpened to a razor's edge, giving you the twitch-reflexes needed to survive the unseen horrors of the desert.
+NAME_MASTERY_HAIR-TRIGGER_SENSES = "Hair-Trigger Senses"
+DESC_MASTERY_HAIR-TRIGGER_SENSES = "The wastes do not forgive the blind or the deaf. Your senses have been sharpened to a razor's edge, giving you the twitch-reflexes needed to survive the unseen horrors of the desert."
 
-MASTERY_NAME_MASTERY_SWORD_FIGHTER = Sword Fighter
-MASTERY_DESC_MASTERY_SWORD_FIGHTER = You are a blur of steel in the wastes, keeping your eyes locked on your opponent to sidestep their strikes and punish their slightest mistakes.
+NAME_MASTERY_SWORD_FIGHTER = "Sword Fighter"
+DESC_MASTERY_SWORD_FIGHTER = "You are a blur of steel in the wastes, keeping your eyes locked on your opponent to sidestep their strikes and punish their slightest mistakes."
 
-MASTERY_NAME_MASTERY_HAMMER_FIGHER = Hammer Figher
-MASTERY_DESC_MASTERY_HAMMER_FIGHER = You are a walking engine of blunt force, built to shrug off punishing blows while you crush armor, bone, and morale under the massive weight of your hammer.
+NAME_MASTERY_HAMMER_FIGHER = "Hammer Figher"
+DESC_MASTERY_HAMMER_FIGHER = "You are a walking engine of blunt force, built to shrug off punishing blows while you crush armor, bone, and morale under the massive weight of your hammer."
 
-MASTERY_NAME_MASTERY_ARCANE_BOMBARDIER = Arcane Bombardier
-MASTERY_DESC_MASTERY_ARCANE_BOMBARDIER = Subtlety is a luxury you discarded for raw, explosive power. You can read the invisible currents of arcane energy and reduce heavily armored targets to smoking craters from a distance.
+NAME_MASTERY_ARCANE_BOMBARDIER = "Arcane Bombardier"
+DESC_MASTERY_ARCANE_BOMBARDIER = "Subtlety is a luxury you discarded for raw, explosive power. You can read the invisible currents of arcane energy and reduce heavily armored targets to smoking craters from a distance."
 
-MASTERY_NAME_MASTERY_NATURAL_CHARMER = Natural Charmer
-MASTERY_DESC_MASTERY_NATURAL_CHARMER = You have an uncanny ability to read a room and tell people exactly what they want to hear, defusing tension or swindling fools with a disarming smile.
+NAME_MASTERY_NATURAL_CHARMER = "Natural Charmer"
+DESC_MASTERY_NATURAL_CHARMER = "You have an uncanny ability to read a room and tell people exactly what they want to hear, defusing tension or swindling fools with a disarming smile."
 
-MASTERY_NAME_MASTERY_IRON-WILLED = Iron-Willed
-MASTERY_DESC_MASTERY_IRON-WILLED = You simply refuse to yield. Whether facing psychic intrusion, unbearable pain, or someone trying to manipulate you, your mind is an absolute fortress.
+NAME_MASTERY_IRON-WILLED = "Iron-Willed"
+DESC_MASTERY_IRON-WILLED = "You simply refuse to yield. Whether facing psychic intrusion, unbearable pain, or someone trying to manipulate you, your mind is an absolute fortress."
 
-MASTERY_NAME_MASTERY_CALLOUSED_SURVIVOR = Calloused Survivor
-MASTERY_DESC_MASTERY_CALLOUSED_SURVIVOR = You have been beaten, broken, and burned so many times that pain has just become another background noise you can easily ignore.
+NAME_MASTERY_CALLOUSED_SURVIVOR = "Calloused Survivor"
+DESC_MASTERY_CALLOUSED_SURVIVOR = "You have been beaten, broken, and burned so many times that pain has just become another background noise you can easily ignore."
 
-MASTERY_NAME_MASTERY_CONTORTIONIST = Contortionist
-MASTERY_DESC_MASTERY_CONTORTIONIST = You possess an uncanny, almost unnatural flexibility, allowing you to slip out of grapples, squeeze into rusted ventilation shafts, and maintain perfect footing.
+NAME_MASTERY_CONTORTIONIST = "Contortionist"
+DESC_MASTERY_CONTORTIONIST = "You possess an uncanny, almost unnatural flexibility, allowing you to slip out of grapples, squeeze into rusted ventilation shafts, and maintain perfect footing."
 
-MASTERY_NAME_MASTERY_HEAVYWEIGHT = Heavyweight
-MASTERY_DESC_MASTERY_HEAVYWEIGHT = You are built like a brick wall. Your sheer mass makes you incredibly difficult to move, and when you put your weight into something, it breaks.
+NAME_MASTERY_HEAVYWEIGHT = "Heavyweight"
+DESC_MASTERY_HEAVYWEIGHT = "You are built like a brick wall. Your sheer mass makes you incredibly difficult to move, and when you put your weight into something, it breaks."
 
-MASTERY_NAME_MASTERY_FATE-TOUCHED = Fate-Touched
-MASTERY_DESC_MASTERY_FATE-TOUCHED = You shouldn't be alive, yet things always seem to inexplicably work out in your favor right before disaster strikes.
+NAME_MASTERY_FATE-TOUCHED = "Fate-Touched"
+DESC_MASTERY_FATE-TOUCHED = "You shouldn't be alive, yet things always seem to inexplicably work out in your favor right before disaster strikes."
 
-MASTERY_NAME_MASTERY_LORE_SAVANT = Lore Savant
-MASTERY_DESC_MASTERY_LORE_SAVANT = Once you see a schematic or read an ancient text, it is permanently burned into your mind, making you a walking encyclopedia of the old world.
+NAME_MASTERY_LORE_SAVANT = "Lore Savant"
+DESC_MASTERY_LORE_SAVANT = "Once you see a schematic or read an ancient text, it is permanently burned into your mind, making you a walking encyclopedia of the old world."
 
-MASTERY_NAME_MASTERY_JURY-RIGGER = Jury-Rigger
-MASTERY_DESC_MASTERY_JURY-RIGGER = You can look at a pile of rusted trash and see a solution. You have an innate knack for cobbling together temporary fixes from completely unrelated parts.
+NAME_MASTERY_JURY-RIGGER = "Jury-Rigger"
+DESC_MASTERY_JURY-RIGGER = "You can look at a pile of rusted trash and see a solution. You have an innate knack for cobbling together temporary fixes from completely unrelated parts."
+
+NAME_MASTERY_BIOMETAL_SEPSIS = "Biometal Sepsis"
+DESC_MASTERY_BIOMETAL_SEPSIS = "Your blood is fighting a losing battle against the invasive metallic corruption introduced by a wound from the sharp iron barbs and toxic grease of Bren's biometal fauna. The infection stiffens your joints and sends agonizing, erratic shocks through your nervous system, making rapid movement or delicate mechanical work incredibly painful."
+
+NAME_MASTERY_PRECOGNITIVE_MIGRAINE = "Precognitive Migraine"
+DESC_MASTERY_PRECOGNITIVE_MIGRAINE = "Lingering exposure to volatile agricultural oil has left a chaotic hum in your skull, forcing you to suffer agonizing precognitive nightmares even while awake. These terrifying, momentary flashes of the future interrupt your focus, making it incredibly difficult to concentrate on complex investigations or hold a steady conversation without losing your train of thought."
 

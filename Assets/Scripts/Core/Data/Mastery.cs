@@ -20,23 +20,24 @@ namespace Core.Data{
         [Header("Engine Mechanics")]
         [Tooltip("The list of skills this mastery boosts. Duplicate entries represent stacked bonuses (e.g., +2).")]
         [SerializeField] private List<Skill> associatedSkills = new();
-
-        public string Id => id;
+        [SerializeField] private List<Skill> penalizedSkills = new();
+        
+        public                   string      Id => id;
         
         // Dynamic translation resolution on access!
         public string               LocalizedName        => LocalizationManager.Get(nameKey);
         public string               LocalizedDescription => LocalizationManager.Get(descKey);
         public Sprite               Icon                 => icon;
         public IReadOnlyList<Skill> AssociatedSkills     => associatedSkills;
-
-        /// <summary>
+        public IReadOnlyList<Skill> PenalizedSkills      => penalizedSkills;
+        
         /// Populates or updates the mastery's parameters during automatic importing.
-        /// </summary>
-        public void Initialize(string masteryId, string nameK, string descK, List<Skill> skills){
-            id               = masteryId;
-            nameKey          = nameK;
-            descKey          = descK;
-            associatedSkills = skills;
+        public void Initialize(string masteryId, string nameK, string descK, List<Skill> associated, List<Skill> penalized){
+            id                    = masteryId;
+            nameKey               = nameK;
+            descKey               = descK;
+            associatedSkills = associated;
+            penalizedSkills  = penalized;
         }
     }
 }

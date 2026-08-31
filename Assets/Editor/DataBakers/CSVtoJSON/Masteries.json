@@ -2,7 +2,7 @@
   "Industrial Magnate": {
     "name": "Industrial Magnate",
     "description": "You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning.",
-    "image": "",
+    "image": "Good news! I am now officially qualified to yell at rich people, fix a boiler, and tell you exactly how much this glowing death-relic is worth. It's a very specific resume.",
     "bonuses": [
       "ParleyAristocrats",
       "NavigateBureaucracy",
@@ -728,6 +728,29 @@
       "FixMachinery",
       "ForageReagents",
       "BrewAlchemy"
+    ]
+  },
+  "Biometal Sepsis": {
+    "name": "Biometal Sepsis",
+    "description": "Your blood is fighting a losing battle against the invasive metallic corruption introduced by a wound from the sharp iron barbs and toxic grease of Bren's biometal fauna. The infection stiffens your joints and sends agonizing, erratic shocks through your nervous system, making rapid movement or delicate mechanical work incredibly painful.",
+    "image": "",
+    "bonuses": [
+      "EndureCognitiveStrain-",
+      "Evade-",
+      "Climb-",
+      "Sprint-"
+    ]
+  },
+  "Precognitive Migraine": {
+    "name": "Precognitive Migraine",
+    "description": "Lingering exposure to volatile agricultural oil has left a chaotic hum in your skull, forcing you to suffer agonizing precognitive nightmares even while awake. These terrifying, momentary flashes of the future interrupt your focus, making it incredibly difficult to concentrate on complex investigations or hold a steady conversation without losing your train of thought.",
+    "image": "",
+    "bonuses": [
+      "Spot-",
+      "Persuade-",
+      "ScryDocuments-",
+      "Tinker-",
+      "ScribeArcaneCircuits-"
     ]
   }
 }
