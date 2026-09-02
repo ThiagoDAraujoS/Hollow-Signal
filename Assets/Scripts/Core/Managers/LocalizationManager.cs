@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Core{
+namespace Core.Managers{
     /// MonoBehaviour-backed localization manager supporting plaintext file parsing and a clean static facade.
     public class LocalizationManager : MonoBehaviour{
         public static event Action OnLanguageChanged;

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 using Partition = System.Collections.Generic.Dictionary<string, object>;
 
-namespace Core{
+namespace Core.Managers{
     [DisallowMultipleComponent]
     public class BlackBoard : MonoBehaviour{
         public Dictionary<string, Partition> Partitions{ get; } = new(StringComparer.OrdinalIgnoreCase);

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using Core;
+using Data;
 using UnityEngine;
 using Partition = System.Collections.Generic.Dictionary<string, object>;
 
-namespace Core.Data {
+namespace Actors.Player {
     [DisallowMultipleComponent]
     public class CharacterSheet : TrackedBehaviour {
         public Tracked<int> level = new("level", 1);

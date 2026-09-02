@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.Data{
+namespace Data{
     /// A high-performance, global registry for all Mastery ScriptableObjects in the game.
     /// Utilizes Unity's modern "Preloaded Assets" feature to establish a scene-agnostic Singleton Instance
     /// at game boot without legacy Resources folders, complex file IO, or scene reference dragging.

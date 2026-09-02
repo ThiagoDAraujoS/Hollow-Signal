@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Core{
+namespace Core.Managers{
     /// Pure data transfer object representing save file details for UI binding.
     public class SaveFileMetadata{
         public string   displayName;

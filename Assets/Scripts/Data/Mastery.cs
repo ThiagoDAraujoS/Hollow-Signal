@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Core.Managers;
 using UnityEngine;
 
-namespace Core.Data{
+namespace Data{
     [Serializable]
     public class RequirementRule{
         public string key;
