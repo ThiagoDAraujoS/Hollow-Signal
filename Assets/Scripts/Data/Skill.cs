@@ -1,4 +1,4 @@
-﻿namespace Core.Data
+﻿namespace Data
 {
     /// Auto-generated Skill enum mapping to the spreadsheet skills list database.
     public enum Skill
