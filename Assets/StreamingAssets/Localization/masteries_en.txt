@@ -1,5 +1,5 @@
 ﻿# --- Auto-Generated Mastery Localization Keys ---
-# Generated on: 2026-08-31 16:23:59
+# Generated on: 2026-08-31 19:34:45
 
 NAME_MASTERY_INDUSTRIAL_MAGNATE = "Industrial Magnate"
 DESC_MASTERY_INDUSTRIAL_MAGNATE = "You oversee the massive, grinding factories of Bren, leveraging wealth and authority to keep the artifact-fueled engines turning."

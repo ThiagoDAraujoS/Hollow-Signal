@@ -1,67 +1,134 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Newtonsoft.Json;
 
 namespace Core{
-    /// Pure data transfer object representing a single save file snapshot.
-    public class SaveData{
-        /// Serialized global blackboard variables.
-        public Dictionary<string, float> globalData = new();
-
-        /// Serialized scene-specific blackboard boards mapped by scene name.
-        public Dictionary<string, Dictionary<string, float>> sceneData = new();
-
-        /// Serialized entity-specific blackboard boards mapped by UUID.
-        public Dictionary<string, Dictionary<string, float>> entityData = new();
+    /// Pure data transfer object representing save file details for UI binding.
+    public class SaveFileMetadata{
+        public string   displayName;
+        public string   saveName;
+        public DateTime lastWriteTime;
+        public bool     isAutosave;
     }
 
-    /// Handles physical disk operations using slot-based JSON file serialization.
-    public static class SaveLoadManager{
-        /// The physical directory on the local system where save files are written.
-        private static readonly string SAVE_DIRECTORY = Application.persistentDataPath;
+    /// Handles physical disk operations using slot or string-based JSON file serialization.
+    public class SaveSystem : MonoBehaviour{
+        private BlackBoard _blackBoard;
 
-        /// Generates the absolute physical system path for a specific save slot.
-        public static string GetSaveFilePath(int slot) => Path.Combine(SAVE_DIRECTORY, $"savegame_{slot:D2}.json");
+        public string saveFileName = "savegame_01";
+        public string loadFileName = "savegame_01";
 
-        /// Captures the current Blackboard state and writes it as an indented JSON file to disk.
-        public static void SaveGame(int slot){
-            SaveData savePackage = Blackboard.ExportSavePackage();
-            string   json        = JsonConvert.SerializeObject(savePackage, Formatting.Indented);
-            string   path        = GetSaveFilePath(slot);
+        public static BlackBoard BlackBoard  => Instance._blackBoard;
+        public static SaveSystem Instance     { get; private set; }
 
-            try{
-                File.WriteAllText(path, json);
-                Debug.Log($"[SaveSystem] Successfully saved slot {slot} to: {path}");
+        private static string _saveDirectory;
+
+        public static string GetBoardPath(string baseName) => Path.Combine(_saveDirectory, $"{baseName}.json");
+
+        public void Awake(){
+            if (Instance != null && Instance != this){
+                Destroy(gameObject);
+                return;
             }
-            catch (System.Exception e){
-                Debug.LogError($"[SaveSystem] Failed to write save file for slot {slot}: {e.Message}");
-            }
+
+            Instance = this;
+            _saveDirectory = Application.persistentDataPath;
+            DontDestroyOnLoad(gameObject);
+            _blackBoard  = gameObject.GetComponent<BlackBoard>();
         }
 
-        /// Reads a save file from disk and completely overwrites active Blackboard memory with its contents.
-        public static bool LoadGame(int slot){
-            string path = GetSaveFilePath(slot);
-            if (!File.Exists(path)){
-                Debug.LogWarning($"[SaveSystem] Load aborted: No save game file exists at: {path}");
-                return false;
+        private void OnDestroy(){
+            if (Instance == this)
+                Instance = null;
+        }
+
+        /// Saves the game under a specified file name.
+        /// Flushes all active client states before writing.
+        public static void SaveGame(string fileName, Action<string> onFailure = null){
+            BlackboardClient[] activeClients = FindObjectsByType<BlackboardClient>();
+            foreach (BlackboardClient client in activeClients){
+                if (client != null)
+                    client.FlushStateToBlackboard();
+            }
+            BlackBoard.SerializeBoard(GetBoardPath(fileName), onFailure);
+        }
+
+        /// Loads a game from a specified file name.
+        /// Clears dynamic active boards and fully hydrates the passive board.
+        public static bool LoadGame(string fileName, Action<string> onFailure = null){
+            BlackBoard.Clear();
+            return BlackBoard.DeserializeAllBoards(GetBoardPath(fileName), onFailure);
+        }
+
+        /// Saves a game using the current "saveFileName" configured by the UI/MVC.
+        public void SaveCurrentConfiguredFile(Action<string> onFailure = null){
+            if (string.IsNullOrEmpty(saveFileName)){
+                onFailure?.Invoke("Save aborted: No save filename has been set.");
+                return;
+            }
+            SaveGame(saveFileName, onFailure);
+        }
+
+        /// Loads a game using the current "loadFileName" configured by the UI/MVC.
+        public bool LoadCurrentConfiguredFile(Action<string> onFailure = null){
+            if (!string.IsNullOrEmpty(loadFileName)) return LoadGame(loadFileName, onFailure);
+            onFailure?.Invoke("Load aborted: No load filename has been set.");
+            return false;
+        }
+
+        /// Gathers all save files from disk (including auto saves) and returns them sorted by newest first.
+        public List<SaveFileMetadata> GetSaveFileList(){
+            List<SaveFileMetadata> list = new();
+            if (!Directory.Exists(_saveDirectory)) return list;
+            
+            string[] files = Directory.GetFiles(_saveDirectory, "*.json");
+            foreach (string file in files){
+                string filename = Path.GetFileNameWithoutExtension(file);
+                
+                bool isSave = filename.StartsWith("savegame_", StringComparison.OrdinalIgnoreCase);
+                bool isAuto = filename.StartsWith("autosave_", StringComparison.OrdinalIgnoreCase);
+                if (!isSave && !isAuto) continue;
+
+                SaveFileMetadata meta = new(){
+                    saveName      = filename,
+                    lastWriteTime = File.GetLastWriteTime(file),
+                    isAutosave    = isAuto
+                };
+
+                if (meta.isAutosave){
+                    string numPart = filename.Replace("autosave_", "");
+                    meta.displayName = $"Autosave {numPart}";
+                }
+                else
+                    meta.displayName = filename.Replace("savegame_", "Save Slot ");
+
+                list.Add(meta);
             }
 
-            try{
-                string   json        = File.ReadAllText(path);
-                SaveData savePackage = JsonConvert.DeserializeObject<SaveData>(json);
+            list.Sort((a, b) => b.lastWriteTime.CompareTo(a.lastWriteTime));
+            return list;
+        }
 
-                if (savePackage == null)
-                    return false;
+        public static void Autosave(Action<string> onFailure = null){
+            DateTime oldestTime = DateTime.MaxValue;
+            string   targetName = "autosave_00";
 
-                Blackboard.ImportSavePackage(savePackage);
-                Debug.Log($"[SaveSystem] Successfully loaded and restored save state from slot {slot}.");
-                return true;
+            for (int i = 0; i < 3; i++){
+                string baseName = $"autosave_{i:D2}";
+                string path     = GetBoardPath(baseName);
+
+                if (!File.Exists(path)){
+                    targetName = baseName;
+                    break;
+                }
+
+                DateTime writeTime = File.GetLastWriteTimeUtc(path);
+                if (writeTime >= oldestTime) continue;
+                oldestTime = writeTime;
+                targetName = baseName;
             }
-            catch (System.Exception e){
-                Debug.LogError($"[SaveSystem] Save file for slot {slot} is corrupted: {e.Message}");
-                return false;
-            }
+            SaveGame(targetName, onFailure);
         }
     }
 }

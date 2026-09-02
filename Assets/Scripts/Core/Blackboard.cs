@@ -1,97 +1,117 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Core{
-    /// Central database managing global, scene, and entity variables in memory.
-    public class Blackboard : MonoBehaviour{
-        /// Internal singleton instance routing static calls to active memory.
-        private static Blackboard Instance{ get; set; }
+    [DisallowMultipleComponent]
+    public class BlackBoard : MonoBehaviour{
+        public Dictionary<string, Partition> Partitions{ get; } = new(StringComparer.OrdinalIgnoreCase);
 
-        /// Active global variables that persist across scene loads.
-        private Dictionary<string, float> _globalBoard = new();
+        public bool TryGetPartition(string key, out Partition data) => Partitions.TryGetValue(key, out data);
 
-        /// Active scene-specific variables mapped by scene name.
-        private Dictionary<string, Dictionary<string, float>> _sceneBoards = new();
+        public Partition GetOrCreatePartition(string key){
+            if (Partitions.TryGetValue(key, out Partition dict)) return dict;
+            dict = new Partition(StringComparer.OrdinalIgnoreCase);
 
-        /// Active entity-specific variables mapped by unique UUID.
-        private Dictionary<string, Dictionary<string, float>> _entityBoards = new();
+            Partitions[key] = dict;
+            return dict;
+        }
 
-        private void Awake(){
-            if (Instance == null){
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
+        public void SetPartition(string key, Partition data = null){
+            Partitions[key] = data == null
+                ? new Partition(StringComparer.OrdinalIgnoreCase)
+                : new Partition(data, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public void RemovePartition(string key) => Partitions.Remove(key);
+
+        public void Clear() => Partitions.Clear();
+
+        public bool Contains(string key) => Partitions.ContainsKey(key);
+
+        public bool SerializeBoard(string path, Action<string> onFailure = null){
+            try{
+                string json      = JsonConvert.SerializeObject(Partitions, Formatting.Indented);
+                string directory = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+                File.WriteAllText(path, json);
+                return true;
             }
-            else{
-                Destroy(gameObject);
+            catch (Exception e){
+                onFailure?.Invoke($"Failed writing on the file: {e.Message}");
+                return false;
             }
         }
+        
+        public bool DeserializeAllBoards(string path, Action<string> onFailure = null){
+            if (!File.Exists(path)){
+                onFailure?.Invoke($"Save file not found at: {Path.GetFileName(path)}");
+                return false;
+            }
 
-        /// Gets the global variable board.
-        public static Dictionary<string, float> Globals => Instance._globalBoard;
-
-        /// Gets or creates the variable board for a specific scene.
-        public static Dictionary<string, float> Scene(string name) => Instance.GetSceneBoardInternal(name);
-
-        /// Gets or creates the variable board for a specific entity UUID.
-        public static Dictionary<string, float> Entity(string id) => Instance.GetEntityBoardInternal(id);
-
-        /// Safely retrieves or instantiates a scene-specific board partition.
-        private Dictionary<string, float> GetSceneBoardInternal(string sceneName){
-            if (!_sceneBoards.ContainsKey(sceneName))
-                _sceneBoards[sceneName] = new Dictionary<string, float>();
-            return _sceneBoards[sceneName];
-        }
-
-        /// Safely retrieves or instantiates an entity-specific board partition.
-        private Dictionary<string, float> GetEntityBoardInternal(string entityId){
-            if (!_entityBoards.ContainsKey(entityId))
-                _entityBoards[entityId] = new Dictionary<string, float>();
-            return _entityBoards[entityId];
-        }
-
-        /// Exports a deep-copy snapshot of all active boards for save serialization.
-        public static SaveData ExportSavePackage(){
-            return new SaveData{
-                globalData = new Dictionary<string, float>(Instance._globalBoard),
-                sceneData  = DeepCopyNested(Instance._sceneBoards),
-                entityData = DeepCopyNested(Instance._entityBoards)
-            };
-        }
-
-        /// Wipes active memory boards and populates them from a loaded save snapshot.
-        public static void ImportSavePackage(SaveData savePackage){
-            Instance._globalBoard  = new Dictionary<string, float>(savePackage.globalData);
-            Instance._sceneBoards  = DeepCopyNested(savePackage.sceneData);
-            Instance._entityBoards = DeepCopyNested(savePackage.entityData);
-        }
-
-        /// reates a full deep copy of a nested float dictionary.
-        private static Dictionary<string, Dictionary<string, float>> DeepCopyNested(Dictionary<string, Dictionary<string, float>> source){
-            Dictionary<string, Dictionary<string, float>> destination = new();
-            foreach (KeyValuePair<string, Dictionary<string, float>> kvp in source)
-                destination[kvp.Key] = new Dictionary<string, float>(kvp.Value);
-            return destination;
+            try{
+                string json = File.ReadAllText(path);
+                Dictionary<string, Partition> diskData =
+                    JsonConvert.DeserializeObject<Dictionary<string, Partition>>(json, new SafeNumericConverter());
+                Clear();
+                if (diskData != null){
+                    foreach (KeyValuePair<string, Partition> kvp in diskData)
+                        Partitions[kvp.Key] = new Partition(kvp.Value, StringComparer.OrdinalIgnoreCase);
+                    return true;
+                }
+                onFailure?.Invoke("Save file is empty or invalid.");
+                return false;
+            }
+            catch (Exception e){
+                onFailure?.Invoke($"Save file is corrupted: {e.Message}");
+                return false;
+            }
         }
     }
+    public class SafeNumericConverter : JsonConverter{
+        public override bool CanConvert(Type objectType) => objectType == typeof(object);
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer){
+            JToken token = JToken.Load(reader);
+            return ReadToken(token);
+        }
+        private object ReadToken(JToken token) {
+            return token.Type switch {
+                JTokenType.Object => ConvertObject((JObject)token),
+                JTokenType.Array  => ConvertArray((JArray)token),
+                JTokenType.Null   => null,
+                _                 => ParsePrimitiveValue() 
+            };
+            
+            object ParsePrimitiveValue() {
+                object value = token.ToObject<object>();
+                if (value == null) return null;
 
-    /// Extension methods providing typed accessors for raw string-to-float dictionaries.
-    public static class BlackboardExtensions{
-        /// Assigns or updates a boolean flag as a serialized float (true = 1.0f, false = 0.0f).
-        public static void SetBool(this Dictionary<string, float> dict, string key, bool value) => dict[key] = value ? 1.0f : 0.0f;
+                return token.Type switch {
+                    JTokenType.Integer => Convert.ToInt32(value),
+                    JTokenType.Float   => Convert.ToSingle(value),
+                    JTokenType.Boolean => (bool)value,
+                    JTokenType.String  => (string)value,
+                    _                  => value
+                };
+            }
+        }
 
-        /// Assigns or updates an integer value in the dictionary.
-        public static void SetInt(this Dictionary<string, float> dict, string key, int value) => dict[key] = value;
+        private object ConvertObject(JObject obj){
+            Partition dict = new(StringComparer.OrdinalIgnoreCase);
+            foreach (KeyValuePair<string, JToken> prop in obj)
+                dict[prop.Key] = ReadToken(prop.Value);
+            return dict;
+        }
 
-        /// Safely gets a float value, returning a default value if the key is missing.
-        public static float Get(this Dictionary<string, float> dict, string key, float defaultValue = 0.0f)
-            => dict.GetValueOrDefault(key, defaultValue);
+        private object ConvertArray(JArray arr) => arr.Select(ReadToken).ToList();
 
-        /// Safely gets a boolean flag, translating non-zero values as true.
-        public static bool GetBool(this Dictionary<string, float> dict, string key, bool defaultValue = false)
-            => dict.Get(key, defaultValue ? 1.0f : 0.0f) != 0.0f;
-
-        /// Safely gets an integer value from the dictionary.
-        public static int GetInt(this Dictionary<string, float> dict, string key, int defaultValue = 0)
-            => (int)dict.Get(key, defaultValue);
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+        public override bool CanWrite => false;
     }
 }

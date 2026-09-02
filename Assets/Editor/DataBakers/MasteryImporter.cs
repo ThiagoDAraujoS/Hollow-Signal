@@ -13,9 +13,10 @@ namespace Editor.DataBakers{
     /// and compile English localization values without breaking asset links.
     public static class MasteryImporter{
         private const string
-            DefaultJsonPath      = "Assets/Editor/DataBakers/masteries.json",
+            DefaultJsonPath      = "Assets/Editor/DataBakers/CSVtoJSON/masteries.json",
             TargetAssetFolder    = "Assets/Data/Masteries",
-            LocalizationFilePath = "Assets/StreamingAssets/Localization/masteries_en.txt";
+            LocalizationFilePath = "Assets/StreamingAssets/Localization/masteries_en.txt",
+            DBPath               = "Assets/Data/MasteryDB/MasteryDatabase.asset";
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class MasteryJsonData{
@@ -106,6 +107,9 @@ namespace Editor.DataBakers{
         /// Iterates over all masteries, processes localization, parses skills, and creates/updates assets.
         private static int ImportAllMasteries(Dictionary<string, MasteryJsonData> masteriesMap, StringBuilder locBuilder){
             int count = 0;
+            
+            List<Mastery> importedMasteries = new();
+            
             foreach (KeyValuePair<string, MasteryJsonData> kvp in masteriesMap){
                 MasteryJsonData data = kvp.Value;
                 if (data == null || string.IsNullOrWhiteSpace(data.name)) continue;
@@ -123,8 +127,20 @@ namespace Editor.DataBakers{
                 AppendLocalizationKeys(locBuilder, importData, rawName, data.description);
                 ParseMasterySkills(importData, data.bonuses);
                 SaveMasteryAsset(assetPath, importData);
+                
+                Mastery savedAsset = AssetDatabase.LoadAssetAtPath<Mastery>(assetPath);
+                if (savedAsset != null)
+                    importedMasteries.Add(savedAsset);
                 count++;
             }
+            
+            MasteryDatabase db = AssetDatabase.LoadAssetAtPath<MasteryDatabase>(DBPath);
+            if (db == null)
+                throw new FileNotFoundException($@"DB file could not be found. Make sure it exists at: {DBPath}", "MasteryDatabase.asset");
+            
+            db.UpdateDatabase(importedMasteries);
+            AssetDatabase.SaveAssets();
+
             return count;
         }
 
