@@ -25,7 +25,6 @@ namespace Core.Managers{
         private void Awake(){
             if (_instance == null){
                 _instance = this;
-                DontDestroyOnLoad(gameObject);
                 LoadBaseStrings(_currentLanguage);
             }
             else if (_instance != this)

@@ -82,8 +82,6 @@ namespace Core{
         }
 
         /// Constructor that registers this property into a component's local list for automatic saving and loading.
-        /// <param name="key">The case-insensitive Blackboard partition key.</param>
-        /// <param name="defaultValue">The fallback value if the key does not exist in the save file.</param>
         public Tracked(string key, T defaultValue){
             this.key      = key;
             _defaultValue = defaultValue;
@@ -94,33 +92,33 @@ namespace Core{
         public void Save(Dictionary<string, object> state)=> state[key] = value;
 
         /// Restores the local gameplay value from the Blackboard partition (RAII Load/Acquire phase).
+        /// If a file has no direct information on a specific field, the game world variable is preserved as
+        /// the source of truth, and the Blackboard partition is populated with that default value.
         public void Load(Dictionary<string, object> state){
-            if (state == null){
-                value = _defaultValue;
-                return;
-            }
+            if (state == null) return;
 
             if (state.TryGetValue(key, out object rawVal)){
                 if (rawVal is T directValue)
                     value = directValue;
-                else{
+                else if (rawVal != null){
                     try{
                         // Safely convert numerical types (e.g. double to float or long to int)
                         value = (T)Convert.ChangeType(rawVal, typeof(T));
                     }
                     catch{
-                        Debug.LogWarning($"[Tracked] Type conversion failed for key '{key}'. Expected {typeof(T).Name}, got {rawVal?.GetType().Name}. Defaulting.");
-                        value = _defaultValue;
+                        Debug.LogWarning($"[Tracked] Type conversion failed for key '{key}'. Expected {typeof(T).Name}, got {rawVal.GetType().Name}. Retaining current value.");
                     }
                 }
             }
-            else
-                value = _defaultValue;
+            else{
+                // What is in the game world has precedence over file data.
+                // Do not rewrite the original variable, and populate the Blackboard partition with this value.
+                state[key] = value;
+            }
         }
 
         /// Direct implicit cast to T, allowing clean reads without appending .Value
-        /// (e.g., float currentHP = character.currentHP;)
-        public static implicit operator T(Tracked<T> tracked) => tracked.Value ?? default(T);
+        public static implicit operator T(Tracked<T> tracked) => tracked.Value != null ? tracked.Value : default(T);
         public override string ToString() => value?.ToString() ?? "null";
     }
 }

@@ -45,9 +45,6 @@ namespace Core.Managers{
                 string filePath = GetTempFilePath(fileName);
                 
                 try {
-                    // Deep clone the container to ensure thread safety while serializing
-                    // Alternatively, we could serialize the JSON on main thread, but as game grows 
-                    // this would cause stutter. A clone is safe.
                     string json;
                     lock(data) {
                         json = JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -63,13 +60,21 @@ namespace Core.Managers{
             await Task.WhenAll(tasks);
         }
         
-        /// Deserializes multiple save files in parallel on background worker threads,
+        /// Deserializes multiple save files in parallel on background worker threads.
+        /// If a file does not exist, creates an empty file on disk and returns an empty container.
         public async Task DeserializeFiles(IEnumerable<string> fileNames, Action<string> onFailure = null) {
             List<Task<(string Name, FileContainer Data)>> tasks = fileNames.Select(fileName => Task.Run(() => {
                 string filePath = GetSaveFilePath(fileName);
                 
-                if (!File.Exists(filePath)) 
+                if (!File.Exists(filePath)) {
+                    try {
+                        File.WriteAllText(filePath, "{}");
+                    }
+                    catch (Exception ex) {
+                        onFailure?.Invoke($"Failed to create empty file {fileName}: {ex.Message}");
+                    }
                     return (fileName, new FileContainer(StringComparer.OrdinalIgnoreCase));
+                }
                 
                 try {
                     string        json     = File.ReadAllText(filePath);
