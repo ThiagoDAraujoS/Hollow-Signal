@@ -5,8 +5,9 @@ using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Actors.Player {
     /// Manages entity movement using Unity NavMeshAgent and automatically persists
-    /// the character's physical world position into the Blackboard.
+    /// the character's physical world position into the Blackboard, while updating Animator parameters.
     [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(Animator))]
     public class CharacterMovement : TrackedBehaviour {
         /// Tracked coordinate values for seamless Blackboard persistence
         public Tracked<float> posX = new("pos_x", 0f);
@@ -14,10 +15,18 @@ namespace Actors.Player {
         public Tracked<float> posZ = new("pos_z", 0f);
 
         private NavMeshAgent _agent;
+        private Animator _animator;
+        private static readonly int SpeedParam = Animator.StringToHash("Speed");
 
-        /// Cached NavMeshAgent initialization
+        /// Cached component initialization
         protected override void OnAwake() {
             _agent = GetComponent<NavMeshAgent>();
+            _animator = GetComponent<Animator>();
+        }
+
+        private void Update() {
+            // Update the Animator's speed parameter based on the agent's velocity.
+            _animator.SetFloat(SpeedParam, _agent.velocity.magnitude);
         }
 
         /// Direct navigation command to move towards a specific coordinate
@@ -28,21 +37,6 @@ namespace Actors.Player {
         /// Instantly warps the character and NavMeshAgent to a specific coordinate
         public void WarpTo(Vector3 position) {
             _agent.Warp(position);
-        }
-
-        /// Captures the current transform coordinates before serializing state
-        public override void OnSaveState(Partition state) {
-            posX.Value = transform.position.x;
-            posY.Value = transform.position.y;
-            posZ.Value = transform.position.z;
-            base.OnSaveState(state);
-        }
-
-        /// Restores coordinate values from the Blackboard and instantly warps the agent
-        public override void OnLoadState(Partition state) {
-            base.OnLoadState(state);
-            Vector3 loadedPosition = new Vector3(posX, posY, posZ);
-            _agent.Warp(loadedPosition);
         }
     }
 }

@@ -2,116 +2,134 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Partition = System.Collections.Generic.Dictionary<string, object>;
+using FileContainer = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, object>>;
 
 namespace Core.Managers{
     [DisallowMultipleComponent]
-    public class BlackBoard : MonoBehaviour{
-        public Dictionary<string, Partition> Partitions{ get; } = new(StringComparer.OrdinalIgnoreCase);
+    public class Blackboard : MonoBehaviour{
+        public Dictionary<string, FileContainer> Files{ get; } = new(StringComparer.OrdinalIgnoreCase);
 
-        public bool TryGetPartition(string key, out Partition data) => Partitions.TryGetValue(key, out data);
+        public FileContainer GetOrCreateFile(string fileName){
+            if (Files.TryGetValue(fileName, out FileContainer dict)) return dict;
+            dict = new FileContainer(StringComparer.OrdinalIgnoreCase);
 
-        public Partition GetOrCreatePartition(string key){
-            if (Partitions.TryGetValue(key, out Partition dict)) return dict;
-            dict = new Partition(StringComparer.OrdinalIgnoreCase);
-
-            Partitions[key] = dict;
+            Files[fileName] = dict;
             return dict;
         }
 
-        public void SetPartition(string key, Partition data = null){
-            Partitions[key] = data == null
-                ? new Partition(StringComparer.OrdinalIgnoreCase)
-                : new Partition(data, StringComparer.OrdinalIgnoreCase);
+        public void Clear() => Files.Clear();
+        
+        public void ReleaseFile(string fileName) => Files.Remove(fileName);
+        
+        public bool Contains(string fileName) => Files.ContainsKey(fileName);
+
+        private static string GetSaveFilePath(string fileName) => Path.Combine(SaveSystem.CurrentSaveSlotDirectory, $"{fileName}.json");
+        private static string GetTempFilePath(string fileName) => Path.Combine(SaveSystem.TempDirectory,            $"{fileName}.json");
+
+        public Partition GetPartition(string fileName, string partitionName){
+            FileContainer container = GetOrCreateFile(fileName);
+            if (!container.ContainsKey(partitionName))
+                container.Add(partitionName, new Partition(StringComparer.OrdinalIgnoreCase));
+            return container[partitionName];
         }
 
-        public void RemovePartition(string key) => Partitions.Remove(key);
+        /// Serializes all active file partitions in parallel to the temporary directory.
+        public async Task SerializeBoard(Action<string> onFailure = null) {
+            List<Task> tasks = Files.Select(board => Task.Run(() => {
+                (string fileName, FileContainer data) = board;
+                string filePath = GetTempFilePath(fileName);
+                
+                try {
+                    // Deep clone the container to ensure thread safety while serializing
+                    // Alternatively, we could serialize the JSON on main thread, but as game grows 
+                    // this would cause stutter. A clone is safe.
+                    string json;
+                    lock(data) {
+                        json = JsonConvert.SerializeObject(data, Formatting.Indented);
+                    }
+                    
+                    File.WriteAllText(filePath, json);
+                }
+                catch (Exception e) {
+                    onFailure?.Invoke($"Failed writing save file {fileName} asynchronously: {e.Message}");
+                }
+            })).ToList();
 
-        public void Clear() => Partitions.Clear();
-
-        public bool Contains(string key) => Partitions.ContainsKey(key);
-
-        public bool SerializeBoard(string path, Action<string> onFailure = null){
-            try{
-                string json      = JsonConvert.SerializeObject(Partitions, Formatting.Indented);
-                string directory = Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-                File.WriteAllText(path, json);
-                return true;
-            }
-            catch (Exception e){
-                onFailure?.Invoke($"Failed writing on the file: {e.Message}");
-                return false;
-            }
+            await Task.WhenAll(tasks);
         }
         
-        public bool DeserializeAllBoards(string path, Action<string> onFailure = null){
-            if (!File.Exists(path)){
-                onFailure?.Invoke($"Save file not found at: {Path.GetFileName(path)}");
-                return false;
-            }
-
-            try{
-                string json = File.ReadAllText(path);
-                Dictionary<string, Partition> diskData =
-                    JsonConvert.DeserializeObject<Dictionary<string, Partition>>(json, new SafeNumericConverter());
-                Clear();
-                if (diskData != null){
-                    foreach (KeyValuePair<string, Partition> kvp in diskData)
-                        Partitions[kvp.Key] = new Partition(kvp.Value, StringComparer.OrdinalIgnoreCase);
-                    return true;
+        /// Deserializes multiple save files in parallel on background worker threads,
+        public async Task DeserializeFiles(IEnumerable<string> fileNames, Action<string> onFailure = null) {
+            List<Task<(string Name, FileContainer Data)>> tasks = fileNames.Select(fileName => Task.Run(() => {
+                string filePath = GetSaveFilePath(fileName);
+                
+                if (!File.Exists(filePath)) 
+                    return (fileName, new FileContainer(StringComparer.OrdinalIgnoreCase));
+                
+                try {
+                    string        json     = File.ReadAllText(filePath);
+                    FileContainer diskData = JsonConvert.DeserializeObject<FileContainer>(json, new SafeNumericConverter());
+                    return (fileName, diskData ?? new FileContainer(StringComparer.OrdinalIgnoreCase));
                 }
-                onFailure?.Invoke("Save file is empty or invalid.");
-                return false;
-            }
-            catch (Exception e){
-                onFailure?.Invoke($"Save file is corrupted: {e.Message}");
-                return false;
-            }
-        }
-    }
-    public class SafeNumericConverter : JsonConverter{
-        public override bool CanConvert(Type objectType) => objectType == typeof(object);
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer){
-            JToken token = JToken.Load(reader);
-            return ReadToken(token);
-        }
-        private object ReadToken(JToken token) {
-            return token.Type switch {
-                JTokenType.Object => ConvertObject((JObject)token),
-                JTokenType.Array  => ConvertArray((JArray)token),
-                JTokenType.Null   => null,
-                _                 => ParsePrimitiveValue() 
-            };
-            
-            object ParsePrimitiveValue() {
-                object value = token.ToObject<object>();
-                if (value == null) return null;
+                catch (Exception e) {
+                    onFailure?.Invoke($"Save file {fileName} is corrupted: {e.Message}");
+                    return (fileName, null);
+                }
+            })).ToList();
 
-                return token.Type switch {
-                    JTokenType.Integer => Convert.ToInt32(value),
-                    JTokenType.Float   => Convert.ToSingle(value),
-                    JTokenType.Boolean => (bool)value,
-                    JTokenType.String  => (string)value,
-                    _                  => value
+            (string Name, FileContainer Data)[] results = await Task.WhenAll(tasks);
+  
+            foreach ((string fileName, FileContainer data) in results) 
+                if (data != null)
+                    Files[fileName] = data;
+        }
+
+        public class SafeNumericConverter : JsonConverter{
+            public override bool CanConvert(Type objectType) => objectType == typeof(object);
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer){
+                JToken token = JToken.Load(reader);
+                return ReadToken(token);
+            }
+
+            private object ReadToken(JToken token){
+                return token.Type switch{
+                    JTokenType.Object => ConvertObject((JObject)token),
+                    JTokenType.Array  => ConvertArray((JArray)token),
+                    JTokenType.Null   => null,
+                    _                 => ParsePrimitiveValue()
                 };
+
+                object ParsePrimitiveValue(){
+                    object value = token.ToObject<object>();
+                    if (value == null) return null;
+
+                    return token.Type switch{
+                        JTokenType.Integer => Convert.ToInt32(value),
+                        JTokenType.Float   => Convert.ToSingle(value),
+                        JTokenType.Boolean => (bool)value,
+                        JTokenType.String  => (string)value,
+                        _                  => value
+                    };
+                }
             }
+
+            private object ConvertObject(JObject obj){
+                Partition dict = new(StringComparer.OrdinalIgnoreCase);
+                foreach (KeyValuePair<string, JToken> prop in obj)
+                    dict[prop.Key] = ReadToken(prop.Value);
+                return dict;
+            }
+
+            private object ConvertArray(JArray arr) => arr.Select(ReadToken).ToList();
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+            public override bool CanWrite => false;
         }
-
-        private object ConvertObject(JObject obj){
-            Partition dict = new(StringComparer.OrdinalIgnoreCase);
-            foreach (KeyValuePair<string, JToken> prop in obj)
-                dict[prop.Key] = ReadToken(prop.Value);
-            return dict;
-        }
-
-        private object ConvertArray(JArray arr) => arr.Select(ReadToken).ToList();
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
-        public override bool CanWrite => false;
     }
 }

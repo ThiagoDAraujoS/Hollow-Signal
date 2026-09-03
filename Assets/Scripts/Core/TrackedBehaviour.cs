@@ -84,7 +84,6 @@ namespace Core{
         /// Constructor that registers this property into a component's local list for automatic saving and loading.
         /// <param name="key">The case-insensitive Blackboard partition key.</param>
         /// <param name="defaultValue">The fallback value if the key does not exist in the save file.</param>
-        /// <param name="registry">The local list to auto-register this property into.</param>
         public Tracked(string key, T defaultValue){
             this.key      = key;
             _defaultValue = defaultValue;
