@@ -69,7 +69,7 @@ namespace Core.Managers {
                 Directory.CreateDirectory(TempDirectory);
 
                 // IMPORTANT: Flush all active game objects into the Blackboard dict before saving
-                foreach (var client in BlackboardClient.ActiveClients) {
+                foreach (BlackboardClient client in BlackboardClient.ActiveClients) {
                     client.FlushStateToBlackboard();
                 }
 
