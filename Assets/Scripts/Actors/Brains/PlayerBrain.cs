@@ -32,7 +32,7 @@ namespace Actors.Brains {
                 if (clickedCharacter != null) {
                     activeCharacter = clickedCharacter;
                     if (cameraController != null) {
-                        cameraController.target = activeCharacter.transform;
+                        //    cameraController.target = activeCharacter.transform;
                     }
                 }
             }

@@ -1,23 +1,58 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
-namespace World {
-    /// A smooth-following isometric camera controller.
-    public class CameraController : MonoBehaviour {
-        /// The target the camera should currently center on. Null is a valid state if no character is selected.
-        public Transform target;
+namespace World{
+    public class CameraController : MonoBehaviour{
+        [Header("Input")][SerializeField] 
+        private InputActionReference moveActionRef;
 
-        /// The fixed isometric positional offset relative to the target.
-        public Vector3 offset = new Vector3(-10f, 15f, -10f);
+        [Header("Movement Settings")][SerializeField]
+        private float moveSpeed = 15f;
 
-        /// Smooth interpolation factor for panning.
-        public float smoothSpeed = 5f;
+        [Header("Camera Reference")][SerializeField]
+        private Camera renderingCamera;
 
-        private void LateUpdate() {
-            if (target == null) return;
-            
-            Vector3 desiredPosition = target.position + offset;
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
-            transform.LookAt(target);
+        private Vector2 _moveInput;
+
+        private void Awake(){
+            if (renderingCamera == null)
+                renderingCamera = Camera.main;
+        }
+
+        private void OnEnable(){
+            if (moveActionRef == null) return;
+            moveActionRef.action.performed += OnMovePerformed;
+            moveActionRef.action.canceled  += OnMoveCanceled;
+            moveActionRef.action.Enable();
+        }
+
+        private void OnDisable(){
+            if (moveActionRef == null) return;
+            moveActionRef.action.performed -= OnMovePerformed;
+            moveActionRef.action.canceled  -= OnMoveCanceled;
+            moveActionRef.action.Disable();
+            _moveInput = Vector2.zero;
+        }
+
+        private void OnMovePerformed(InputAction.CallbackContext context) => _moveInput = context.ReadValue<Vector2>();
+
+        private void OnMoveCanceled(InputAction.CallbackContext context) => _moveInput = Vector2.zero;
+
+        private void Update(){
+            if (_moveInput == Vector2.zero) return;
+            MoveAnchor();
+        }
+
+        private void MoveAnchor(){
+            Vector3 camForward = renderingCamera.transform.forward;
+            Vector3 camRight   = renderingCamera.transform.right;
+            camForward.y = 0f;
+            camRight.y   = 0f;
+            camForward.Normalize();
+            camRight.Normalize();
+
+            Vector3 moveDirection = (camForward * _moveInput.y) + (camRight * _moveInput.x);
+            transform.position += moveDirection * (moveSpeed * Time.deltaTime);
         }
     }
 }
