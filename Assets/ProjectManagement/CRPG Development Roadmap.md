@@ -14,7 +14,7 @@ With data in memory, you need entities to hold that data and a way to move them.
 - [ ] **Movement & Area System:** Set up the NavMesh agents, anchor points, and the logic to move a character to a specific coordinate.
 - [ ] **Brain Controller (Input):** Build the raycaster that selects characters and sends movement commands to the Movement System.
 - [ ] **Camera Controller:** Implement the isometric camera so you can actually see and navigate the test space you are building.
-- [ ] **Base Scene & Entity Prefabs (Spawn Asleep):** Construct the foundational Unity prefabs (Hero, NPCs, chests, doors) ensuring they start disabled (`activeSelf = false` in the inspector) and are pre-configured with `UniqueId`, `BlackboardClient`, and their respective state scripts.
+- [x] **Base Scene & Entity Prefabs (Spawn Asleep):** Construct the foundational Unity prefabs (Hero, NPCs, chests, doors) ensuring they start disabled (`activeSelf = false` in the inspector) and are pre-configured with `UniqueId`, `BlackboardClient`, and their respective state scripts.
 - [ ] **Area Batch Loader & Sleep-Spawn Coordinator:** Build the system that runs your 5-step boot loop: destroy live dynamic instances -> instantiate scene prefabs disabled -> determine relevant sector/area IDs -> instruct the Blackboard to deserialize only those memories -> run `OnLoadState` and wake them up with `SetActive(true)`.
 
 ## Phase 3: Interaction & Logic

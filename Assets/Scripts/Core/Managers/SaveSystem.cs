@@ -65,8 +65,6 @@ namespace Core.Managers {
                 Blackboard.ReleaseFile(fileName);
         }
 
-        [ContextMenu("Save")]
-        public void Save() => _ = SaveGame();
 
         /// Saves the Blackboard into the active save slot directory atomically.
         /// Serializes all partitions and a metadata file to the Temp directory first, 
@@ -146,7 +144,7 @@ namespace Core.Managers {
 
         /// Automatically performs an atomic save to one of three rolling autosave directories,
         /// overwriting the oldest existing autosave slot.
-        public static async Task Autosave(Action<string> onFailure = null){
+        public static async Task AutosaveAsync(Action<string> onFailure = null){
             DateTime oldestTime = DateTime.MaxValue;
             string   targetName = "autosave_00";
 
@@ -170,10 +168,6 @@ namespace Core.Managers {
             SetSaveSlot(targetName);
             await SaveGame(onFailure);
         }
-
-        [ContextMenu("Close Session")]
-        public void CloseSession()=> _ = CloseSessionAsync();
-
         
         /// Dynamically discovers and cleanly unloads all loaded additive scenes 
         /// (GameSession, active levels) and clears active Blackboard memory.
@@ -202,8 +196,6 @@ namespace Core.Managers {
             }
         }
 
-        [ContextMenu("Load New Game")]
-        public void LoadNewGame() => _ = LoadNewGameAsync();
 
         public static async Task LoadNewGameAsync() {
             Debug.Log($"{CurrentSaveSlotDirectory}");
@@ -221,6 +213,14 @@ namespace Core.Managers {
             }
         }
 
+
+        public static async Task StartNewGameAsync() {
+            SetSaveSlot(Instance.defaultSaveTemplate);
+            await LoadNewGameAsync();
+            SetSaveSlot("autosave_00");
+        }
+        
+        #if UNITY_EDITOR
         [ContextMenu("Start New Game")]
         public void StartNewGame() {
             SetSaveSlot(defaultSaveTemplate);
@@ -228,11 +228,26 @@ namespace Core.Managers {
             SetSaveSlot("autosave_00");
         }
 
-        public static async Task StartNewGameAsync() {
-            SetSaveSlot(Instance.defaultSaveTemplate);
-            await LoadNewGameAsync();
-            SetSaveSlot("autosave_00");
+        [ContextMenu("Load New Game")]
+        public void LoadNewGame(){
+            SetSaveSlot("TestSave");
+            _ = LoadNewGameAsync();
         }
+
+        [ContextMenu("Close Session")]
+        public void CloseSession()=> _ = CloseSessionAsync();
+        
+        [ContextMenu("Save")]
+        public void Save(){
+            SetSaveSlot("TestSave");
+            _ = SaveGame();
+        }
+
+        [ContextMenu("AutoSave")]
+        public void AutoSave() => _ = AutosaveAsync();
+
+
+#endif
     }
 
     [Serializable]

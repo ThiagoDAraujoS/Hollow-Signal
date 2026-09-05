@@ -18,7 +18,6 @@ namespace Core {
     /// query active data partitions for this entity.
     [RequireComponent(typeof(UniqueId))]
     public class BlackboardClient : MonoBehaviour {
-        /// Static registry keeping track of all active runtime blackboard clients.
         public static readonly HashSet<BlackboardClient> ActiveClients = new();
 
         private IBoundState[] _boundStates;
@@ -34,7 +33,6 @@ namespace Core {
 
         private void OnEnable() {
             ActiveClients.Add(this);
-            // Moved to OnEnable instead of Start to ensure data is loaded ASAP before other components fetch it
             LoadStateFromBlackboard();
         }
 

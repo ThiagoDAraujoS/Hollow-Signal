@@ -66,13 +66,11 @@ namespace Core{
     /// during explicit Load/Save hooks (OnLoadState / OnSaveState).
     [Serializable]
     public class Tracked<T> : ITracked{
-        [SerializeField] private string key;
-
         [SerializeField] private T value;
 
         private readonly T _defaultValue;
 
-        public string Key => key;
+        public string Key{ get; }
 
         /// Gets or sets the local gameplay value. Reads and writes are direct CPU memory 
         /// operations with zero dictionary lookup or boxing overhead during gameplay.
@@ -83,13 +81,13 @@ namespace Core{
 
         /// Constructor that registers this property into a component's local list for automatic saving and loading.
         public Tracked(string key, T defaultValue){
-            this.key      = key;
+            this.Key      = key;
             _defaultValue = defaultValue;
             value         = defaultValue;
         }
 
         /// Flushes the local gameplay value into the Blackboard partition (RAII Save/Flush phase).
-        public void Save(Dictionary<string, object> state)=> state[key] = value;
+        public void Save(Dictionary<string, object> state)=> state[Key] = value;
 
         /// Restores the local gameplay value from the Blackboard partition (RAII Load/Acquire phase).
         /// If a file has no direct information on a specific field, the game world variable is preserved as
@@ -97,7 +95,7 @@ namespace Core{
         public void Load(Dictionary<string, object> state){
             if (state == null) return;
 
-            if (state.TryGetValue(key, out object rawVal)){
+            if (state.TryGetValue(Key, out object rawVal)){
                 if (rawVal is T directValue)
                     value = directValue;
                 else if (rawVal != null){
@@ -106,14 +104,14 @@ namespace Core{
                         value = (T)Convert.ChangeType(rawVal, typeof(T));
                     }
                     catch{
-                        Debug.LogWarning($"[Tracked] Type conversion failed for key '{key}'. Expected {typeof(T).Name}, got {rawVal.GetType().Name}. Retaining current value.");
+                        Debug.LogWarning($"[Tracked] Type conversion failed for key '{Key}'. Expected {typeof(T).Name}, got {rawVal.GetType().Name}. Retaining current value.");
                     }
                 }
             }
             else{
                 // What is in the game world has precedence over file data.
                 // Do not rewrite the original variable, and populate the Blackboard partition with this value.
-                state[key] = value;
+                state[Key] = value;
             }
         }
 

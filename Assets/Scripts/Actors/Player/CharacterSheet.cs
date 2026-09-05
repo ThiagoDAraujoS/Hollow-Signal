@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core;
@@ -7,19 +8,24 @@ using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Actors.Player {
     [DisallowMultipleComponent]
-    public class CharacterSheet : TrackedBehaviour {
+    public class CharacterSheet : TrackedTransform {
+        [Header("Character Sheet Data")]
         public Tracked<int> level = new("level", 1);
-        public Tracked<int> experience = new("experience", 0);
+        public Tracked<int>    experience = new("experience", 0);
+        [SerializeField] private MasteryDatabase masteryDatabase;
 
-        [SerializeField] private List<Mastery> activeMasteries = new();
-        private readonly Dictionary<Skill, int> _skills = new();
+        [SerializeField] private List<Mastery>          activeMasteries = new();
+        private readonly         Dictionary<Skill, int> _skills         = new();
 
         public int Level      => level;
         public int Experience => experience;
         public IReadOnlyList<Mastery> ActiveMasteries => activeMasteries;
 
-        protected override void OnAwake() => RebuildAllSkills();
-        
+        protected override void OnAwake(){
+            base.OnAwake();
+            RebuildAllSkills();
+        }
+
         public void RebuildAllSkills() {
             _skills.Clear();
             foreach (Mastery mastery in activeMasteries) 
@@ -69,11 +75,12 @@ namespace Actors.Player {
 
         public override void OnLoadState(Partition state) {
             base.OnLoadState(state);
-            activeMasteries.Clear();
+
             if (state.TryGetValue("unlocked_masteries", out object value)){
-                List<string> masteryIds = (List<string>)value;
-                foreach (string id in masteryIds)
-                    activeMasteries.Add(MasteryDatabase.Get(id));
+                activeMasteries.Clear();
+                IEnumerable list = (IEnumerable)value;
+                foreach (object item in list) 
+                    activeMasteries.Add(masteryDatabase.Get(item.ToString()));
             }
             RebuildAllSkills();
         }

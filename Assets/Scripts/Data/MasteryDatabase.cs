@@ -8,8 +8,6 @@ namespace Data{
     /// at game boot without legacy Resources folders, complex file IO, or scene reference dragging.
     [CreateAssetMenu(fileName = "MasteryDatabase", menuName = "CRPG/Mastery Database")]
     public class MasteryDatabase : ScriptableObject{
-        /// Global read-only static accessor. Assigned automatically at boot when the asset is preloaded.
-        public static MasteryDatabase Instance{ get; private set; }
 
         [Header("Mastery Registry")] 
         [Tooltip("The backing list of all generated Mastery ScriptableObjects. Hidden in inspector, populated automatically by the Google Sheets importer.")] 
@@ -19,10 +17,8 @@ namespace Data{
         // High-performance pure C# dictionary lookup cache
         private readonly Dictionary<string, Mastery> _registry = new(StringComparer.OrdinalIgnoreCase);
 
-        private void OnEnable(){
-            Instance = this;
-            BuildDictionaryCache();
-        }
+        private void OnEnable() => BuildDictionaryCache();
+
         
         /// Clears the runtime registry and builds a fast O(1) string-lookup dictionary from the serialized list.
         public void BuildDictionaryCache(){
@@ -38,7 +34,7 @@ namespace Data{
         
         /// Instantly retrieves a Mastery asset by its unique string ID.
         /// O(1) lookup complexity. Returns null if not found.
-        public static Mastery Get(string id) => Instance._registry.GetValueOrDefault(id);
+        public Mastery Get(string id) => _registry.GetValueOrDefault(id);
 
 #if UNITY_EDITOR
         /// Direct, type-safe hook for your Google Sheets Importer Editor Tool to inject generated Masteries.
