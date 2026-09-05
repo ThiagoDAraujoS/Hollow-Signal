@@ -203,7 +203,8 @@ namespace Core.Managers {
                 await CloseSessionAsync();
                 IEnumerable<string> files = Instance.coreFileNames ?? new[] { "core" };
                 await LoadFiles(files, _ => { /* TODO: Abort, close game scenes return to main menu */ });
-
+                Debug.Log($"Loaded files on the save folder: {CurrentSaveSlot}");
+                
                 AsyncOperation op = SceneManager.LoadSceneAsync("GameSession", LoadSceneMode.Additive);
                 while (op is { isDone: false })
                     await Task.Yield();
@@ -217,24 +218,20 @@ namespace Core.Managers {
         public static async Task StartNewGameAsync() {
             SetSaveSlot(Instance.defaultSaveTemplate);
             await LoadNewGameAsync();
-            SetSaveSlot("autosave_00");
         }
         
-        #if UNITY_EDITOR
-        [ContextMenu("Start New Game")]
-        public void StartNewGame() {
-            SetSaveSlot(defaultSaveTemplate);
-            LoadNewGame();
-            SetSaveSlot("autosave_00");
-        }
+#if UNITY_EDITOR
+        
+        [ContextMenu("New Game")]
+        public void StartNewGame() => _ = StartNewGameAsync();
 
-        [ContextMenu("Load New Game")]
+        [ContextMenu("Load")]
         public void LoadNewGame(){
             SetSaveSlot("TestSave");
             _ = LoadNewGameAsync();
         }
 
-        [ContextMenu("Close Session")]
+        [ContextMenu("Close")]
         public void CloseSession()=> _ = CloseSessionAsync();
         
         [ContextMenu("Save")]
