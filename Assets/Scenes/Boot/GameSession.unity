@@ -315,7 +315,7 @@ Transform:
   m_GameObject: {fileID: 107251102}
   serializedVersion: 2
   m_LocalRotation: {x: 0.27781588, y: 0.36497167, z: -0.1150751, w: 0.8811196}
-  m_LocalPosition: {x: -15.904057, y: 19.673315, z: -15.742343}
+  m_LocalPosition: {x: -15.949806, y: 19.673315, z: -15.696595}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -413,7 +413,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 370652602}
-  m_Enabled: 1
+  m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 0.35
   m_Speed: 4
@@ -619,7 +619,7 @@ Transform:
   m_GameObject: {fileID: 1107584218}
   serializedVersion: 2
   m_LocalRotation: {x: 0.27781588, y: 0.36497167, z: -0.1150751, w: 0.8811196}
-  m_LocalPosition: {x: -15.904057, y: 19.673315, z: -15.742343}
+  m_LocalPosition: {x: -15.949806, y: 19.673315, z: -15.696595}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -893,7 +893,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Actors.Brains.PlayerBrain
   activePartyMembers:
-  - {fileID: 730945999}
+  - {fileID: 0}
   primarySelectActionRef: {fileID: 6275837312433506808, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
   pointActionRef: {fileID: -7946184764314150804, guid: e281ab66cb328ed44952e7778f41ed5a,
@@ -912,7 +912,8 @@ MonoBehaviour:
     type: 3}
   slot4ActionRef: {fileID: -3951140834591987041, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
-  inspectActionRef: {fileID: 0}
+  inspectActionRef: {fileID: 1089124775975016854, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
   characterLayer:
     serializedVersion: 2
     m_Bits: 512
