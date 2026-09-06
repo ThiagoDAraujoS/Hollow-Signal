@@ -15,7 +15,11 @@ namespace Core.Managers {
         [SerializeField] private SceneDependencyDatabase dependencyDatabase;
 
         public Tracked<string> currentMapName = new("CurrentMapName", "test_map");
+        
+        public static event Action<MapManager> OnMapLoaded;
 
+        public static void LoadingMapFinished(MapManager manager) => OnMapLoaded?.Invoke(manager);
+        
         protected override void OnAwake() {
             if (Instance != null && Instance != this) {
                 Destroy(gameObject);

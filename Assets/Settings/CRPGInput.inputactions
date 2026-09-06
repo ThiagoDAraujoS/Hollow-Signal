@@ -3,12 +3,6 @@
     "name": "CRPGInput",
     "maps": [
         {
-            "name": "MenuControls",
-            "id": "5d1a96f4-1ccd-4f27-baf2-6d2d928cd92e",
-            "actions": [],
-            "bindings": []
-        },
-        {
             "name": "GameControls",
             "id": "0550638d-dccb-4edf-bf30-427101498555",
             "actions": [
@@ -22,9 +16,90 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "MouseClick",
+                    "name": "PrimarySelect",
                     "type": "Button",
-                    "id": "48504f77-90af-426a-a1c5-202147034353",
+                    "id": "0b57e153-117a-4894-81cc-5c52218d99f0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Point",
+                    "type": "Value",
+                    "id": "06353ab5-6e23-4e58-97a5-81eb8d6f5b06",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "SelectAll",
+                    "type": "Button",
+                    "id": "0924ff73-b7bd-44bb-999a-40b285a3db05",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CycleLeader",
+                    "type": "Button",
+                    "id": "23a9a159-55dc-4953-b084-60a7356857a1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Deselect",
+                    "type": "Button",
+                    "id": "aad88d7a-8ee2-48f7-9862-9c10b98bba9d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Slot1",
+                    "type": "Button",
+                    "id": "ac0fb0d3-45f8-46e5-abcd-ad85d2986106",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Slot2",
+                    "type": "Button",
+                    "id": "210356b1-d916-429a-9e57-26f3cfb467e1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Slot3",
+                    "type": "Button",
+                    "id": "43bd553e-350c-49a0-b0e0-fdaba851f4d6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Slot4",
+                    "type": "Button",
+                    "id": "5a178285-59cd-4ffc-ac29-68c1a690dce8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Inspect",
+                    "type": "Button",
+                    "id": "47688d45-4486-45be-a15e-60c11dee8d59",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -32,17 +107,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "1ec972e5-7656-4cfc-8718-b8ef407673e5",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Hold,Tap",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MouseClick",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "2D Vector",
                     "id": "7a1c702d-dded-4363-aef0-26c7cd2ccc37",
@@ -97,6 +161,116 @@
                     "action": "CameraMovement",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "ecb840e1-dcd1-4900-bf24-68bc807037be",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimarySelect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "16c047bf-4a7e-493e-ada9-16a280474ebf",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Point",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4eedbf16-3038-437d-8c60-1e2cf2a39017",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectAll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "143b818f-bf7d-4ee2-9c1c-d8463dc57bb6",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CycleLeader",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "17a07385-3a55-45f5-93c2-cd55e0fa2fdb",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Deselect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69e83dde-5332-4579-b981-d36e11d2e2e5",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slot1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6f7ea400-0b33-4f75-bd9e-40da6b62b1c1",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slot2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1a285c6-116b-427b-b91f-a3e043a879a8",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slot3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "53952b52-1851-4df2-bb07-6cfd9e7c25ba",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slot4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "924789fc-c4ce-487e-a589-a7629d42e026",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Inspect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

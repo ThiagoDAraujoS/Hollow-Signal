@@ -11,8 +11,11 @@ These systems form the bedrock. Nothing else can communicate or persist without 
 With data in memory, you need entities to hold that data and a way to move them.
 
 - [x] **Character Component (Stats):** Build the component that tracks the active masteries and skill levels (relying on the Skill/Mastery databases). _(C# code finished in_ _CharacterSheet-v14.cs__!)_
-- [ ] **Movement & Area System:** Set up the NavMesh agents, anchor points, and the logic to move a character to a specific coordinate.
-- [ ] **Brain Controller (Input):** Build the raycaster that selects characters and sends movement commands to the Movement System.
+- [ ] **NavMesh & Click-to-Move (Single Unit):** Configure NavMesh surface and walkable layers; connect New Input System click to issue destination orders to active character.
+- [ ] **Player Brain & Unit Selection:** Select individual units or multi-select party members via raycast clicks; bind selected units to camera anchor elevation tracking.
+- [ ] **Squad Movement & Formations:** Implement destination distribution/offsets so multiple selected units navigate and arrive without overlapping or pushing each other.
+- [ ] **Tactical Area / Zone System:** Define Voronoi/polygon combat zones with centers, connectivity graphs, and pre-allocated tactical anchor spots (cover, open ground, machine fronts).
+- [ ] **Combat State Movement & Interaction:** When in turn-based combat, clicking an area reserves and moves to a free zone slot; clicking machines queues pathing to front, interaction execution, and relocation to an open slot.
 - [x] **Camera Controller:** Implement the isometric camera so you can actually see and navigate the test space you are building.
 - [x] **Base Scene & Entity Prefabs (Spawn Asleep):** Construct the foundational Unity prefabs (Hero, NPCs, chests, doors) ensuring they start disabled (`activeSelf = false` in the inspector) and are pre-configured with `UniqueId`, `BlackboardClient`, and their respective state scripts.
 - [x] **Area Batch Loader & Sleep-Spawn Coordinator:** Build the system that runs your 5-step boot loop: destroy live dynamic instances -> instantiate scene prefabs disabled -> determine relevant sector/area IDs -> instruct the Blackboard to deserialize only those memories -> run `OnLoadState` and wake them up with `SetActive(true)`.
