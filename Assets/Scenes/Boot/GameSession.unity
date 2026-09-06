@@ -724,7 +724,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Core.Managers.GameSessionManager
   dependencyDatabase: {fileID: 11400000, guid: 7fbba98f5f99f294f8620778fec87784, type: 2}
   currentMapName:
-    value: test_map
+    value: TestMap
 --- !u!114 &1638821593
 MonoBehaviour:
   m_ObjectHideFlags: 0

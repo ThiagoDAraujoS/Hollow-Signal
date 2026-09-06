@@ -9,7 +9,7 @@ namespace Actors.Brains {
         public CharacterMovement activeCharacter;
         
         /// An optional reference to the camera controller to update the follow target when a character is selected.
-        public CameraController cameraController;
+        public CameraAnchor cameraAnchor;
         
         private Camera _mainCamera;
         
@@ -31,7 +31,7 @@ namespace Actors.Brains {
                 CharacterMovement clickedCharacter = hit.collider.GetComponent<CharacterMovement>();
                 if (clickedCharacter != null) {
                     activeCharacter = clickedCharacter;
-                    if (cameraController != null) {
+                    if (cameraAnchor != null) {
                         //    cameraController.target = activeCharacter.transform;
                     }
                 }
