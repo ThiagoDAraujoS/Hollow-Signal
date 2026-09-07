@@ -12,7 +12,7 @@ namespace Actors.Brains{
     /// and selection logic to PartySelection.
     /// </summary>
     public class PlayerBrain : MonoBehaviour{
-        public static PlayerBrain Instance{ get; private set; }
+        private static PlayerBrain _instance;
 
         [Header("Party Roster")] [Tooltip("Canonical list of active party members in roster order.")] [SerializeField]
         private List<Character> activePartyMembers = new();
@@ -28,9 +28,7 @@ namespace Actors.Brains{
         [SerializeField] private InputActionReference slot2ActionRef;
         [SerializeField] private InputActionReference slot3ActionRef;
         [SerializeField] private InputActionReference slot4ActionRef;
-
-        [Header("Inspection Input Action")] [SerializeField]
-        private InputActionReference inspectActionRef;
+        [SerializeField] private InputActionReference inspectActionRef;
 
         [Header("Raycast & Layers")] [SerializeField]
         private LayerMask characterLayer;
@@ -50,29 +48,53 @@ namespace Actors.Brains{
         private Vector2 _dragStartScreenPos;
         private Vector2 _currentScreenPos;
 
-        public PartySelection     Selection          => _selection;
-        public Character          Lead               => _selection.Lead;
-        public HashSet<Character> SelectedCharacters => _selection.Selected;
-        public List<Character>    ActivePartyMembers => activePartyMembers;
+        public static PartySelection     Selection          => _instance._selection;
+        public static Character          Lead               => _instance._selection.Lead;
+        public static HashSet<Character> SelectedCharacters => _instance._selection.Selected;
+        public static List<Character>    ActivePartyMembers => _instance.activePartyMembers;
 
-        public Sheet                      CurrentInspectedSheet{ get; private set; }
+        public static Sheet               CurrentInspectedSheet{ get; private set; }
         public static event Action<Sheet> OnSheetInspected;
 
         private void Awake(){
-            if (Instance == null)
-                Instance = this;
-            else if (Instance != this)
+            if (_instance == null)
+                _instance = this;
+            else if (_instance != this)
                 Destroy(gameObject);
 
             if (mainCamera == null)
                 mainCamera = Camera.main;
 
             InitializeBoundActions();
+            _selection.OnSelectionChanged += UpdateSelectionCircles;
         }
 
         private void OnDestroy(){
-            if (Instance == this)
-                Instance = null;
+            if (_instance != this) return;
+            _selection.OnSelectionChanged -= UpdateSelectionCircles;
+            _instance                     =  null;
+        }
+
+        public static void AddPartyMember(Character character){
+            if (!_instance.activePartyMembers.Contains(character))
+                _instance.activePartyMembers.Add(character);
+        }
+
+        public static void RemovePartyMember(Character character) =>
+            _instance.activePartyMembers.Remove(character);
+
+        public static void ClearPartyMembers() =>
+            _instance.activePartyMembers.Clear();
+
+        public static bool IsPartyMember(Character character) =>
+            _instance.activePartyMembers.Contains(character);
+
+        public static bool IsSelected(Character character) =>
+            _instance._selection.Contains(character);
+
+        public static void Deselect(Character character){
+            if (_instance._selection.Contains(character))
+                _instance._selection.ToggleAddSelection(character);
         }
 
         private void InitializeBoundActions(){
@@ -92,6 +114,7 @@ namespace Actors.Brains{
                 t.Enable();
 
             pointActionRef.action.Enable();
+            UpdateSelectionCircles();
         }
 
         private void OnDisable(){
@@ -153,6 +176,17 @@ namespace Actors.Brains{
         private void SelectSlot(int index){
             if (index >= 0 && index < activePartyMembers.Count)
                 _selection.SingleUnitSelect(activePartyMembers[index]);
+        }
+
+        private void UpdateSelectionCircles(){
+            foreach (Character member in activePartyMembers){
+                if (member == null) continue;
+
+                if (_selection.Contains(member))
+                    member.TurnSelectionCircleOn();
+                else
+                    member.TurnSelectionCircleOff();
+            }
         }
 
         private void OnGUI(){
