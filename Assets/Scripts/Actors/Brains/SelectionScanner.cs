@@ -41,7 +41,7 @@ namespace Actors.Brains {
                 Character character = candidates[i];
                 if (character == null) continue;
 
-                Vector3 screenPoint = cam.WorldToScreenPoint(character.transform.position);
+                Vector3 screenPoint = cam.WorldToScreenPoint(character.WorldPosition);
 
                 if (screenPoint.z > 0 && selectionRect.Contains(new Vector2(screenPoint.x, screenPoint.y)))
                     enclosed.Add(character);

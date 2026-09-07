@@ -749,6 +749,7 @@ GameObject:
   - component: {fileID: 730946002}
   - component: {fileID: 730945999}
   - component: {fileID: 730945998}
+  - component: {fileID: 730946003}
   m_Layer: 9
   m_Name: Main
   m_TagString: Untagged
@@ -770,6 +771,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1758965033}
+  - {fileID: 1023475465}
   m_Father: {fileID: 2457432}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &730945998
@@ -857,7 +859,19 @@ MonoBehaviour:
   nmAgent: {fileID: 1758965034}
   animator: {fileID: 730945998}
   selectionCircle: {fileID: 1023475465}
-  visualBody: {fileID: 0}
+  body: {fileID: 1758965032}
+--- !u!114 &730946003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730945996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24a887167e0532547a473a93b9064c47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Actors.Player.CharacterMovement
 --- !u!1 &1023475464
 GameObject:
   m_ObjectHideFlags: 0
@@ -870,6 +884,7 @@ GameObject:
   - component: {fileID: 1023475468}
   - component: {fileID: 1023475467}
   - component: {fileID: 1023475466}
+  - component: {fileID: 1023475469}
   m_Layer: 9
   m_Name: SelectionRing
   m_TagString: Untagged
@@ -885,12 +900,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023475464}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.0001, z: 0}
   m_LocalScale: {x: 0.1, y: 0, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1758965033}
+  m_Father: {fileID: 730945997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1023475466
 MonoBehaviour:
@@ -904,7 +919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08250b4cbb25a1d4fbf83709bf3fb70a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Helpers.Spin
-  speed: {x: 0, y: 5, z: 0}
+  speed: {x: 0, y: 7.5, z: 0}
 --- !u!23 &1023475467
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -962,6 +977,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023475464}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1023475469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023475464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1438d9020c7b4e9f90b779879c921a39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Helpers.Snap
+  target: {fileID: 1758965033}
 --- !u!1 &1107584218
 GameObject:
   m_ObjectHideFlags: 0
@@ -1270,7 +1298,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 370652601}
-  - {fileID: 1023475465}
   m_Father: {fileID: 730945997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!195 &1758965034
@@ -1408,6 +1435,8 @@ MonoBehaviour:
     type: 3}
   deselectActionRef: {fileID: 2316963312562962945, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
+  stopActionRef: {fileID: -2918641981604297831, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
   slot1ActionRef: {fileID: -4442677490603887968, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
   slot2ActionRef: {fileID: 8705650973938063207, guid: e281ab66cb328ed44952e7778f41ed5a,
@@ -1416,9 +1445,14 @@ MonoBehaviour:
     type: 3}
   slot4ActionRef: {fileID: -3951140834591987041, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
+  modifierShiftActionRef: {fileID: 0}
+  modifierAltActionRef: {fileID: 0}
   characterLayer:
     serializedVersion: 2
     m_Bits: 512
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
   mainCamera: {fileID: 107251106}
   dragThreshold: 10
   holdThreshold: 0.35

@@ -29,9 +29,14 @@ namespace Core.Managers {
 
         public IReadOnlyList<string> ActiveCharacterIds => activeCharacterIds;
 
+        public static MapManager CurrentMapManager { get; private set; }
         public static event Action<MapManager> OnMapLoaded;
 
-        public static void LoadingMapFinished(MapManager manager) => OnMapLoaded?.Invoke(manager);
+        public static void LoadingMapFinished(MapManager manager) {
+            CurrentMapManager = manager;
+            Instance.InitializeParty(manager);
+            OnMapLoaded?.Invoke(manager);
+        }
 
         protected override void OnAwake() {
             if (Instance != null && Instance != this) {
@@ -52,12 +57,8 @@ namespace Core.Managers {
                 await SaveSystem.LoadFiles(deps,
                     _ => { /*TODO: Restore the game to its main menu state and show an error message */ });
 
-                AsyncOperation op = SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
+                SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
                 Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
-                while (op is { isDone: false })
-                    await Task.Yield();
-
-                InitializeParty();
             }
             catch (Exception e) {
                 Debug.LogError($"Could not load scene {currentMapName}. Details: {e}");
@@ -65,7 +66,7 @@ namespace Core.Managers {
             }
         }
 
-        public void InitializeParty() {
+        public void InitializeParty(MapManager map) {
             Character[] allHeroes = heroesContainer.GetComponentsInChildren<Character>(includeInactive: true);
             PlayerBrain.ClearPartyMembers();
 
@@ -75,8 +76,11 @@ namespace Core.Managers {
 
                 hero.SetVisualsActive(shouldBeActive);
 
-                if (shouldBeActive)
-                    PlayerBrain.AddPartyMember(hero);
+                if (!shouldBeActive) continue;
+                PlayerBrain.AddPartyMember(hero);
+                hero.nmAgent.enabled = true;
+                hero.nmAgent.Warp(map.DefaultSpawnPoint.position);
+                hero.movement.enabled = true;
             }
         }
 

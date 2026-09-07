@@ -10,6 +10,7 @@ namespace World {
         /// Dedicated transform (position and facing orientation) where the character stands to interact.
         /// </summary>
         Transform UseSpot { get; }
+        Quaternion UseRotation { get; }
 
         /// <summary>
         /// Executes the primary interaction on this object.

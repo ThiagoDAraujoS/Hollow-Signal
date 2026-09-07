@@ -8,10 +8,9 @@ using UnityEngine.Serialization;
 
 namespace Actors.Brains{
     /// <summary>
-    /// Coordinates player input for direct commands / continuous hold-steering (Left Click) 
-    /// and unit selection / context menus (Right Click) using Unity's New Input System. 
-    /// Delegates input lifecycle to BoundActions, raycasting/geometry to SelectionScanner,
-    /// and selection logic to PartySelection.
+    /// Central input coordinator and party facade.
+    /// Delegates selection gestures to SelectionGestureHandler, movement and usable commands to PlayerCommandDispatcher,
+    /// and selection state to PartySelection.
     /// </summary>
     public class PlayerBrain : MonoBehaviour{
         private static PlayerBrain _instance;
@@ -29,6 +28,7 @@ namespace Actors.Brains{
         [SerializeField] private InputActionReference selectAllActionRef;
         [SerializeField] private InputActionReference cycleLeaderActionRef;
         [SerializeField] private InputActionReference deselectActionRef;
+        [SerializeField] private InputActionReference stopActionRef;
         [SerializeField] private InputActionReference slot1ActionRef;
         [SerializeField] private InputActionReference slot2ActionRef;
         [SerializeField] private InputActionReference slot3ActionRef;
@@ -42,7 +42,8 @@ namespace Actors.Brains{
         [Header("Raycast & Layers")] [SerializeField]
         private LayerMask characterLayer;
 
-        [SerializeField] private Camera mainCamera;
+        [SerializeField] private LayerMask groundLayer = ~0;
+        [SerializeField] private Camera    mainCamera;
 
         [Header("Timing & Thresholds")] [SerializeField]
         private float dragThreshold = 10f;
@@ -57,19 +58,12 @@ namespace Actors.Brains{
 
         [SerializeField] private Color boxFillColor = new(0.2f, 0.8f, 0.2f, 0.2f);
 
-        private readonly PartySelection    _selection    = new();
-        private readonly List<BoundAction> _boundActions = new();
+        private readonly PartySelection          _selection    = new();
+        private readonly List<BoundAction>       _boundActions = new();
+        private          SelectionGestureHandler _gestureHandler;
+        private          PlayerCommandDispatcher _commandDispatcher;
 
         private Vector2 _currentScreenPos;
-
-        private bool  _isLeftPressed;
-        private float _lastContinuousCommandTime;
-
-        private bool    _isRightPressed;
-        private bool    _isRightDragging;
-        private Vector2 _rightPressStartPos;
-        private float   _rightPressStartTime;
-        private bool    _contextMenuFired;
 
         public static PartySelection     Selection          => _instance._selection;
         public static Character          Lead               => _instance._selection.Lead;
@@ -96,6 +90,23 @@ namespace Actors.Brains{
             if (mainCamera == null)
                 mainCamera = Camera.main;
 
+            _gestureHandler = new SelectionGestureHandler(
+                mainCamera,
+                characterLayer,
+                _selection,
+                activePartyMembers,
+                dragThreshold,
+                holdThreshold,
+                boxBorderColor,
+                boxFillColor);
+
+            _gestureHandler.OnContextMenuRequested += pos => OnContextMenuRequested?.Invoke(pos);
+
+            _commandDispatcher = new PlayerCommandDispatcher(
+                mainCamera,
+                groundLayer,
+                continuousRepathInterval);
+
             InitializeBoundActions();
             _selection.OnSelectionChanged += UpdateSelectionCircles;
         }
@@ -111,17 +122,13 @@ namespace Actors.Brains{
                 _instance.activePartyMembers.Add(character);
         }
 
-        public static void RemovePartyMember(Character character) =>
-            _instance.activePartyMembers.Remove(character);
+        public static void RemovePartyMember(Character character) => _instance.activePartyMembers.Remove(character);
 
-        public static void ClearPartyMembers() =>
-            _instance.activePartyMembers.Clear();
+        public static void ClearPartyMembers() => _instance.activePartyMembers.Clear();
 
-        public static bool IsPartyMember(Character character) =>
-            _instance.activePartyMembers.Contains(character);
+        public static bool IsPartyMember(Character character) => _instance.activePartyMembers.Contains(character);
 
-        public static bool IsSelected(Character character) =>
-            _instance._selection.Contains(character);
+        public static bool IsSelected(Character character) => _instance._selection.Contains(character);
 
         public static void Deselect(Character character){
             if (_instance._selection.Contains(character))
@@ -134,12 +141,16 @@ namespace Actors.Brains{
             OnSheetInspected?.Invoke(CurrentInspectedSheet);
         }
 
+        public static void StopSelectedUnits() =>
+            PlayerCommandDispatcher.StopUnits(_instance._selection.Selected);
+
         private void InitializeBoundActions(){
             _boundActions.Add(new BoundAction(commandActionRef,       OnCommandStarted,       OnCommandCanceled));
             _boundActions.Add(new BoundAction(primarySelectActionRef, OnPrimarySelectStarted, OnPrimarySelectCanceled));
             _boundActions.Add(new BoundAction(selectAllActionRef,     _ => _selection.SelectAll(activePartyMembers)));
             _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => _selection.CycleLeader(activePartyMembers)));
             _boundActions.Add(new BoundAction(deselectActionRef,      _ => _selection.Clear()));
+            _boundActions.Add(new BoundAction(stopActionRef,          _ => StopSelectedUnits()));
             _boundActions.Add(new BoundAction(slot1ActionRef,         _ => SelectSlot(0)));
             _boundActions.Add(new BoundAction(slot2ActionRef,         _ => SelectSlot(1)));
             _boundActions.Add(new BoundAction(slot3ActionRef,         _ => SelectSlot(2)));
@@ -164,82 +175,40 @@ namespace Actors.Brains{
 
             pointActionRef?.action.Disable();
             modifierShiftActionRef?.action.Disable();
-            _isLeftPressed    = false;
-            _isRightPressed   = false;
-            _isRightDragging  = false;
-            _contextMenuFired = false;
+            _commandDispatcher.Reset();
+            _gestureHandler.Reset();
         }
 
         private void Update(){
             _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
+            _gestureHandler.Update(_currentScreenPos);
 
-            if (_isLeftPressed && Time.unscaledTime - _lastContinuousCommandTime >= continuousRepathInterval){
-                _lastContinuousCommandTime = Time.unscaledTime;
-                if (SelectionScanner.IsPointerInsideViewport(_currentScreenPos))
-                    OnContinuousCommand?.Invoke(_currentScreenPos);
-            }
-
-            if (!_isRightPressed || _contextMenuFired) return;
-            float dragDist = Vector2.Distance(_rightPressStartPos, _currentScreenPos);
-            if (dragDist >= dragThreshold)
-                _isRightDragging = true;
-            else if (Time.unscaledTime - _rightPressStartTime >= holdThreshold){
-                _contextMenuFired = true;
-                OnContextMenuRequested?.Invoke(_currentScreenPos);
-            }
+            if (!_commandDispatcher.IsCommandHeld || !SelectionScanner.IsPointerInsideViewport(_currentScreenPos)) return;
+            _commandDispatcher.UpdateContinuous(_currentScreenPos, Lead, _selection.Selected);
+            OnContinuousCommand?.Invoke(_currentScreenPos);
         }
 
         private void OnCommandStarted(InputAction.CallbackContext context){
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
 
-            _isLeftPressed             = true;
-            _lastContinuousCommandTime = Time.unscaledTime;
+            _commandDispatcher.OnCommandStarted();
+            _commandDispatcher.ExecuteDirectCommand(mousePos, Lead, _selection.Selected);
             OnDirectCommand?.Invoke(mousePos);
         }
 
-        private void OnCommandCanceled(InputAction.CallbackContext context){
-            if (!_isLeftPressed) return;
-            _isLeftPressed = false;
-        }
+        private void OnCommandCanceled(InputAction.CallbackContext context) => _commandDispatcher.OnCommandCanceled();
 
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos)) return;
 
-            _isRightPressed      = true;
-            _isRightDragging     = false;
-            _rightPressStartPos  = startPos;
-            _rightPressStartTime = Time.unscaledTime;
-            _contextMenuFired    = false;
+            _gestureHandler.OnPressStarted(startPos);
         }
 
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
-            if (!_isRightPressed) return;
-            _isRightPressed = false;
-
-            if (_isRightDragging){
-                _isRightDragging = false;
-                Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
-                List<Character> enclosed = SelectionScanner.GetCharactersInScreenRect(
-                    mainCamera, _rightPressStartPos, releasePos, activePartyMembers);
-
-                if (enclosed.Count <= 0) return;
-                if (IsShiftPressed)
-                    _selection.AdditiveBoxSelect(enclosed);
-                else
-                    _selection.DragboxSelect(enclosed);
-            }
-            else if (!_contextMenuFired){
-                Vector2   releasePos   = pointActionRef.action.ReadValue<Vector2>();
-                Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, releasePos, characterLayer);
-                if (hitCharacter == null) return;
-
-                if (IsShiftPressed)
-                    _selection.ToggleAddSelection(hitCharacter);
-                else
-                    _selection.SingleUnitSelect(hitCharacter);
-            }
+            Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
+            _gestureHandler.OnPressCanceled(releasePos, IsShiftPressed);
         }
 
         private void SelectSlot(int index){
@@ -258,18 +227,6 @@ namespace Actors.Brains{
             }
         }
 
-        private void OnGUI(){
-            if (!_isRightDragging) return;
-
-            float distance = Vector2.Distance(_rightPressStartPos, _currentScreenPos);
-            if (distance < dragThreshold) return;
-
-            Vector2 guiStart   = new(_rightPressStartPos.x, Screen.height - _rightPressStartPos.y);
-            Vector2 guiCurrent = new(_currentScreenPos.x, Screen.height - _currentScreenPos.y);
-            Rect    guiRect    = SelectionScanner.GetScreenRect(guiStart, guiCurrent);
-
-            SelectionScanner.DrawScreenRect(guiRect, boxFillColor);
-            SelectionScanner.DrawScreenRectBorder(guiRect, 2f, boxBorderColor);
-        }
+        private void OnGUI() => _gestureHandler.DrawGUI(_currentScreenPos);
     }
 }
