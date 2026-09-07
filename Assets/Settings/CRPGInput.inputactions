@@ -115,7 +115,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "ModifierShift",
+                    "name": "ModifierAppend",
                     "type": "Button",
                     "id": "b3e945c2-7f28-48b0-a3da-36dc4041a7e1",
                     "expectedControlType": "",
@@ -326,7 +326,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ModifierShift",
+                    "action": "ModifierAppend",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -337,7 +337,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ModifierShift",
+                    "action": "ModifierAppend",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

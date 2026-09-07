@@ -24,6 +24,11 @@ namespace Actors.Brains{
         public void SingleUnitSelect(Character selectedUnit) => Select(selectedUnit);
 
         /// <summary>
+        /// Adds a unit to the current selection without wiping previous members (Shift/Append).
+        /// </summary>
+        public void AddUnitSelect(Character selectedUnit) => Append(selectedUnit);
+
+        /// <summary>
         /// Toggles a unit's selection state (Shift/Ctrl + Click).
         /// If already selected, removes it. If not, adds it and sets it as the Lead.
         /// </summary>
@@ -50,8 +55,7 @@ namespace Actors.Brains{
 
         /// <summary>
         /// Selects all members of the active party (~ or hotkey).
-        /// Retains current Lead if still in the party, otherwise defaults to the first party member.
-        /// </summary>
+        /// Retains current Lead if still in the party, otherwise defaults to the first party member.\n        /// </summary>
         public void SelectAll(List<Character> activePartyMembersList){
             Selected.Clear();
 
@@ -124,7 +128,9 @@ namespace Actors.Brains{
             List<Character> clean = Sanitize(characters);
             if (clean.Count == 0) return;
 
-            Lead = clean[0];
+            if (Lead == null || !Selected.Contains(Lead))
+                Lead = clean[0];
+
             foreach (Character t in clean)
                 Selected.Add(t);
 

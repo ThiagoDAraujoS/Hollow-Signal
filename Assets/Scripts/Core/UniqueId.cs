@@ -29,6 +29,19 @@ namespace Core {
             UnityEditor.EditorUtility.SetDirty(this);
         }
 
+        /// <summary>
+        /// Forces a regeneration of the UUID. Useful when duplicating GameObjects or prefabs.
+        /// </summary>
+        [ContextMenu("Reroll UUID")]
+        public void RerollId() {
+            UnityEditor.Undo.RecordObject(this, "Reroll UUID");
+            uniqueId = Guid.NewGuid().ToString();
+            UnityEditor.EditorUtility.SetDirty(this);
+            if (!Application.isPlaying && gameObject.scene.IsValid())
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+            Debug.Log($"Rerolled UUID for {gameObject.name}: {uniqueId}", this);
+        }
+
         [ContextMenu("Copy UUID to Clipboard")]
         private void CopyIdToClipboard() {
             GUIUtility.systemCopyBuffer = uniqueId;

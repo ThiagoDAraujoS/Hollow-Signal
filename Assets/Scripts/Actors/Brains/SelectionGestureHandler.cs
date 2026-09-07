@@ -2,13 +2,21 @@
 using System.Collections.Generic;
 using Actors.Player;
 using UnityEngine;
+using World;
 
 namespace Actors.Brains{
     /// <summary>
-    /// Processes right-click mouse gestures: distinguishes between short tap (single unit select),
-    /// stationary hold (context menu request), and click-and-drag (marquee box selection).
+    /// Encapsulates mouse gesture state for selection:
+    /// - Right-Click tap (< threshold distance & duration) -> Raycasts character for single unit selection.
+    /// - Right-Click double tap -> Snaps camera to character body and follows until WASD.
+    /// - Shift + Right-Click -> Adds unit to selection.
+    /// - Right-Click drag (> threshold distance) -> Marquee drag box selection.
+    /// - Shift + Right-Click drag -> Additive box selection.
+    /// - Right-Click hold (> threshold duration without dragging) -> Fires context menu request.
     /// </summary>
     public class SelectionGestureHandler{
+        private const float DoubleClickWindow = 0.3f;
+
         private readonly Camera          _camera;
         private readonly LayerMask       _characterLayer;
         private readonly PartySelection  _selection;
@@ -18,33 +26,35 @@ namespace Actors.Brains{
         private readonly Color           _boxBorderColor;
         private readonly Color           _boxFillColor;
 
-        private bool    _isPressed;
-        private bool    _contextMenuFired;
         private Vector2 _pressStartPos;
         private float   _pressStartTime;
+        private bool    _isPressed;
+        private bool    _contextMenuFired;
 
-        public event Action<Vector2> OnContextMenuRequested;
+        private Character _lastClickedCharacter;
+        private float     _lastClickTime;
 
         public bool IsDragging{ get; private set; }
 
-        public SelectionGestureHandler(
-            Camera          camera,
-            LayerMask       characterLayer,
-            PartySelection  selection,
-            List<Character> activePartyMembers,
-            float           dragThreshold  = 10f,
-            float           holdThreshold  = 0.35f,
-            Color?          boxBorderColor = null,
-            Color?          boxFillColor   = null){
+        public event Action<Vector2> OnContextMenuRequested;
 
+        public SelectionGestureHandler(
+            Camera camera,
+            LayerMask characterLayer,
+            PartySelection selection,
+            List<Character> activePartyMembers,
+            float dragThreshold,
+            float holdThreshold,
+            Color boxBorderColor,
+            Color boxFillColor){
             _camera             = camera;
             _characterLayer     = characterLayer;
             _selection          = selection;
             _activePartyMembers = activePartyMembers;
             _dragThreshold      = dragThreshold;
             _holdThreshold      = holdThreshold;
-            _boxBorderColor     = boxBorderColor ?? new Color(0.2f, 0.8f, 0.2f, 0.9f);
-            _boxFillColor       = boxFillColor ?? new Color(0.2f,   0.8f, 0.2f, 0.2f);
+            _boxBorderColor     = boxBorderColor;
+            _boxFillColor       = boxFillColor;
         }
 
         public void OnPressStarted(Vector2 screenPos){
@@ -88,17 +98,25 @@ namespace Actors.Brains{
                 if (hitCharacter == null) return;
 
                 if (isShiftPressed)
-                    _selection.ToggleAddSelection(hitCharacter);
-                else
+                    _selection.AddUnitSelect(hitCharacter);
+                else {
                     _selection.SingleUnitSelect(hitCharacter);
+
+                    if (_lastClickedCharacter == hitCharacter && Time.unscaledTime - _lastClickTime <= DoubleClickWindow) {
+                        CameraAnchor.Track(hitCharacter.BodyTransform);
+                        _lastClickedCharacter = null;
+                        _lastClickTime = 0f;
+                    }
+                    else {
+                        _lastClickedCharacter = hitCharacter;
+                        _lastClickTime = Time.unscaledTime;
+                    }
+                }
             }
         }
 
         public void DrawGUI(Vector2 currentScreenPos){
             if (!IsDragging) return;
-
-            float distance = Vector2.Distance(_pressStartPos, currentScreenPos);
-            if (distance < _dragThreshold) return;
 
             Vector2 guiStart   = new(_pressStartPos.x, Screen.height - _pressStartPos.y);
             Vector2 guiCurrent = new(currentScreenPos.x, Screen.height - currentScreenPos.y);

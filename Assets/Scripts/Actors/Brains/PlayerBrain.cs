@@ -5,6 +5,7 @@ using Core.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using World;
 
 namespace Actors.Brains{
     /// <summary>
@@ -34,8 +35,9 @@ namespace Actors.Brains{
         [SerializeField] private InputActionReference slot3ActionRef;
         [SerializeField] private InputActionReference slot4ActionRef;
 
-        [Header("Modifier Key Actions")] [SerializeField]
-        private InputActionReference modifierShiftActionRef;
+        [Header("Modifier Key Actions")]
+        [FormerlySerializedAs("modifierShiftActionRef")]
+        [SerializeField] private InputActionReference modifierAppendActionRef;
 
         [SerializeField] private InputActionReference modifierAltActionRef;
 
@@ -78,14 +80,21 @@ namespace Actors.Brains{
         public static event Action<Vector2> OnContextMenuRequested;
         public static event Action<bool>    OnAltModifierChanged;
 
-        public static bool IsShiftPressed => _instance != null && _instance.modifierShiftActionRef != null && _instance.modifierShiftActionRef.action.IsPressed();
-        public static bool IsAltPressed   => _instance != null && _instance.modifierAltActionRef != null && _instance.modifierAltActionRef.action.IsPressed();
+        public static bool IsAppendPressed => _instance.modifierAppendActionRef.action.IsPressed();
+        public static bool IsShiftPressed  => IsAppendPressed;
+
+        public static bool IsAltPressed => _instance.modifierAltActionRef != null && _instance.modifierAltActionRef.action.IsPressed();
 
         private void Awake(){
             if (_instance == null)
                 _instance = this;
             else if (_instance != this)
                 Destroy(gameObject);
+
+            if (modifierAppendActionRef == null) {
+                PlayerInput playerInput = GetComponent<PlayerInput>();
+                modifierAppendActionRef = InputActionReference.Create(playerInput.actions.FindAction("ModifierAppend"));
+            }
 
             if (mainCamera == null)
                 mainCamera = Camera.main;
@@ -164,8 +173,8 @@ namespace Actors.Brains{
             foreach (BoundAction t in _boundActions)
                 t.Enable();
 
-            pointActionRef?.action.Enable();
-            modifierShiftActionRef?.action.Enable();
+            pointActionRef.action.Enable();
+            modifierAppendActionRef.action.Enable();
             UpdateSelectionCircles();
         }
 
@@ -173,8 +182,8 @@ namespace Actors.Brains{
             foreach (BoundAction t in _boundActions)
                 t.Disable();
 
-            pointActionRef?.action.Disable();
-            modifierShiftActionRef?.action.Disable();
+            pointActionRef.action.Disable();
+            modifierAppendActionRef.action.Disable();
             _commandDispatcher.Reset();
             _gestureHandler.Reset();
         }
@@ -208,12 +217,20 @@ namespace Actors.Brains{
 
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
             Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
-            _gestureHandler.OnPressCanceled(releasePos, IsShiftPressed);
+            _gestureHandler.OnPressCanceled(releasePos, IsAppendPressed);
         }
 
         private void SelectSlot(int index){
-            if (index >= 0 && index < activePartyMembers.Count)
-                _selection.SingleUnitSelect(activePartyMembers[index]);
+            if (index < 0 || index >= activePartyMembers.Count) return;
+            Character hero = activePartyMembers[index];
+
+            if (IsAppendPressed) {
+                _selection.AddUnitSelect(hero);
+            }
+            else {
+                _selection.SingleUnitSelect(hero);
+                CameraAnchor.Track(hero.BodyTransform);
+            }
         }
 
         private void UpdateSelectionCircles(){

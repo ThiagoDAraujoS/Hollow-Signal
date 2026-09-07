@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,7 +23,8 @@ namespace World {
         [SerializeField] private Camera renderingCamera;
         [SerializeField] private CinemachineCamera cinemachineCamera;
 
-        private Vector2 _moveInput;
+        private Vector2   _moveInput;
+        private Transform _trackedTarget;
 
         [Header("Camera Bounds")]
         [SerializeField] private Bounds bounds = new();
@@ -70,7 +71,10 @@ namespace World {
             zoomActionRef.action.Disable();
         }
 
-        private void OnMovePerformed(InputAction.CallbackContext context) => _moveInput = context.ReadValue<Vector2>();
+        private void OnMovePerformed(InputAction.CallbackContext context) {
+            _trackedTarget = null;
+            _moveInput = context.ReadValue<Vector2>();
+        }
 
         private void OnMoveCanceled(InputAction.CallbackContext context) => _moveInput = Vector2.zero;
 
@@ -96,15 +100,22 @@ namespace World {
             MoveAnchor();
         }
 
+        private void LateUpdate() {
+            if (_trackedTarget == null) return;
+            transform.position = bounds.Clamp(_trackedTarget.position);
+        }
+
         /// <summary>
         /// Configures the camera anchor's initial position and map boundaries when a new map is loaded.
         /// </summary>
         public static void SetUpCamera(Vector3 position, Bounds newBounds) {
             _instance.bounds = newBounds;
-            _instance.transform.position = _instance.bounds?.Clamp(position) ?? position;
+            _instance.transform.position = _instance.bounds.Clamp(position);
         }
 
-        public static void Track(Transform transform) { }
+        public static void Track(Transform target) => _instance._trackedTarget = target;
+
+        public static void Detach() => _instance._trackedTarget = null;
 
         private void MoveAnchor() {
             Vector3 camForward = renderingCamera.transform.forward;
