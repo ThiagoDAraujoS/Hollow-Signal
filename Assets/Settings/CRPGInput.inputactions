@@ -97,13 +97,22 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Inspect",
+                    "name": "Command",
                     "type": "Button",
                     "id": "47688d45-4486-45be-a15e-60c11dee8d59",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "c7a912e8-5b43-4f91-872e-33f789d0234a",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -165,7 +174,7 @@
                 {
                     "name": "",
                     "id": "ecb840e1-dcd1-4900-bf24-68bc807037be",
-                    "path": "<Mouse>/leftButton",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -264,11 +273,22 @@
                 {
                     "name": "",
                     "id": "924789fc-c4ce-487e-a589-a7629d42e026",
-                    "path": "<Mouse>/rightButton",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Inspect",
+                    "action": "Command",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e4f8d9b1-5463-4a82-937b-483582498711",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

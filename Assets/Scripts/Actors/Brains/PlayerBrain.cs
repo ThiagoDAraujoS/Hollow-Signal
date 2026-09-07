@@ -4,21 +4,29 @@ using Actors.Player;
 using Core.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-namespace Actors.Brains{
+namespace Actors.Brains {
     /// <summary>
-    /// Coordinates player input for unit selection and target inspection using Unity's New Input System.
+    /// Coordinates player input for direct commands / continuous hold-steering (Left Click) 
+    /// and unit selection / context menus (Right Click) using Unity's New Input System. 
     /// Delegates input lifecycle to BoundActions, raycasting/geometry to SelectionScanner,
     /// and selection logic to PartySelection.
     /// </summary>
-    public class PlayerBrain : MonoBehaviour{
+    public class PlayerBrain : MonoBehaviour {
         private static PlayerBrain _instance;
 
-        [Header("Party Roster")] [Tooltip("Canonical list of active party members in roster order.")] [SerializeField]
-        private List<Character> activePartyMembers = new();
+        [Header("Party Roster")]
+        [Tooltip("Canonical list of active party members in roster order.")]
+        [SerializeField] private List<Character> activePartyMembers = new();
 
-        [Header("Selection Input Actions")] [SerializeField]
-        private InputActionReference primarySelectActionRef;
+        [Header("Mouse Action References")]
+        [Tooltip("Command / Action: Left Click by default.")]
+        [FormerlySerializedAs("inspectActionRef")]
+        [SerializeField] private InputActionReference commandActionRef;
+
+        [Tooltip("Select / Box Select / Context: Right Click by default.")]
+        [SerializeField] private InputActionReference primarySelectActionRef;
 
         [SerializeField] private InputActionReference pointActionRef;
         [SerializeField] private InputActionReference selectAllActionRef;
@@ -28,35 +36,48 @@ namespace Actors.Brains{
         [SerializeField] private InputActionReference slot2ActionRef;
         [SerializeField] private InputActionReference slot3ActionRef;
         [SerializeField] private InputActionReference slot4ActionRef;
-        [SerializeField] private InputActionReference inspectActionRef;
 
-        [Header("Raycast & Layers")] [SerializeField]
-        private LayerMask characterLayer;
-
+        [Header("Raycast & Layers")]
+        [SerializeField] private LayerMask characterLayer;
         [SerializeField] private Camera mainCamera;
 
-        [Header("Box Selection Visuals")] [SerializeField]
-        private Color boxBorderColor = new(0.2f, 0.8f, 0.2f, 0.9f);
-
-        [SerializeField] private Color boxFillColor  = new(0.2f, 0.8f, 0.2f, 0.2f);
+        [Header("Timing & Thresholds")]
         [SerializeField] private float dragThreshold = 10f;
+        [SerializeField] private float holdThreshold = 0.35f;
+        [Tooltip("Interval in seconds between continuous path updates when holding Left Click.")]
+        [SerializeField] private float continuousRepathInterval = 0.08f;
 
-        private readonly PartySelection    _selection    = new();
+        [Header("Box Selection Visuals")]
+        [SerializeField] private Color boxBorderColor = new(0.2f, 0.8f, 0.2f, 0.9f);
+        [SerializeField] private Color boxFillColor = new(0.2f, 0.8f, 0.2f, 0.2f);
+
+        private readonly PartySelection _selection = new();
         private readonly List<BoundAction> _boundActions = new();
 
-        private bool    _isDragging;
-        private Vector2 _dragStartScreenPos;
         private Vector2 _currentScreenPos;
 
-        public static PartySelection     Selection          => _instance._selection;
-        public static Character          Lead               => _instance._selection.Lead;
-        public static HashSet<Character> SelectedCharacters => _instance._selection.Selected;
-        public static List<Character>    ActivePartyMembers => _instance.activePartyMembers;
+        private bool _isLeftPressed;
+        private float _lastContinuousCommandTime;
 
-        public static Sheet               CurrentInspectedSheet{ get; private set; }
+        private bool _isRightPressed;
+        private bool _isRightDragging;
+        private Vector2 _rightPressStartPos;
+        private float _rightPressStartTime;
+        private bool _contextMenuFired;
+
+        public static PartySelection Selection => _instance._selection;
+        public static Character Lead => _instance._selection.Lead;
+        public static HashSet<Character> SelectedCharacters => _instance._selection.Selected;
+        public static List<Character> ActivePartyMembers => _instance.activePartyMembers;
+
+        public static Sheet CurrentInspectedSheet { get; private set; }
         public static event Action<Sheet> OnSheetInspected;
 
-        private void Awake(){
+        public static event Action<Vector2> OnDirectCommand;
+        public static event Action<Vector2> OnContinuousCommand;
+        public static event Action<Vector2> OnContextMenuRequested;
+
+        private void Awake() {
             if (_instance == null)
                 _instance = this;
             else if (_instance != this)
@@ -69,13 +90,13 @@ namespace Actors.Brains{
             _selection.OnSelectionChanged += UpdateSelectionCircles;
         }
 
-        private void OnDestroy(){
+        private void OnDestroy() {
             if (_instance != this) return;
             _selection.OnSelectionChanged -= UpdateSelectionCircles;
-            _instance                     =  null;
+            _instance = null;
         }
 
-        public static void AddPartyMember(Character character){
+        public static void AddPartyMember(Character character) {
             if (!_instance.activePartyMembers.Contains(character))
                 _instance.activePartyMembers.Add(character);
         }
@@ -92,14 +113,20 @@ namespace Actors.Brains{
         public static bool IsSelected(Character character) =>
             _instance._selection.Contains(character);
 
-        public static void Deselect(Character character){
+        public static void Deselect(Character character) {
             if (_instance._selection.Contains(character))
                 _instance._selection.ToggleAddSelection(character);
         }
 
-        private void InitializeBoundActions(){
+        public static void Inspect(ISelectable selectable) {
+            if (selectable?.Sheet == null) return;
+            CurrentInspectedSheet = selectable.Sheet;
+            OnSheetInspected?.Invoke(CurrentInspectedSheet);
+        }
+
+        private void InitializeBoundActions() {
+            _boundActions.Add(new BoundAction(commandActionRef,       OnCommandStarted,       OnCommandCanceled));
             _boundActions.Add(new BoundAction(primarySelectActionRef, OnPrimarySelectStarted, OnPrimarySelectCanceled));
-            _boundActions.Add(new BoundAction(inspectActionRef,       OnInspectPerformed));
             _boundActions.Add(new BoundAction(selectAllActionRef,     _ => _selection.SelectAll(activePartyMembers)));
             _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => _selection.CycleLeader(activePartyMembers)));
             _boundActions.Add(new BoundAction(deselectActionRef,      _ => _selection.Clear()));
@@ -109,7 +136,7 @@ namespace Actors.Brains{
             _boundActions.Add(new BoundAction(slot4ActionRef,         _ => SelectSlot(3)));
         }
 
-        private void OnEnable(){
+        private void OnEnable() {
             foreach (BoundAction t in _boundActions)
                 t.Enable();
 
@@ -117,69 +144,102 @@ namespace Actors.Brains{
             UpdateSelectionCircles();
         }
 
-        private void OnDisable(){
+        private void OnDisable() {
             foreach (BoundAction t in _boundActions)
                 t.Disable();
 
             pointActionRef.action.Disable();
-            _isDragging = false;
+            _isLeftPressed = false;
+            _isRightPressed = false;
+            _isRightDragging = false;
+            _contextMenuFired = false;
         }
 
-        private void Update() => _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
+        private void Update() {
+            _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
 
-        private void OnPrimarySelectStarted(InputAction.CallbackContext context){
+            if (_isLeftPressed) {
+                if (Time.unscaledTime - _lastContinuousCommandTime >= continuousRepathInterval) {
+                    _lastContinuousCommandTime = Time.unscaledTime;
+                    if (SelectionScanner.IsPointerInsideViewport(_currentScreenPos))
+                        OnContinuousCommand?.Invoke(_currentScreenPos);
+                }
+            }
+
+            if (_isRightPressed && !_contextMenuFired) {
+                float dragDist = Vector2.Distance(_rightPressStartPos, _currentScreenPos);
+                if (dragDist >= dragThreshold) {
+                    _isRightDragging = true;
+                }
+                else if (Time.unscaledTime - _rightPressStartTime >= holdThreshold) {
+                    _contextMenuFired = true;
+                    OnContextMenuRequested?.Invoke(_currentScreenPos);
+                }
+            }
+        }
+
+        private void OnCommandStarted(InputAction.CallbackContext context) {
+            Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
+            if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
+
+            _isLeftPressed = true;
+            _lastContinuousCommandTime = Time.unscaledTime;
+            OnDirectCommand?.Invoke(mousePos);
+        }
+
+        private void OnCommandCanceled(InputAction.CallbackContext context) {
+            if (!_isLeftPressed) return;
+            _isLeftPressed = false;
+        }
+
+        private void OnPrimarySelectStarted(InputAction.CallbackContext context) {
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos)) return;
 
-            _isDragging         = true;
-            _dragStartScreenPos = startPos;
+            _isRightPressed = true;
+            _isRightDragging = false;
+            _rightPressStartPos = startPos;
+            _rightPressStartTime = Time.unscaledTime;
+            _contextMenuFired = false;
         }
 
-        private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
-            if (!_isDragging) return;
-            _isDragging = false;
+        private void OnPrimarySelectCanceled(InputAction.CallbackContext context) {
+            if (!_isRightPressed) return;
+            _isRightPressed = false;
 
-            Vector2 releasePos   = pointActionRef.action.ReadValue<Vector2>();
-            float   dragDistance = Vector2.Distance(_dragStartScreenPos, releasePos);
-            bool    isShiftHeld  = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
-
-            if (dragDistance < dragThreshold){
-                Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, releasePos, characterLayer);
-                if (hitCharacter == null) return;
-                if (isShiftHeld)
-                    _selection.ToggleAddSelection(hitCharacter);
-                else
-                    _selection.SingleUnitSelect(hitCharacter);
-            }
-            else{
+            if (_isRightDragging) {
+                _isRightDragging = false;
+                Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
                 List<Character> enclosed = SelectionScanner.GetCharactersInScreenRect(
-                    mainCamera, _dragStartScreenPos, releasePos, activePartyMembers);
+                    mainCamera, _rightPressStartPos, releasePos, activePartyMembers);
 
                 if (enclosed.Count <= 0) return;
+                bool isShiftHeld = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
                 if (isShiftHeld)
                     _selection.AdditiveBoxSelect(enclosed);
                 else
                     _selection.DragboxSelect(enclosed);
             }
+            else if (!_contextMenuFired) {
+                Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
+                Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, releasePos, characterLayer);
+                if (hitCharacter == null) return;
+
+                bool isShiftHeld = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
+                if (isShiftHeld)
+                    _selection.ToggleAddSelection(hitCharacter);
+                else
+                    _selection.SingleUnitSelect(hitCharacter);
+            }
         }
 
-        private void OnInspectPerformed(InputAction.CallbackContext context){
-            Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
-            if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
-
-            ISelectable selectable = SelectionScanner.RaycastSelectable(mainCamera, mousePos, characterLayer);
-            if (selectable == null || selectable.Sheet == null) return;
-            CurrentInspectedSheet = selectable.Sheet;
-            OnSheetInspected?.Invoke(CurrentInspectedSheet);
-        }
-
-        private void SelectSlot(int index){
+        private void SelectSlot(int index) {
             if (index >= 0 && index < activePartyMembers.Count)
                 _selection.SingleUnitSelect(activePartyMembers[index]);
         }
 
-        private void UpdateSelectionCircles(){
-            foreach (Character member in activePartyMembers){
+        private void UpdateSelectionCircles() {
+            foreach (Character member in activePartyMembers) {
                 if (member == null) continue;
 
                 if (_selection.Contains(member))
@@ -189,15 +249,15 @@ namespace Actors.Brains{
             }
         }
 
-        private void OnGUI(){
-            if (!_isDragging) return;
+        private void OnGUI() {
+            if (!_isRightDragging) return;
 
-            float distance = Vector2.Distance(_dragStartScreenPos, _currentScreenPos);
+            float distance = Vector2.Distance(_rightPressStartPos, _currentScreenPos);
             if (distance < dragThreshold) return;
 
-            Vector2 guiStart   = new(_dragStartScreenPos.x, Screen.height - _dragStartScreenPos.y);
+            Vector2 guiStart = new(_rightPressStartPos.x, Screen.height - _rightPressStartPos.y);
             Vector2 guiCurrent = new(_currentScreenPos.x, Screen.height - _currentScreenPos.y);
-            Rect    guiRect    = SelectionScanner.GetScreenRect(guiStart, guiCurrent);
+            Rect guiRect = SelectionScanner.GetScreenRect(guiStart, guiCurrent);
 
             SelectionScanner.DrawScreenRect(guiRect, boxFillColor);
             SelectionScanner.DrawScreenRectBorder(guiRect, 2f, boxBorderColor);

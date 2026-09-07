@@ -9,15 +9,20 @@ using Partition = System.Collections.Generic.Dictionary<string, object>;
 namespace Actors.Player{
     [DisallowMultipleComponent]
     public class CharacterSheet : Sheet{
-        [Header("Character Sheet Data")] public Tracked<int>    level      = new("level", 1);
-        public                                  Tracked<int>    experience = new("experience", 0);
-        [SerializeField] private                MasteryDatabase masteryDatabase;
+        [Header("Character Sheet Data")] public Tracked<int> level = new("level", 1);
 
-        [SerializeField] private List<Mastery>          activeMasteries = new();
-        private readonly         Dictionary<Skill, int> _skills         = new();
+        public Tracked<int> experience = new("experience", 0);
 
-        public int                    Level           => level;
-        public int                    Experience      => experience;
+        [SerializeField] private MasteryDatabase masteryDatabase;
+
+        [SerializeField] private List<Mastery> activeMasteries = new();
+
+        private readonly Dictionary<Skill, int> _skills = new();
+
+        public int Level => level;
+
+        public int Experience => experience;
+
         public IReadOnlyList<Mastery> ActiveMasteries => activeMasteries;
 
         protected override void OnAwake(){
