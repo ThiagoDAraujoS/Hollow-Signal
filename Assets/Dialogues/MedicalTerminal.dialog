@@ -1,0 +1,25 @@
+﻿MAP: MedicalBay
+
+VAR local  bool is_terminal_hacked = false
+VAR map    bool generator_power = false
+VAR global bool G_QuarantineActive = false
+
+=== KNOT: Main ===
+TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power required.
+* {!is_terminal_hacked} [Bypass terminal security (item: Keycard_Blue x1)] -> HackNode
++ {generator_power == true} [Access patient logs] -> LogsNode
++ [Step away] -> END
+
+=== KNOT: HackNode ===
+~ SkillCheck(HackCircuits, 12)
+- SUCCESS ->
+    TERMINAL: Security protocol disabled.
+    ~ SET is_terminal_hacked = true
+    -> Main
+- FAILURE ->
+    TERMINAL: Access denied. Alarm triggered.
+    -> Main
+
+=== KNOT: LogsNode ===
+TERMINAL: Dr. Vance report: Subject 07 escaped quarantine.
++ [Return to main menu] -> Main

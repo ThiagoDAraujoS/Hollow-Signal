@@ -2,7 +2,7 @@
 
 This document details how the dialogue compilation tool (*DialogBaker*) processes a single `.dialog` DSL source file and splits it into two synchronized outputs:
 1. A strongly-typed **C# `TrackedBehaviour` class** containing the node graph and state variables.
-2. A **Localization JSON string table** consumed by the game's `TextRegistry`.
+2. A **Localization plain text table (`KEY = "Value"`)** consumed by the game's `TextRegistry` from `StreamingAssets/Localization/`.
 
 ---
 
@@ -16,7 +16,7 @@ graph TD
         Lexer["1. Lexer & Parser (AST Generation)"]
         Validator["2. Semantic Validator (Fail-Fast Checks)"]
         EmitterCS["3. C# Code Emitter"]
-        EmitterLoc["4. Localization JSON Emitter"]
+        EmitterLoc["4. Localization TXT Emitter"]
         
         Lexer --> Validator
         Validator --> EmitterCS
@@ -26,7 +26,7 @@ graph TD
     Source --> Lexer
     
     EmitterCS --> CSFile["[Name]Dialogue.cs (C# TrackedBehaviour)"]
-    EmitterLoc --> LocFile["[Name]_en.json (Localization Table)"]
+    EmitterLoc --> LocFile["[name]_en.txt (StreamingAssets/Localization/)"]
     
     CSFile --> RuntimeEngine["Unity C# Compilation & Runtime"]
     LocFile --> TextRegistry["TextRegistry (In-Memory Translations)"]
@@ -86,9 +86,15 @@ Instead of interpreting text conditions at runtime, the compiler emits native C#
 ## 3. Artifact 2: The Generated Localization File
 
 ### 3.1 File Location & Format
-- **Naming:** `<FileName>_en.json` (e.g., `MedicalBayConsole_en.json`).
-- **Target Folder:** `Assets/Data/Localization/Dialogues/`.
-- **Format:** Key-Value JSON compatible with `TextRegistry`.
+- **Naming:** `<filename>_en.txt` (e.g., `medicalbayconsole_en.txt`).
+- **Target Folder:** `Assets/StreamingAssets/Localization/`.
+- **Format:** Plain text key-value format matching the rest of the game's localization files (e.g., `masteries_en.txt`):
+  ```plain text
+  # --- Auto-Generated Dialogue Localization Keys ---
+  # Source: MedicalBayConsole.dialog
+
+  KEY = "Translated String Value"
+  ```
 
 ### 3.2 Deterministic Key Generation Algorithm
 To ensure that editing or reordering dialogue text never corrupts translations, keys are generated deterministically using a hierarchical pattern:
@@ -102,18 +108,19 @@ $$\text{Key} = \text{"DLG\_"} + \text{FILE\_PREFIX} + \text{"\_"} + \text{KNOT\_
   - `CHOICE`: Option presented to the player.
   - `SUCCESS` / `FAILURE`: Outcome line from a skill test.
 
-#### Example Output:
-```json
-{
-  "DLG_MEDBAY_MAIN_PROMPT_00": "[SYS-402] Isolation Control Console. Operating on auxiliary battery power.",
-  "DLG_MEDBAY_MAIN_CHOICE_00": "Reroute Auxiliary Power",
-  "DLG_MEDBAY_MAIN_CHOICE_01": "Disengage Quarantine Seals",
-  "DLG_MEDBAY_MAIN_CHOICE_02": "Download Incident Audio Logs",
-  "DLG_MEDBAY_MAIN_CHOICE_03": "Run Diagnostics",
-  "DLG_MEDBAY_MAIN_CHOICE_04": "Step away from terminal",
-  "DLG_MEDBAY_POWERCHECK_SUCCESS_00": "Power routed successfully to primary bus. Solenoid valves active.",
-  "DLG_MEDBAY_POWERCHECK_FAILURE_00": "Breaker trip! Capacitors discharged into local junction."
-}
+#### Example Output (`medicalbayconsole_en.txt`):
+```plain text
+# --- Auto-Generated Dialogue Localization Keys ---
+# Source: MedicalBayConsole.dialog
+
+DLG_MEDBAY_MAIN_PROMPT_00 = "[SYS-402] Isolation Control Console. Operating on auxiliary battery power."
+DLG_MEDBAY_MAIN_CHOICE_00 = "Reroute Auxiliary Power"
+DLG_MEDBAY_MAIN_CHOICE_01 = "Disengage Quarantine Seals"
+DLG_MEDBAY_MAIN_CHOICE_02 = "Download Incident Audio Logs"
+DLG_MEDBAY_MAIN_CHOICE_03 = "Run Diagnostics"
+DLG_MEDBAY_MAIN_CHOICE_04 = "Step away from terminal"
+DLG_MEDBAY_POWERCHECK_SUCCESS_00 = "Power routed successfully to primary bus. Solenoid valves active."
+DLG_MEDBAY_POWERCHECK_FAILURE_00 = "Breaker trip! Capacitors discharged into local junction."
 ```
 
 ---
@@ -221,15 +228,16 @@ namespace Generated.Dialogues {
 
 ---
 
-### 4.3 Output 2: `MedicalBayConsole_en.json`
-```json
-{
-  "DLG_MEDBAY_MAIN_PROMPT_00": "Isolation Console ready.",
-  "DLG_MEDBAY_MAIN_CHOICE_00": "Reroute Power",
-  "DLG_MEDBAY_MAIN_CHOICE_01": "Leave",
-  "DLG_MEDBAY_POWERCHECK_SUCCESS_00": "Power routed.",
-  "DLG_MEDBAY_POWERCHECK_FAILURE_00": "Fuse blown."
-}
+### 4.3 Output 2: `medicalbayconsole_en.txt`
+```plain text
+# --- Auto-Generated Dialogue Localization Keys ---
+# Source: MedicalBayConsole.dialog
+
+DLG_MEDBAY_MAIN_PROMPT_00 = "Isolation Console ready."
+DLG_MEDBAY_MAIN_CHOICE_00 = "Reroute Power"
+DLG_MEDBAY_MAIN_CHOICE_01 = "Leave"
+DLG_MEDBAY_POWERCHECK_SUCCESS_00 = "Power routed."
+DLG_MEDBAY_POWERCHECK_FAILURE_00 = "Fuse blown."
 ```
 
 ---

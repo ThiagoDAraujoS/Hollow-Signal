@@ -17,14 +17,15 @@ graph TD
     
     Source --> Compiler
     Compiler --> CSharp["Terminal_01Dialogue.cs (C# TrackedBehaviour)"]
-    Compiler --> LocJSON["Terminal_01_en.json (Localization String Table)"]
+    Compiler --> LocTXT["terminal_01_en.txt (Localization Key-Value Table)"]
 ```
 
 1. **Compiled C# Class (`.cs`)**:
    - Inherits from `DialogueBehaviour` (which inherits from `TrackedBehaviour`).
    - Automatically defines strongly-typed `Tracked<T>` variables for all declared dialogue state.
    - Compiles knot branches, conditions, and skill checks into native, compiled C# code with zero runtime string parsing.
-2. **Localization String Table (`.json`)**:
+2. **Localization String Table (`.txt`)**:
+   - Emits standard plain text key-value pairs matching the project's existing format (`KEY = "Value"` in `Assets/StreamingAssets/Localization/`).
    - Automatically extracts spoken lines, choice texts, and prompt descriptions into deterministic string keys (e.g., `DLG_TERM01_MAIN_PROMPT`) compatible with `TextRegistry`.
 
 ---
@@ -239,13 +240,21 @@ When the compiler processes `MedicalBayConsole.dialog`, it produces:
 - Contains `public Tracked<int> access_attempts = new("access_attempts", 0);`
 - Implements `public override DialogueNode GetNode(string knotId)` returning native delegates for conditions (`() => !power_diverted.Value`), skill checks (`Skill.RestorePowerNodes`, `12`), and mutations (`() => power_diverted.Value = true;`).
 
-### 2. `MedicalBayConsole_en.json` (Localization Registry)
-- Stores stable string keys:
-  - `DLG_MEDBAY_MAIN_PROMPT` $\rightarrow$ `"[SYS-402] Isolation Control Console. Operating on auxiliary battery power."`
-  - `DLG_MEDBAY_CHOICE_POWER` $\rightarrow$ `"Reroute Auxiliary Power"`
-  - `DLG_MEDBAY_CHOICE_SEALS` $\rightarrow$ `"Disengage Quarantine Seals"`
-  - `DLG_MEDBAY_POWER_SUCCESS` $\rightarrow$ `"Power routed successfully to primary bus. Solenoid valves active."`
-  - `DLG_MEDBAY_POWER_FAILURE` $\rightarrow$ `"Breaker trip! Capacitors discharged into local junction."`
+### 2. `medicalbayconsole_en.txt` (Standard Key-Value Localization File)
+- Saved in `Assets/StreamingAssets/Localization/`:
+  ```plain text
+  # --- Auto-Generated Dialogue Localization Keys ---
+  # Source: MedicalBayConsole.dialog
+
+  DLG_MEDBAY_MAIN_PROMPT_00 = "[SYS-402] Isolation Control Console. Operating on auxiliary battery power."
+  DLG_MEDBAY_MAIN_CHOICE_00 = "Reroute Auxiliary Power"
+  DLG_MEDBAY_MAIN_CHOICE_01 = "Disengage Quarantine Seals"
+  DLG_MEDBAY_MAIN_CHOICE_02 = "Download Incident Audio Logs"
+  DLG_MEDBAY_MAIN_CHOICE_03 = "Run Diagnostics"
+  DLG_MEDBAY_MAIN_CHOICE_04 = "Step away from terminal"
+  DLG_MEDBAY_POWERCHECK_SUCCESS_00 = "Power routed successfully to primary bus. Solenoid valves active."
+  DLG_MEDBAY_POWERCHECK_FAILURE_00 = "Breaker trip! Capacitors discharged into local junction."
+  ```
 
 ---
 
@@ -255,3 +264,4 @@ When the compiler processes `MedicalBayConsole.dialog`, it produces:
 - **Zero Double-Scripting**: State variables and their types are declared once in `.dialog`.
 - **Pure Memory Performance**: Running dialogue evaluates compiled C# boolean lambdas directly; no string evaluation or runtime lexing during gameplay.
 - **Full Blackboard Compatibility**: Uses existing `TrackedBehaviour` and RAII save/load cycles without manual dictionary plumbing.
+- **Consistent Localization**: Uses the exact plain text `KEY = "Value"` format used across the rest of the game in `StreamingAssets/Localization/`.

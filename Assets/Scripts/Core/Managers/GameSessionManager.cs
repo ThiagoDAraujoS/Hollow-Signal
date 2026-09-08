@@ -57,7 +57,7 @@ namespace Core.Managers {
                 await SaveSystem.LoadFiles(deps,
                     _ => { /*TODO: Restore the game to its main menu state and show an error message */ });
 
-                SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
+                await SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
                 Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
             }
             catch (Exception e) {
