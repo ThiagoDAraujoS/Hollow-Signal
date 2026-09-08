@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Core.Localization;
 using Core.Managers;
 using UnityEngine;
 
@@ -66,8 +67,8 @@ namespace Data{
         private List<RequirementRule> prerequisites = new();
 
         public string Id                   => id;
-        public string LocalizedName        => LocalizationManager.Get(nameKey);
-        public string LocalizedDescription => LocalizationManager.Get(descKey);
+        public string LocalizedName        => LocalizationManager.Get("masteries", nameKey);
+        public string LocalizedDescription => LocalizationManager.Get("masteries", descKey);
         public Sprite Icon                 => icon;
         public int    Level                => level;
         

@@ -43,6 +43,12 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine("    [DisallowMultipleComponent]");
             sb.AppendLine($"    public class {className} : DialogueBehaviour{{");
 
+            // Localization Table Identifier override
+            string resolvedLocTable = !string.IsNullOrEmpty(ast.locFileName) ? ast.locFileName : (!string.IsNullOrEmpty(ast.mapName) ? ast.mapName : ast.scriptName);
+            sb.AppendLine($"        /// Bound localization table containing strings for this dialogue.");
+            sb.AppendLine($"        public override string LocTableName => \"{resolvedLocTable}\";");
+            sb.AppendLine();
+
             // 1. Local Tracked<T> Variables
             bool hasLocalVars = false;
             foreach (DialogVarDef varDef in ast.variables){

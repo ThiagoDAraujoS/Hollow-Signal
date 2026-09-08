@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 158738694}
   - component: {fileID: 158738693}
   - component: {fileID: 158738691}
+  - component: {fileID: 158738695}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -323,7 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e08dedcb2719c2c47af05e1fb7f35506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.BlackboardClient
-  fileName: 
+  fileName: TestMap
 --- !u!114 &158738694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,6 +338,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.UniqueId
   uniqueId: 981dd0da-55cc-4d36-84b7-e2585df65f4e
+--- !u!114 &158738695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 158738690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b68880d5ee794d909b8a84538c4c67ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizationScope
+  tableNames:
+  - medicalbay_terminals
 --- !u!1 &732821341
 GameObject:
   m_ObjectHideFlags: 0

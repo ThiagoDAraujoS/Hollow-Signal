@@ -1,4 +1,5 @@
 ﻿MAP: MedicalBay
+LOC_FILE: MedicalBay_terminals
 
 VAR local  bool is_terminal_hacked = false
 VAR map    bool generator_power = false

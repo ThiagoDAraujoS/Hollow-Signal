@@ -12,6 +12,11 @@ namespace Editor.Dialog.Parser{
             RegexOptions.Compiled
         );
 
+        private static readonly Regex LocFileRegex = new(
+            @"^LOC_FILE:\s*([a-zA-Z0-9_]+)$",
+            RegexOptions.Compiled
+        );
+
         private static readonly Regex VarRegex = new(
             @"^VAR\s+(local|map|global)\s+(bool|int|float|string)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$",
             RegexOptions.Compiled
@@ -75,7 +80,20 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 2. Variable Declarations (VAR)
+                // 2. Localization Target File Header (LOC_FILE: LocFileName)
+                if (line.StartsWith("LOC_FILE:", StringComparison.OrdinalIgnoreCase)){
+                    if (currentKnot != null)
+                        throw new FormatException($"[{scriptName}:{lineNumber}] LOC_FILE declaration must appear at the top of the file: '{line}'");
+
+                    Match locFileMatch = LocFileRegex.Match(line);
+                    if (!locFileMatch.Success)
+                        throw new FormatException($"[{scriptName}:{lineNumber}] Malformed LOC_FILE declaration: '{line}'. Expected syntax: LOC_FILE: <FileName>");
+
+                    ast.locFileName = locFileMatch.Groups[1].Value.Trim();
+                    continue;
+                }
+
+                // 3. Variable Declarations (VAR)
                 if (line.StartsWith("VAR ", StringComparison.Ordinal)){
                     if (currentKnot != null)
                         throw new FormatException($"[{scriptName}:{lineNumber}] Variable declarations must appear at the top of the file before any knots: '{line}'");
@@ -84,7 +102,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 3. Knot Header (=== KNOT: KnotName ===)
+                // 4. Knot Header (=== KNOT: KnotName ===)
                 Match knotMatch = KnotRegex.Match(line);
                 if (knotMatch.Success){
                     string knotId = knotMatch.Groups[1].Value;
@@ -98,7 +116,7 @@ namespace Editor.Dialog.Parser{
                 if (currentKnot == null)
                     throw new FormatException($"[{scriptName}:{lineNumber}] Unexpected text found outside of any knot block: '{line}'");
 
-                // 4. Outcome Branch Header (- SUCCESS -> etc.)
+                // 5. Outcome Branch Header (- SUCCESS -> etc.)
                 Match outcomeHeaderMatch = OutcomeHeaderRegex.Match(line);
                 if (outcomeHeaderMatch.Success){
                     if (currentKnot.skillCheck == null)
@@ -110,7 +128,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 5. Outcome Body Lines (Indented or inside an outcome branch)
+                // 6. Outcome Body Lines (Indented or inside an outcome branch)
                 if (currentOutcome != null){
                     if (line.StartsWith("->", StringComparison.Ordinal)){
                         currentOutcome.targetKnot = line.Substring(2).Trim();
@@ -131,7 +149,7 @@ namespace Editor.Dialog.Parser{
                     }
                 }
 
-                // 6. Skill Check Declaration (~ SkillCheck(SkillName, DC))
+                // 7. Skill Check Declaration (~ SkillCheck(SkillName, DC))
                 Match skillMatch = SkillCheckRegex.Match(line);
                 if (skillMatch.Success){
                     string skillName = skillMatch.Groups[1].Value;
@@ -146,13 +164,13 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 7. Choices (* or +)
+                // 8. Choices (* or +)
                 if (line.StartsWith("*", StringComparison.Ordinal) || line.StartsWith("+", StringComparison.Ordinal)){
                     ParseChoice(currentKnot, line, lineNumber, scriptName, ref choiceCounter);
                     continue;
                 }
 
-                // 8. Spoken Prompt Lines (SPEAKER: Prompt)
+                // 9. Spoken Prompt Lines (SPEAKER: Prompt)
                 Match speakerMatch = SpeakerRegex.Match(line);
                 if (speakerMatch.Success){
                     currentKnot.speakerId = speakerMatch.Groups[1].Value;
@@ -161,7 +179,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 9. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
+                // 10. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
                 if (line.StartsWith("~", StringComparison.Ordinal)){
                     currentKnot.inLineCommands.Add(line.Substring(1).Trim());
                     continue;

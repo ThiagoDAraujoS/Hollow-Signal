@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Core.Localization;
+using Core.Managers;
 using UnityEngine;
 
 namespace Core.Dialog{
@@ -9,6 +11,9 @@ namespace Core.Dialog{
     public abstract class DialogueBehaviour : TrackedBehaviour{
         /// Collection of choice IDs that have already been chosen and cannot be repeated.
         public Tracked<List<string>> consumedChoices = new("dlg_consumed_choices", new List<string>());
+
+        /// Optional localization table name containing strings for this dialogue.
+        public virtual string LocTableName => null;
 
         /// Resolves and builds the DialogueNode definition for the requested knot name.
         public abstract DialogueNode GetNode(string knotId);
@@ -22,6 +27,11 @@ namespace Core.Dialog{
 
             if (!consumedChoices.Value.Contains(choiceId))
                 consumedChoices.Value.Add(choiceId);
+        }
+
+        /// Resolves a localized string for this dialogue, prioritizing this dialogue's specific table.
+        public string GetLocalizedString(string key, params object[] args){
+            return LocalizationManager.Get(LocTableName, key, args);
         }
     }
 }

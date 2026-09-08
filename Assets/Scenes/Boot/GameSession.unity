@@ -1812,6 +1812,7 @@ GameObject:
   - component: {fileID: 1638821595}
   - component: {fileID: 1638821593}
   - component: {fileID: 1638821592}
+  - component: {fileID: 1638821597}
   m_Layer: 0
   m_Name: GameSessionManager
   m_TagString: Untagged
@@ -1879,6 +1880,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1638821597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638821591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b68880d5ee794d909b8a84538c4c67ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizationScope
+  tableNames:
+  - items
+  - masteries
 --- !u!1 &1758965032
 GameObject:
   m_ObjectHideFlags: 0
@@ -2195,7 +2211,7 @@ MonoBehaviour:
     type: 3}
   slot4ActionRef: {fileID: -3951140834591987041, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
-  modifierShiftActionRef: {fileID: 0}
+  modifierAppendActionRef: {fileID: 0}
   modifierAltActionRef: {fileID: 0}
   characterLayer:
     serializedVersion: 2

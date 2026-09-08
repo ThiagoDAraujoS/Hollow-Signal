@@ -7,8 +7,11 @@ namespace Editor.Dialog.Parser{
         public string scriptName;
 
         /// Optional name of the map/scene this dialogue is bound to (e.g. "MedicalBay").
-        /// When specified, localization is directed into Assets/StreamingAssets/Localization/Scenes/<mapName>_en.txt.
         public string mapName;
+
+        /// Target localization file name (without extension, e.g. "MedicalBay_terminals" or "DrVance").
+        /// Multiple dialogues can share the same locFileName and will be batched into the same .txt file.
+        public string locFileName;
 
         /// Collection of all variable declarations found in the script header.
         public List<DialogVarDef> variables = new();
