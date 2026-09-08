@@ -1,55 +1,63 @@
-## Phase 1: Core Memory & Foundation
+# Hollow Signal — Development Roadmap
 
-These systems form the bedrock. Nothing else can communicate or persist without them.
+## Phase 1: Core Memory, Foundation & Locomotion (Complete)
+- [x] **Blackboard & Save System:** Global, Scene, and Entity dictionaries, UUID generation, and JSON serialize/deserialize loop.
+- [x] **Localization & Text Registry:** Map string IDs to text without hardcoding.
+- [x] **Skill & Mastery Database Parsers:** JSON parsers loading mechanical strings and Mastery definitions.
+- [x] **Character Sheet Component:** Active masteries, skill level calculations with mastery deltas.
+- [x] **NavMesh & Click-to-Move:** Walkable layer, flipped mouse controls (Left: Command, Right: Select), continuous Diablo-style steering.
+- [x] **Player Brain & Unit Selection:** BG3-style single/double-click selection, box select, camera tracking, ModifierAppend (Shift) multi-selection.
+- [x] **Squad Movement & Formations:** FormationCalculator tactical wedge distribution, arrival facing, stop command.
+- [x] **Base Scene & Sleep-Spawn Coordinator:** 5-step boot loop, GameSessionManager waking and placing heroes on map load.
 
-- [x] **Blackboard & Save System:** Establish the Global, Scene, and Entity dictionaries, UUID generation, and the JSON serialize/deserialize loop.
-- [x] **Localization & Text Registry:** Build the manager that maps string IDs to text. All subsequent systems will rely on this instead of hardcoded strings.
-- [x] **Skill & Mastery Database Parsers:** Write the scripts that read your JSON files and load the raw mechanical strings and Mastery definitions into memory.
+---
 
-## Phase 2: Actors & World Presence
+## Phase 2: Skill Checks, Interactions & Dialog Engine (Current)
+- [ ] **2.1 Skill Check Resolver & Dice Engine:**
+  - Query `CharacterSheet.GetEffectiveSkill(skill)`, roll dice against Target DC.
+  - Return rich results: Critical Success, Success, Failure, Critical Failure with degree of margin.
+  - Foundation for all world challenges, lockpicking, terminal hacking, and combat Dash/Ambush tests.
+- [ ] **2.2 Dialog & Interaction Prompt UI:**
+  - Prompt modal with title, description, and interactive action options.
+  - Action options display required skill and target DC previews.
+  - Dice roll resolution feedback and branching task execution callbacks.
+- [ ] **2.3 Interactive Objects & Map Portals (IUsable & Map Transitions):**
+  - Implement interactable doors, portals, terminals, and transition triggers implementing `IUsable`.
+  - Character arrival alignment to `UseSpot` and `UseRotation`.
+  - Usable confirmation handshake: arrival triggers prompt dialog; player confirmation burns action and executes task.
+  - Map transition pipeline: disable agents -> record target `AnchorPoint` -> unload map -> load additive map -> rewarp squad on NavMesh.
+- [ ] **2.4 Hold-to-Open Context Menu UI:**
+  - Hook into `SelectionGestureHandler.OnContextMenuRequested`.
+  - Classic RPG context menu on right-click hold (Examine, Use, Talk, Attack).
+- [ ] **2.5 Alt-Key World Highlight System:**
+  - Hook `modifierAltActionRef` and `PlayerBrain.OnAltModifierChanged`.
+  - Display screen-space highlight indicators/tooltips over interactable objects, items, and NPCs while Alt is held.
 
-With data in memory, you need entities to hold that data and a way to move them.
+---
 
-- [x] **Character Component (Stats):** Build the component that tracks the active masteries and skill levels (relying on the Skill/Mastery databases). _(C# code finished in_ _CharacterSheet-v14.cs__!)_
-- [ ] **NavMesh & Click-to-Move (Single Unit):** Configure NavMesh surface and walkable layers; connect New Input System click to issue destination orders to active character.
-- [ ] **Player Brain & Unit Selection:** Select individual units or multi-select party members via raycast clicks; bind selected units to camera anchor elevation tracking.
-- [ ] **Squad Movement & Formations:** Implement destination distribution/offsets so multiple selected units navigate and arrive without overlapping or pushing each other.
-- [ ] **Tactical Area / Zone System:** Define Voronoi/polygon combat zones with centers, connectivity graphs, and pre-allocated tactical anchor spots (cover, open ground, machine fronts).
-- [ ] **Combat State Movement & Interaction:** When in turn-based combat, clicking an area reserves and moves to a free zone slot; clicking machines queues pathing to front, interaction execution, and relocation to an open slot.
-- [x] **Camera Controller:** Implement the isometric camera so you can actually see and navigate the test space you are building.
-- [x] **Base Scene & Entity Prefabs (Spawn Asleep):** Construct the foundational Unity prefabs (Hero, NPCs, chests, doors) ensuring they start disabled (`activeSelf = false` in the inspector) and are pre-configured with `UniqueId`, `BlackboardClient`, and their respective state scripts.
-- [x] **Area Batch Loader & Sleep-Spawn Coordinator:** Build the system that runs your 5-step boot loop: destroy live dynamic instances -> instantiate scene prefabs disabled -> determine relevant sector/area IDs -> instruct the Blackboard to deserialize only those memories -> run `OnLoadState` and wake them up with `SetActive(true)`.
+## Phase 3: Tactical Zone / Turn-Based Combat System (Crisis Mode)
+- [ ] **3.1 Spatial Topology: Tactical Zones & Modular Slots:**
+  - Define `TacticalZone` nodes across key map areas with neighbor adjacency graph.
+  - Implement `TacticalSlot` pre-selected standing positions with occupancy tracking.
+  - Create `ISlotModifier` for modular slot bonuses (+1 skill bonuses, cover, terminal spots, environmental hazards).
+  - Support free intra-zone spot adjustments at the start of a turn (0 Movement cost).
+  - Voronoi nearest-zone click raycasting and BFS step-distance path calculation.
+- [ ] **3.2 Turn Budget & Action Economy:**
+  - Standard Turn: 1 Zone Move + 1 Action.
+  - Double Move: 2 Zone Moves + 0 Actions.
+  - Overdrive / Dash: 2 Zone Moves + 1 Action (calls Skill Check Resolver for Dash test; failure halts movement at second zone and inflicts penalty).
+- [ ] **3.3 Command Dissector & Usable Handshake:**
+  - Dissect clicks into atomic execution plan: `[Walk, Walk, (Dash Roll), Use]`.
+  - Confirmation handshake on terminals/attacks before action expenditure.
+- [ ] **3.4 IGOUGO Turn Flow & Ambush Checks:**
+  - Ambush roll at Crisis start (perception/hearing check to seize initiative; enemies go first by default).
+  - Team phase state machine: Player Phase <-> Enemy Phase.
+  - End Turn button and turn budget reset loop.
 
-## Phase 3: Interaction & Logic
+---
 
-Now the player can move, they need to interact with the world using their data.
-
-- [ ] **Problem Archetype Database:** Parse the JSON defining the rules for doors, locks, and traps.
-- [ ] **Condition Evaluator:** Write the utility that reads logic like `G_Money > 500` and checks it against the Blackboard.
-- [ ] **Challenge Evaluator:** Place this on world objects. It uses the Brain Controller (to know who clicked), the Character Component (to check stats), the Archetype Database (to know the rules), and the Condition Evaluator (to verify state).
-- [ ] **Dry Archetype Use Strings:** Connect the Challenge Evaluator to the Localization Registry to output basic success/failure text.
-
-## Phase 4: The Narrative Engine
-
-The world is interactive; now it needs to speak.
-
-- [ ] **Dialog System Syntax:** Finalize the text formatting rules (how you write nodes, choices, and condition checks in your raw text files).
-- [ ] **Dialog Parsing Engine (File Reader):** Write the compiler that ingests your syntax and converts it into logic nodes and JSON structures.
-- [ ] **Dialog UI Controller:** Build the front-end that reads the parsed nodes, displays the text, and renders clickable choices.
-
-## Phase 5: Progression & Game Loop
-
-The core game is fully playable. Now add the RPG layers.
-
-- [ ] **Inventory & Equipment:** Define items and build the logic for equipping them (which should hook back into the Character Component to boost stats).
-- [ ] **Loot & Scavenging Manager:** Connect world containers to the Inventory System.
-- [ ] **Quest & Journal Manager:** Create the system that listens to Blackboard changes and updates the UI journal.
-- [ ] **Level up system with mastery acquisition:** Build a system where characters can level up and choose new masteries and skills.
-
-## Phase 6: World Management & Polish
-
-The systems required to turn a single test scene into a full game.
-
-- [ ] **Scene Transition Manager:** Connects to the Blackboard to offload scene data, unloads the map, loads the next, and re-initializes.
-- [ ] **HUD & System Menus:** Build the party portraits, pause menu, and save/load UI (hooking into the Phase 1 Save System).
-- [ ] **Time, Weather, & Audio:** The final atmospheric systems that listen to Blackboard states (e.g., monsoon cycle) and react globally.
+## Phase 4: Progression & Narrative Expansion
+- [ ] **Inventory & Equipment:** Equippable items modifying character stats/skills.
+- [ ] **Loot & Scavenging Containers:** World containers feeding into inventory.
+- [ ] **Narrative Dialog Engine:** Full branching conversation trees with condition gating and journal updates.
+- [ ] **Level Up & Mastery Acquisition:** Experience thresholds, leveling UI, choosing new masteries.
