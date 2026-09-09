@@ -1,0 +1,19 @@
+﻿# --- Auto-Generated Dialogue Localization Keys ---
+# Target: medicalbay_terminals_en
+# Generated on: 2026-09-07 22:45:22
+
+# >>> [Script: MedicalTerminal.dialog] <<<
+# [Knot: Main]
+DLG_MEDICALTERMINAL_MAIN_PROMPT_00 = "Medical containment console online. Auxiliary power required."
+DLG_MEDICALTERMINAL_MAIN_CHOICE_00 = "Bypass terminal security"
+DLG_MEDICALTERMINAL_MAIN_CHOICE_01 = "Access patient logs"
+DLG_MEDICALTERMINAL_MAIN_CHOICE_02 = "Step away"
+
+# [Knot: HackNode]
+DLG_MEDICALTERMINAL_HACKNODE_SUCCESS_00 = "Security protocol disabled."
+DLG_MEDICALTERMINAL_HACKNODE_FAILURE_00 = "Access denied. Alarm triggered."
+
+# [Knot: LogsNode]
+DLG_MEDICALTERMINAL_LOGSNODE_PROMPT_00 = "Dr. Vance report: Subject 07 escaped quarantine."
+DLG_MEDICALTERMINAL_LOGSNODE_CHOICE_00 = "Return to main menu"
+
