@@ -1,27 +1,26 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Core.Managers {
     [RequireComponent(typeof(Blackboard))]
     public class SaveSystem : MonoBehaviour{
-        private        Blackboard _blackboard;
+        private Blackboard _blackboard;
 
         public static SaveSystem Instance{ get; private set; }
 
         public static Blackboard Blackboard => Instance._blackboard;
-        public        string[]   coreFileNames = { "core" };
+        public string[] coreFileNames = { "core" };
 
         [SerializeField] private string currentSaveSlot;
-        public static            string CurrentSaveSlot          => Instance.currentSaveSlot;
-        public static            string CurrentSaveSlotDirectory => Path.Combine(_baseSavePath, CurrentSaveSlot);
+        public static string CurrentSaveSlot => Instance.currentSaveSlot;
+        public static string CurrentSaveSlotDirectory => Path.Combine(_baseSavePath, CurrentSaveSlot);
 
         [SerializeField] private string defaultSaveTemplate = "template";
+        public static string DefaultSaveTemplate => Instance.defaultSaveTemplate;
 
         private const string TempDirectoryName = "temp";
         public static string TempDirectory => Path.Combine(_baseSavePath, TempDirectoryName);
@@ -34,7 +33,7 @@ namespace Core.Managers {
                 return;
             }
 
-            Instance     = this;
+            Instance = this;
             _baseSavePath = Path.Combine(Application.persistentDataPath, "Saves");
             if (!Directory.Exists(_baseSavePath)){
                 Directory.CreateDirectory(_baseSavePath);
@@ -59,12 +58,11 @@ namespace Core.Managers {
         /// Cold Stop: Completely purges ALL loaded partitions from active memory.
         public static void ClearActiveMemory() => Blackboard.Clear();
 
-        /// Scene Transition: Unloads specific, non-persistent file partitions from active memory 
+        /// Scene Transition: Unloads specific, non-persistent file partitions from active memory.
         public static void ReleaseFile(string fileName){
             if (Blackboard.Contains(fileName))
                 Blackboard.ReleaseFile(fileName);
         }
-
 
         /// Saves the Blackboard into the active save slot directory atomically.
         /// Serializes all partitions and a metadata file to the Temp directory first, 
@@ -86,7 +84,7 @@ namespace Core.Managers {
                     DateTime.Now,
                     CurrentSaveSlotDirectory
                 );
-                string metaJson     = JsonConvert.SerializeObject(meta, Formatting.Indented);
+                string metaJson = JsonConvert.SerializeObject(meta, Formatting.Indented);
                 string metaFilePath = Path.Combine(TempDirectory, "meta.json");
                 await File.WriteAllTextAsync(metaFilePath, metaJson);
 
@@ -127,9 +125,7 @@ namespace Core.Managers {
                 string metaFilePath = Path.Combine(dirPath, "meta.json");
                 try{
                     string json = File.ReadAllText(metaFilePath);
-                    
                     SaveFileMetadata meta = JsonConvert.DeserializeObject<SaveFileMetadata>(json);
-                    
                     saveList.Add(meta);
                 }
                 catch (Exception e){
@@ -146,11 +142,11 @@ namespace Core.Managers {
         /// overwriting the oldest existing autosave slot.
         public static async Task AutosaveAsync(Action<string> onFailure = null){
             DateTime oldestTime = DateTime.MaxValue;
-            string   targetName = "autosave_00";
+            string targetName = "autosave_00";
 
             for (int i = 0; i < 3; i++){
                 string baseName = $"autosave_{i:D2}";
-                string path     = Path.Combine(_baseSavePath, baseName);
+                string path = Path.Combine(_baseSavePath, baseName);
 
                 if (!Directory.Exists(path)){
                     targetName = baseName;
@@ -169,70 +165,15 @@ namespace Core.Managers {
             await SaveGame(onFailure);
         }
         
-        /// Dynamically discovers and cleanly unloads all loaded additive scenes 
-        /// (GameSession, active levels) and clears active Blackboard memory.
-        public static async Task CloseSessionAsync() {
-            try {
-                Scene bootScene  = SceneManager.GetActiveScene();
-                int   sceneCount = SceneManager.sceneCount;
-
-                if (Blackboard != null) 
-                    Blackboard.Clear();
-                
-                // Unload all non-boot scenes
-                List<AsyncOperation> unloadOperations = new();
-                for (int i = sceneCount - 1; i >= 0; i--) {
-                    Scene scene = SceneManager.GetSceneAt(i);
-                    if (!scene.isLoaded || scene == bootScene) continue;
-                    unloadOperations.Add(SceneManager.UnloadSceneAsync(scene));
-                }
-
-                foreach (AsyncOperation op in unloadOperations.Where(op => op != null))
-                    while (!op.isDone) 
-                        await Task.Yield();
-            }
-            catch (Exception e) {
-                Debug.LogError($"[Boot] Failed to close session: {e.Message}");
-            }
-        }
-
-
-        public static async Task LoadNewGameAsync() {
-            Debug.Log($"{CurrentSaveSlotDirectory}");
-            try {
-                await CloseSessionAsync();
-                IEnumerable<string> files = Instance.coreFileNames ?? new[] { "core" };
-                await LoadFiles(files, _ => { /* TODO: Abort, close game scenes return to main menu */ });
-                Debug.Log($"Loaded files on the save folder: {CurrentSaveSlot}");
-                
-                AsyncOperation op = SceneManager.LoadSceneAsync("GameSession", LoadSceneMode.Additive);
-                while (op is { isDone: false })
-                    await Task.Yield();
-            }
-            catch (Exception e) {
-                Debug.LogError($"[Boot] Failed to load new game: {e.Message}");
-            }
-        }
-
-
-        public static async Task StartNewGameAsync() {
-            SetSaveSlot(Instance.defaultSaveTemplate);
-            await LoadNewGameAsync();
-        }
-        
 #if UNITY_EDITOR
-        
         [ContextMenu("New Game")]
-        public void StartNewGame() => _ = StartNewGameAsync();
+        public void StartNewGame() => _ = SceneCoordinator.StartGameSessionAsync(DefaultSaveTemplate);
 
         [ContextMenu("Load")]
-        public void LoadNewGame(){
-            SetSaveSlot("TestSave");
-            _ = LoadNewGameAsync();
-        }
+        public void LoadNewGame() => _ = SceneCoordinator.StartGameSessionAsync("TestSave");
 
         [ContextMenu("Close")]
-        public void CloseSession()=> _ = CloseSessionAsync();
+        public void CloseSession() => _ = SceneCoordinator.Instance.ReturnToTitleMenuAsync();
         
         [ContextMenu("Save")]
         public void Save(){
@@ -242,20 +183,18 @@ namespace Core.Managers {
 
         [ContextMenu("AutoSave")]
         public void AutoSave() => _ = AutosaveAsync();
-
-
 #endif
     }
 
     [Serializable]
     public struct SaveFileMetadata{
-        public string   slotName;
+        public string slotName;
         public DateTime lastSaveTime;
-        public string   directoryPath;
+        public string directoryPath;
 
         public SaveFileMetadata(string slotName, DateTime lastSaveTime, string directoryPath){
-            this.slotName      = slotName;
-            this.lastSaveTime  = lastSaveTime;
+            this.slotName = slotName;
+            this.lastSaveTime = lastSaveTime;
             this.directoryPath = directoryPath;
         }
     }

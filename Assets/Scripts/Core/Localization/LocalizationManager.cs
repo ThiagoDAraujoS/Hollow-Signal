@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Core.Localization{
@@ -17,26 +19,33 @@ namespace Core.Localization{
         private readonly Dictionary<string, Dictionary<string, string>> _tables = new(StringComparer.OrdinalIgnoreCase);
 
         private string _currentLanguage = DefaultLanguage;
+        
+        [SerializeField] private List<string> permanentLocalizationTables = new();
 
         private void Awake(){
-            if (_instance == null){
+            if (_instance == null)
                 _instance = this;
-                LoadBaseStrings(_currentLanguage);
-            }
-            else if (_instance != this){
+            else if (_instance != this)
                 Destroy(gameObject);
-            }
         }
 
-        /// Loads persistent core localization files (system, masteries, items) into memory.
-        public static void LoadBaseStrings(string language){
+        private void OnDestroy(){
+            if (_instance == this)
+                _instance = null;
+        }
+
+        /// Loads persistent core localization files configured in the inspector asynchronously into memory.
+        public static async Task LoadBaseStringsAsync(string language) {
             _instance._currentLanguage = language;
-            LoadTable("system");
+            await Task.WhenAll(_instance.permanentLocalizationTables.Select(LoadTableAsync));
             OnLanguageChanged?.Invoke();
         }
 
-        /// Loads a named localization table from StreamingAssets/Localization into memory.
-        public static void LoadTable(string tableName){
+        /// Loads persistent core localization files synchronously into memory.
+        public static void LoadBaseStrings(string language) => _ = LoadBaseStringsAsync(language);
+
+        /// Loads a named localization table asynchronously from StreamingAssets/Localization into memory.
+        public static async Task LoadTableAsync(string tableName){
             string folder = Path.Combine(Application.streamingAssetsPath, "Localization");
             string fileName = $"{tableName.ToLowerInvariant()}_{_instance._currentLanguage}.txt";
 
@@ -51,8 +60,11 @@ namespace Core.Localization{
             else
                 tableDict.Clear();
 
-            ParseFileToDictionary(filePath, tableDict);
+            await ParseFileToDictionaryAsync(filePath, tableDict);
         }
+
+        /// Loads a named localization table synchronously from StreamingAssets/Localization into memory.
+        public static void LoadTable(string tableName) => _ = LoadTableAsync(tableName);
 
         /// Unloads a named localization table, releasing its strings from memory.
         public static void UnloadTable(string tableName) => _instance._tables.Remove(tableName);
@@ -60,8 +72,8 @@ namespace Core.Localization{
         /// Checks if a specific table is currently resident in memory.
         public static bool IsTableLoaded(string tableName) => _instance._tables.ContainsKey(tableName);
 
-        /// Sets a new active language and reloads all currently resident tables.
-        public static void SetLanguage(string language){
+        /// Sets a new active language and reloads all currently resident tables asynchronously.
+        public static async Task SetLanguageAsync(string language){
             if (_instance._currentLanguage == language) return;
 
             _instance._currentLanguage = language;
@@ -69,11 +81,16 @@ namespace Core.Localization{
             List<string> activeTableNames = new(_instance._tables.Keys);
             _instance._tables.Clear();
 
+            List<Task> reloadTasks = new();
             foreach (string tableName in activeTableNames)
-                LoadTable(tableName);
+                reloadTasks.Add(LoadTableAsync(tableName));
 
+            await Task.WhenAll(reloadTasks);
             OnLanguageChanged?.Invoke();
         }
+
+        /// Sets a new active language and reloads all resident tables.
+        public static void SetLanguage(string language) => _ = SetLanguageAsync(language);
 
         /// Retrieves a localized string scoped directly to a specific file table.
         public static string Get(string tableName, string key, params object[] args){
@@ -83,9 +100,9 @@ namespace Core.Localization{
             return key;
         }
 
-        private static void ParseFileToDictionary(string path, Dictionary<string, string> targetDict){
+        private static async Task ParseFileToDictionaryAsync(string path, Dictionary<string, string> targetDict){
             using StreamReader reader = new(path);
-            while (reader.ReadLine() is { } line){
+            while (await reader.ReadLineAsync() is { } line){
                 line = line.Trim();
 
                 if (string.IsNullOrEmpty(line) || line.StartsWith("#") || line.StartsWith("//"))

@@ -4,17 +4,23 @@ using System.Linq;
 using UnityEngine;
 
 namespace Core.Config{
-    
     [CreateAssetMenu(fileName = "SceneDependencyConfig", menuName = "CRPG/Config/Scene Dependencies")]
     public class SceneDependencyDatabase : ScriptableObject{
         [SerializeField] private List<SceneDependencies> dependencies = new();
 
         public List<string> GetSceneDependencies(string sceneName){
             foreach (SceneDependencies dep in dependencies.Where(dep => string.Equals(dep.sceneName, sceneName, StringComparison.OrdinalIgnoreCase)))
-                return dep.requiredFiles;
+                return dep.requiredFiles ?? new List<string>();
+            return new List<string>();
+        }
+
+        public List<string> GetSceneLocalizationTables(string sceneName){
+            foreach (SceneDependencies dep in dependencies.Where(dep => string.Equals(dep.sceneName, sceneName, StringComparison.OrdinalIgnoreCase)))
+                return dep.requiredLocalizationTables ?? new List<string>();
             return new List<string>();
         }
     }
+
     [Serializable]
     public struct SceneDependencies{
         [Tooltip("The exact name of the Unity Scene file.")]
@@ -22,5 +28,8 @@ namespace Core.Config{
 
         [Tooltip("The partition files that must be loaded into RAM before this scene is opened.")]
         public List<string> requiredFiles;
+
+        [Tooltip("The localization tables that must be loaded into memory for this scene.")]
+        public List<string> requiredLocalizationTables;
     }
 }

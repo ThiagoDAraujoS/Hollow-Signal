@@ -1,0 +1,11 @@
+# --- System UI Localization Strings (English) ---
+UI_NEW_GAME = "New Game"
+UI_LOAD_GAME = "Load Game"
+UI_SAVE_GAME = "Save Game"
+UI_AUTO_SAVE = "Autosave"
+UI_CLOSE_SESSION = "Close Session"
+UI_SETTINGS = "Settings"
+UI_CREDITS = "Credits"
+UI_QUIT = "Quit Game"
+UI_BACK = "Back"
+UI_LANGUAGE_TOGGLE = "Language: English"
