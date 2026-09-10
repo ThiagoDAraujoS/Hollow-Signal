@@ -5,16 +5,18 @@ namespace Core.UI
 {
     /// Data container for populating a single save bullet on a carousel.
     [Serializable]
-    public struct SaveBulletData
+    public struct GameFileBulletData
     {
         public string slotName;
+        public string characterName;
         public string location;
         public string timestamp;
         public Sprite snapshot;
 
-        public SaveBulletData(string slotName, string location, string timestamp, Sprite snapshot = null)
+        public GameFileBulletData(string slotName, string location, string timestamp, Sprite snapshot = null, string characterName = null)
         {
             this.slotName = slotName;
+            this.characterName = characterName ?? slotName;
             this.location = location;
             this.timestamp = timestamp;
             this.snapshot = snapshot;

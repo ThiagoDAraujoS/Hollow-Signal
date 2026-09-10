@@ -8,7 +8,7 @@ namespace Core.UI
 {
     /// Represents a single save file slot bullet in the carousel with neon selector effects.
     [ExecuteAlways]
-    public class SaveBullet : MonoBehaviour, IPointerClickHandler
+    public class GameFileBullet : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI nameContainer;
         [SerializeField] private TextMeshProUGUI locationContainer;
@@ -31,7 +31,7 @@ namespace Core.UI
 
         public string SlotName { get; private set; }
         public bool IsSelected => isSelected;
-        public event Action<SaveBullet> OnClicked;
+        public event Action<GameFileBullet> OnClicked;
 
         private void Awake()
         {

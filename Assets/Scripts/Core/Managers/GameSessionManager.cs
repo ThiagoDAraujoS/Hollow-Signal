@@ -16,8 +16,8 @@ namespace Core.Managers {
         public static GameSessionManager Instance { get; private set; }
 
         [SerializeField] private SceneDependencyDatabase dependencyDatabase;
-
-        public Tracked<string> currentMapName = new("CurrentMapName", "test_map");
+        public                   Tracked<string>         mainCharacterName   = new("mainCharacterName", "Lucca");
+        public                   Tracked<string>         currentMapName = new("CurrentMapName", "test_map");
 
         [Header("Party Heroes Roster")]
         [Tooltip("The parent transform containing all persistent playable hero GameObjects.")]

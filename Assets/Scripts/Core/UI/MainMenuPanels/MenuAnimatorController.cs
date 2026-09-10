@@ -12,15 +12,6 @@ namespace Core.UI {
 
         private static readonly int PANEL_INDEX_HASH = Animator.StringToHash("PanelIndex");
 
-        private void Awake() {
-            if (animator == null)
-                animator = GetComponent<Animator>();
-            if (animator == null)
-                animator = GetComponentInParent<Animator>();
-            if (animator == null)
-                animator = GetComponentInChildren<Animator>();
-        }
-
         private void OnEnable() {
             SceneCoordinator.OnTitleSceneLoaded += HandleTitleSceneLoaded;
             SceneCoordinator.OnTitleSceneUnloaded += HandleTitleSceneUnloaded;
@@ -44,7 +35,10 @@ namespace Core.UI {
         public void OpenLoadMenu() => TransitionTo(MenuViewState.Load);
 
         /// Transitions to the Save Game panel (Index 2).
-        public void OpenSaveMenu() => TransitionTo(MenuViewState.Save);
+        public void OpenSaveMenu() {
+            if (GameSessionManager.Instance == null) return;
+            TransitionTo(MenuViewState.Save);
+        }
 
         /// Transitions to the Settings panel (Index 3).
         public void OpenSettingsMenu() => TransitionTo(MenuViewState.Settings);
@@ -56,9 +50,14 @@ namespace Core.UI {
         public void CloseMenu() => TransitionTo(MenuViewState.Closed);
 
         /// Starts a new game session using the default template.
-        public async void StartNewGame() {
-            CloseMenu();
-            await SceneCoordinator.StartGameSessionAsync(SaveSystem.DefaultSaveTemplate);
+        public async void StartNewGame(){
+            try{
+                CloseMenu();
+                await SceneCoordinator.StartGameSessionAsync(SaveSystem.DefaultSaveTemplate);
+            }
+            catch (Exception e){
+                Debug.LogException(e);
+            }
         }
 
         /// Closes application or exits play mode in editor.

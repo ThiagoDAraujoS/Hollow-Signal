@@ -79,10 +79,17 @@ namespace Core.Managers {
                 }
 
                 await Blackboard.SerializeBoard(onFailure);
+
+                string charName = GameSessionManager.Instance != null 
+                    ? GameSessionManager.Instance.mainCharacterName.Value 
+                    : null;
+
                 SaveFileMetadata meta = new(
                     CurrentSaveSlot,
                     DateTime.Now,
-                    CurrentSaveSlotDirectory
+                    CurrentSaveSlotDirectory,
+                    charName,
+                    "Station Outpost"
                 );
                 string metaJson = JsonConvert.SerializeObject(meta, Formatting.Indented);
                 string metaFilePath = Path.Combine(TempDirectory, "meta.json");
@@ -191,11 +198,15 @@ namespace Core.Managers {
         public string slotName;
         public DateTime lastSaveTime;
         public string directoryPath;
+        public string characterName;
+        public string location;
 
-        public SaveFileMetadata(string slotName, DateTime lastSaveTime, string directoryPath){
+        public SaveFileMetadata(string slotName, DateTime lastSaveTime, string directoryPath, string characterName = null, string location = null){
             this.slotName = slotName;
             this.lastSaveTime = lastSaveTime;
             this.directoryPath = directoryPath;
+            this.characterName = characterName;
+            this.location = location;
         }
     }
 }
