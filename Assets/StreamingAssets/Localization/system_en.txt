@@ -1,5 +1,6 @@
 # --- System UI Localization Strings (English) ---
 UI_NEW_GAME = "New Game"
+UI_CONTINUE = "Continue"
 UI_LOAD_GAME = "Load Game"
 UI_SAVE_GAME = "Save Game"
 UI_AUTO_SAVE = "Autosave"

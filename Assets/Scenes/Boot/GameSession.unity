@@ -1833,6 +1833,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Core.Managers.GameSessionManager
   dependencyDatabase: {fileID: 11400000, guid: 7fbba98f5f99f294f8620778fec87784, type: 2}
+  mainCharacterName:
+    value: Lucca
   currentMapName:
     value: TestMap
   heroesContainer: {fileID: 2457432}
