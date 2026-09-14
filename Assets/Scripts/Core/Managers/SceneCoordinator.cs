@@ -14,7 +14,7 @@ namespace Core.Managers{
     /// title diorama scenes, game sessions, and local map areas.
     [DisallowMultipleComponent]
     public class SceneCoordinator : MonoBehaviour{
-        public const string TitleSceneName       = "CoolMenuScene";
+        public const string TitleSceneName       = "BootMenuScene";
         public const string GameSessionSceneName = "GameSession";
 
         public static SceneCoordinator Instance{ get; private set; }
@@ -58,7 +58,10 @@ namespace Core.Managers{
             await SceneManager.LoadSceneAsync(TitleSceneName, LoadSceneMode.Additive);
             await locTask;
 
-            OnTitleSceneLoaded?.Invoke(SceneManager.GetSceneByName(TitleSceneName));
+            Scene loadedScene = SceneManager.GetSceneByName(TitleSceneName);
+            SceneManager.SetActiveScene(loadedScene);
+
+            OnTitleSceneLoaded?.Invoke(loadedScene);
             OnTransitionCompleted?.Invoke();
 
             if (LoadingScreenCurtain.Instance != null)

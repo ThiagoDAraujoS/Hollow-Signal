@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Boot/CoolMenuScene.unity
     guid: 208f53a9d59ebf5468a763e6a5397eb0
+  - enabled: 1
+    path: Assets/Scenes/Menus/BootMenuScene.unity
+    guid: 6979c1dbcb4abf441881e28b1500fada
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 332d9f72535bedd4faff017ed59b2d3e,
       type: 2}
