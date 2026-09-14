@@ -23,9 +23,9 @@ namespace Core.Managers{
         }
 
         public void Clear() => Files.Clear();
-        
+
         public void ReleaseFile(string fileName) => Files.Remove(fileName);
-        
+
         public bool Contains(string fileName) => Files.ContainsKey(fileName);
 
         private static string GetSaveFilePath(string fileName) => Path.Combine(SaveSystem.CurrentSaveSlotDirectory, $"{fileName}.json");
@@ -39,57 +39,58 @@ namespace Core.Managers{
         }
 
         /// Serializes all active file partitions in parallel to the temporary directory.
-        public async Task SerializeBoard(Action<string> onFailure = null) {
+        public async Task SerializeBoard(Action<string> onFailure = null){
             List<Task> tasks = Files.Select(board => Task.Run(() => {
                 (string fileName, FileContainer data) = board;
                 string filePath = GetTempFilePath(fileName);
-                
-                try {
+
+                try{
                     string json;
-                    lock(data) {
+                    lock (data){
                         json = JsonConvert.SerializeObject(data, Formatting.Indented);
                     }
-                    
+
                     File.WriteAllText(filePath, json);
                 }
-                catch (Exception e) {
+                catch (Exception e){
                     onFailure?.Invoke($"Failed writing save file {fileName} asynchronously: {e.Message}");
                 }
             })).ToList();
 
             await Task.WhenAll(tasks);
         }
-        
+
         /// Deserializes multiple save files in parallel on background worker threads.
         /// If a file does not exist, creates an empty file on disk and returns an empty container.
-        public async Task DeserializeFiles(IEnumerable<string> fileNames, Action<string> onFailure = null) {
+        public async Task DeserializeFiles(IEnumerable<string> fileNames, Action<string> onFailure = null){
             List<Task<(string Name, FileContainer Data)>> tasks = fileNames.Select(fileName => Task.Run(() => {
                 string filePath = GetSaveFilePath(fileName);
-                
-                if (!File.Exists(filePath)) {
-                    try {
+
+                if (!File.Exists(filePath)){
+                    try{
                         File.WriteAllText(filePath, "{}");
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex){
                         onFailure?.Invoke($"Failed to create empty file {fileName}: {ex.Message}");
                     }
+
                     return (fileName, new FileContainer(StringComparer.OrdinalIgnoreCase));
                 }
-                
-                try {
+
+                try{
                     string        json     = File.ReadAllText(filePath);
                     FileContainer diskData = JsonConvert.DeserializeObject<FileContainer>(json, new SafeNumericConverter());
                     return (fileName, diskData ?? new FileContainer(StringComparer.OrdinalIgnoreCase));
                 }
-                catch (Exception e) {
+                catch (Exception e){
                     onFailure?.Invoke($"Save file {fileName} is corrupted: {e.Message}");
                     return (fileName, null);
                 }
             })).ToList();
 
             (string Name, FileContainer Data)[] results = await Task.WhenAll(tasks);
-  
-            foreach ((string fileName, FileContainer data) in results) 
+
+            foreach ((string fileName, FileContainer data) in results)
                 if (data != null)
                     Files[fileName] = data;
         }

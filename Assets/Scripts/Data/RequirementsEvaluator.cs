@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Actors.Player;
 using UnityEngine;
+using World.Actors.Player;
 
 namespace Data{
     public static class RequirementsEvaluator{
@@ -9,10 +9,10 @@ namespace Data{
         // It maps a string command (like "has_level") to an evaluation function (predicate).
         // Each predicate takes the target Character and the raw string argument (everything after the colon).
         private static readonly Dictionary<string, Func<CharacterSheet, string[], bool>> PREDICATE_DICT = new(){
-            { "has_background",  (character, arg) => true }, // character.Background.Equals(arg, StringComparison.OrdinalIgnoreCase) }
-            { "has_witnessed",   (character, arg) => true }, //Blackboard.GetBool(arg) }
-            { "has_skill",       (character, arg) => true },
-            { "is_rich:",        (character, arg) => true },
+            { "has_background", (character,  arg) => true }, // character.Background.Equals(arg, StringComparison.OrdinalIgnoreCase) }
+            { "has_witnessed", (character,   arg) => true }, //Blackboard.GetBool(arg) }
+            { "has_skill", (character,       arg) => true },
+            { "is_rich:", (character,        arg) => true },
             { "has_any_mastery", (character, arg) => true }
         };
 
@@ -22,7 +22,7 @@ namespace Data{
             //TODO: release this code once character is done.
             //if (character.Level < mastery.Level)
             //   return false;
-            
+
             if (mastery.Prerequisites == null || mastery.Prerequisites.Count == 0)
                 return true;
 
@@ -32,9 +32,11 @@ namespace Data{
                     Debug.LogWarning($"[RequirementsEvaluator] Unknown requirement key '{rule.key}' found on Mastery '{mastery.Id}'");
                     return false;
                 }
+
                 if (!predicate.Invoke(character, rule.args))
                     return false;
             }
+
             return true;
         }
     }

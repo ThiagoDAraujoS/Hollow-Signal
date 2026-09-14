@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Config;
-using Core.Localization;
 using Core.UI;
+using Narrative.Localization;
+using UI.Shared.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -44,15 +45,19 @@ namespace Core.Managers{
         }
 
         private async void Start(){
-            if (autoLoadTitleOnStart)
-                await LoadTitleSceneAsync();
+            try{
+                if (autoLoadTitleOnStart)
+                    await LoadTitleSceneAsync();
+            }
+            catch (Exception e){
+                Debug.LogException(e);
+            }
         }
 
         /// Additively loads the title diorama scene and parses core localization concurrently before unveiling.
         public static async Task LoadTitleSceneAsync(){
             OnTransitionStarted?.Invoke();
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeInAsync();
+            await LoadingScreenCurtain.Instance.FadeInAsync();
 
             Task locTask = LocalizationManager.LoadBaseStringsAsync(LocalizationManager.CurrentLanguage);
             await SceneManager.LoadSceneAsync(TitleSceneName, LoadSceneMode.Additive);
@@ -64,16 +69,14 @@ namespace Core.Managers{
             OnTitleSceneLoaded?.Invoke(loadedScene);
             OnTransitionCompleted?.Invoke();
 
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeOutAsync();
+            await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
         /// Unloads the title scene, sets the active save slot, loads core blackboard data,
         /// and additively loads the persistent GameSession scene.
         public static async Task StartGameSessionAsync(string saveSlotName){
             OnTransitionStarted?.Invoke();
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeInAsync();
+            await LoadingScreenCurtain.Instance.FadeInAsync();
 
             if (SceneManager.GetSceneByName(TitleSceneName).isLoaded){
                 await SceneManager.UnloadSceneAsync(TitleSceneName);
@@ -96,17 +99,14 @@ namespace Core.Managers{
             }
 
             OnTransitionCompleted?.Invoke();
-
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeOutAsync();
+            await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
         /// Transitions between two map zones: unloads old map, purges its blackboard partitions and localization,
         /// loads new dependencies concurrently, and activates the new map.
         public async Task TransitionToMapAsync(string newMapName){
             OnTransitionStarted?.Invoke();
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeInAsync();
+            await LoadingScreenCurtain.Instance.FadeInAsync();
 
             // 1. Unload old map scene & purge its resources if an active map exists
             if (!string.IsNullOrEmpty(ActiveMapScene) && SceneManager.GetSceneByName(ActiveMapScene).isLoaded){
@@ -144,17 +144,14 @@ namespace Core.Managers{
             }
 
             OnTransitionCompleted?.Invoke();
-
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeOutAsync();
+            await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
         /// Closes active gameplay, unloads all non-boot scenes, purges memory,
         /// and restores the title diorama scene.
         public async Task ReturnToTitleMenuAsync(){
             OnTransitionStarted?.Invoke();
-            if (LoadingScreenCurtain.Instance != null)
-                await LoadingScreenCurtain.Instance.FadeInAsync();
+            await LoadingScreenCurtain.Instance.FadeInAsync();
 
             SaveSystem.ClearActiveMemory();
             await UnloadAllNonBootScenesAsync();
@@ -168,20 +165,16 @@ namespace Core.Managers{
 
         /// Unloads all currently loaded scenes except for the persistent Boot scene.
         public static async Task UnloadAllNonBootScenesAsync(){
-            Scene bootScene  = SceneManager.GetSceneAt(0);
-            int   sceneCount = SceneManager.sceneCount;
-
+            Scene                bootScene = SceneManager.GetSceneAt(0);
             List<AsyncOperation> unloadOps = new();
-            for (int i = sceneCount - 1; i >= 0; i--){
-                Scene scene = SceneManager.GetSceneAt(i);
-                if (scene == bootScene) continue;
-                unloadOps.Add(SceneManager.UnloadSceneAsync(scene));
-            }
 
-            foreach (AsyncOperation op in unloadOps){
+            foreach (Scene scene in Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt))
+                if (scene != bootScene)
+                    unloadOps.Add(SceneManager.UnloadSceneAsync(scene));
+
+            foreach (AsyncOperation op in unloadOps)
                 while (op is{ isDone: false })
                     await Task.Yield();
-            }
         }
     }
 }

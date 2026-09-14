@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.State;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Core.Managers {
+namespace Core.Managers{
     [RequireComponent(typeof(Blackboard))]
     public class SaveSystem : MonoBehaviour{
         private Blackboard _blackboard;
@@ -13,14 +14,14 @@ namespace Core.Managers {
         public static SaveSystem Instance{ get; private set; }
 
         public static Blackboard Blackboard => Instance._blackboard;
-        public string[] coreFileNames = { "core" };
+        public        string[]   coreFileNames = { "core" };
 
         [SerializeField] private string currentSaveSlot;
-        public static string CurrentSaveSlot => Instance.currentSaveSlot;
-        public static string CurrentSaveSlotDirectory => Path.Combine(_baseSavePath, CurrentSaveSlot);
+        public static            string CurrentSaveSlot          => Instance.currentSaveSlot;
+        public static            string CurrentSaveSlotDirectory => Path.Combine(_baseSavePath, CurrentSaveSlot);
 
         [SerializeField] private string defaultSaveTemplate = "template";
-        public static string DefaultSaveTemplate => Instance.defaultSaveTemplate;
+        public static            string DefaultSaveTemplate => Instance.defaultSaveTemplate;
 
         private const string TempDirectoryName = "temp";
         public static string TempDirectory => Path.Combine(_baseSavePath, TempDirectoryName);
@@ -33,7 +34,7 @@ namespace Core.Managers {
                 return;
             }
 
-            Instance = this;
+            Instance      = this;
             _baseSavePath = Path.Combine(Application.persistentDataPath, "Saves");
             if (!Directory.Exists(_baseSavePath)){
                 Directory.CreateDirectory(_baseSavePath);
@@ -80,8 +81,8 @@ namespace Core.Managers {
 
                 await Blackboard.SerializeBoard(onFailure);
 
-                string charName = GameSessionManager.Instance != null 
-                    ? GameSessionManager.Instance.mainCharacterName.Value 
+                string charName = GameSessionManager.Instance != null
+                    ? GameSessionManager.Instance.mainCharacterName.Value
                     : null;
 
                 SaveFileMetadata meta = new(
@@ -91,7 +92,7 @@ namespace Core.Managers {
                     charName,
                     "Station Outpost"
                 );
-                string metaJson = JsonConvert.SerializeObject(meta, Formatting.Indented);
+                string metaJson     = JsonConvert.SerializeObject(meta, Formatting.Indented);
                 string metaFilePath = Path.Combine(TempDirectory, "meta.json");
                 await File.WriteAllTextAsync(metaFilePath, metaJson);
 
@@ -125,13 +126,13 @@ namespace Core.Managers {
             string[] directories = Directory.GetDirectories(_baseSavePath);
             foreach (string dirPath in directories){
                 string dirName = Path.GetFileName(dirPath);
-                
-                if (string.Equals(dirName, TempDirectoryName, StringComparison.OrdinalIgnoreCase)) continue;
+
+                if (string.Equals(dirName, TempDirectoryName,            StringComparison.OrdinalIgnoreCase)) continue;
                 if (string.Equals(dirName, Instance.defaultSaveTemplate, StringComparison.OrdinalIgnoreCase)) continue;
-                
+
                 string metaFilePath = Path.Combine(dirPath, "meta.json");
                 try{
-                    string json = File.ReadAllText(metaFilePath);
+                    string           json = File.ReadAllText(metaFilePath);
                     SaveFileMetadata meta = JsonConvert.DeserializeObject<SaveFileMetadata>(json);
                     saveList.Add(meta);
                 }
@@ -141,6 +142,7 @@ namespace Core.Managers {
                     saveList.Add(new SaveFileMetadata(dirName, lastWriteTime.ToLocalTime(), dirPath));
                 }
             }
+
             saveList.Sort((a, b) => b.lastSaveTime.CompareTo(a.lastSaveTime));
             return saveList;
         }
@@ -149,11 +151,11 @@ namespace Core.Managers {
         /// overwriting the oldest existing autosave slot.
         public static async Task AutosaveAsync(Action<string> onFailure = null){
             DateTime oldestTime = DateTime.MaxValue;
-            string targetName = "autosave_00";
+            string   targetName = "autosave_00";
 
             for (int i = 0; i < 3; i++){
                 string baseName = $"autosave_{i:D2}";
-                string path = Path.Combine(_baseSavePath, baseName);
+                string path     = Path.Combine(_baseSavePath, baseName);
 
                 if (!Directory.Exists(path)){
                     targetName = baseName;
@@ -171,7 +173,7 @@ namespace Core.Managers {
             SetSaveSlot(targetName);
             await SaveGame(onFailure);
         }
-        
+
 #if UNITY_EDITOR
         [ContextMenu("New Game")]
         public void StartNewGame() => _ = SceneCoordinator.StartGameSessionAsync(DefaultSaveTemplate);
@@ -181,7 +183,7 @@ namespace Core.Managers {
 
         [ContextMenu("Close")]
         public void CloseSession() => _ = SceneCoordinator.Instance.ReturnToTitleMenuAsync();
-        
+
         [ContextMenu("Save")]
         public void Save(){
             SetSaveSlot("TestSave");
@@ -195,18 +197,18 @@ namespace Core.Managers {
 
     [Serializable]
     public struct SaveFileMetadata{
-        public string slotName;
+        public string   slotName;
         public DateTime lastSaveTime;
-        public string directoryPath;
-        public string characterName;
-        public string location;
+        public string   directoryPath;
+        public string   characterName;
+        public string   location;
 
         public SaveFileMetadata(string slotName, DateTime lastSaveTime, string directoryPath, string characterName = null, string location = null){
-            this.slotName = slotName;
-            this.lastSaveTime = lastSaveTime;
+            this.slotName      = slotName;
+            this.lastSaveTime  = lastSaveTime;
             this.directoryPath = directoryPath;
             this.characterName = characterName;
-            this.location = location;
+            this.location      = location;
         }
     }
 }
