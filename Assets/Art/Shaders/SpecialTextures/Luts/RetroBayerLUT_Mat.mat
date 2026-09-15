@@ -29,12 +29,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Blend: 1
-    - _ColorFragmentation: 0
+    - _Blend: 0.87
+    - _ColorFragmentation: 12
     - _ColorSpaceCorrection: 1
     - _CubeResolution: 64
     - _DitherMatrixSize: 1
-    - _DitherSpread: 0.02
+    - _DitherSpread: 0.041
     - _PixelSize: 2
     m_Colors:
     - _TileLayout: {r: 8, g: 8, b: 0, a: 0}

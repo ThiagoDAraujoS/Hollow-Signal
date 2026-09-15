@@ -4,11 +4,11 @@ using Core.Managers;
 using UnityEngine;
 
 namespace UI.Shared.SaveLoad{
-    /// Coordinates the Save Game panel, managing the carousel of saves,
-    /// generating automatic save names with character info and timestamp, and executing saves.
+    /// Coordinates the Save Game panel, managing carousel saves and executing saves on bullet click.
     public class SaveGamePanelController : BaseGameFilePanelController{
         public const string NewSaveSlotId = "NEW_SAVE";
 
+        /// Configures carousel to preserve the New Save bullet slot.
         protected override void Awake(){
             base.Awake();
             carouselController.PreserveFirstItem = true;
@@ -16,33 +16,24 @@ namespace UI.Shared.SaveLoad{
 
         /// Populates the carousel with existing save slots, preserving the New Save bullet at index 0.
         public override void BuildList(){
-            List<SaveFileMetadata>   saveFiles      = SaveSystem.GetSaveFileList();
             List<GameFileBulletData> bulletDataList = new();
-            foreach (SaveFileMetadata meta in saveFiles){
-                GameFileBulletData bulletData = new(){
+            foreach (SaveFileMetadata meta in SaveSystem.GetSaveFileList())
+                bulletDataList.Add(new GameFileBulletData{
                     slotName      = meta.slotName,
                     location      = string.IsNullOrEmpty(meta.location) ? "Somewhere" : meta.location,
                     timestamp     = meta.lastSaveTime.ToString("yyyy-MM-dd HH:mm"),
                     snapshot      = null,
                     characterName = string.IsNullOrEmpty(meta.characterName) ? "Nameless Hero" : meta.characterName
-                };
-                bulletDataList.Add(bulletData);
-            }
+                });
+
             carouselController.BuildCarousel(bulletDataList);
-            UpdateActionButtonState(carouselController.SelectedBullet != null);
         }
 
-        /// Saves the game to an auto-named slot (for New Save) or overwrites the selected slot.
-        protected override async void HandleActionClicked(){
+        /// Saves the game to an auto-named slot or overwrites the clicked slot.
+        protected override async void HandleAction(GameFileBullet bullet){
             try{
-                if (carouselController.SelectedBullet == null) return;
-
-                actionButton.interactable = false;
-
-                string targetSlot = carouselController.SelectedBullet.SlotName;
-                bool isNewSave = string.IsNullOrEmpty(targetSlot)
-                              || targetSlot == NewSaveSlotId
-                              || carouselController.SelectedBullet.name.Contains("NewSave");
+                string targetSlot = bullet.SlotName;
+                bool isNewSave = string.IsNullOrEmpty(targetSlot) || targetSlot == NewSaveSlotId || bullet.name.Contains("NewSave");
 
                 if (isNewSave){
                     string charName = GameSessionManager.Instance.mainCharacterName.Value;
@@ -54,20 +45,10 @@ namespace UI.Shared.SaveLoad{
                 await SaveSystem.SaveGame();
 
                 BuildList();
-                UpdateActionButtonState(carouselController.SelectedBullet != null);
             }
             catch (Exception e){
                 Debug.LogException(e);
             }
         }
-
-        // --- Animation Track & Inspector Compatibility Aliases ---
-        [ContextMenu("Build Save List")]
-        public void BuildSaveList() => BuildList();
-
-        [ContextMenu("Destroy Save List")]
-        public void DestroySaveList() => DestroyList();
-
-        public void HandleSaveClicked() => HandleActionClicked();
     }
 }

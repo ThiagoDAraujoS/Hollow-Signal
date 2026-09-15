@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using World.Actors.Brains;
+using World.Anchors;
 
 namespace Cameras{
     [DisallowMultipleComponent]
@@ -8,7 +10,11 @@ namespace Cameras{
 
         private void Awake() => _camera = GetComponent<Camera>();
 
-        private void OnEnable() => CameraStackCoordinator.RegisterBase(_camera);
+        private void OnEnable(){
+            CameraStackCoordinator.RegisterBase(_camera);
+            PlayerBrain.SetCamera(_camera);
+            CameraAnchor.SetRenderingCamera(_camera);
+        }
 
         private void OnDisable() => CameraStackCoordinator.UnregisterBase(_camera);
     }

@@ -126,6 +126,14 @@ namespace World.Actors.Brains{
             _instance                     =  null;
         }
 
+        /// Sets the active world camera for command dispatching and unit selection.
+        public static void SetCamera(Camera camera){
+            if (_instance == null) return;
+            _instance.mainCamera = camera;
+            _instance._commandDispatcher.SetCamera(camera);
+            _instance._gestureHandler.SetCamera(camera);
+        }
+
         public static void AddPartyMember(Character character){
             if (!_instance.activePartyMembers.Contains(character))
                 _instance.activePartyMembers.Add(character);

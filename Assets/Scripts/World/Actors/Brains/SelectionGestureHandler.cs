@@ -17,7 +17,7 @@ namespace World.Actors.Brains{
     public class SelectionGestureHandler{
         private const float DoubleClickWindow = 0.3f;
 
-        private readonly Camera          _camera;
+        private Camera                   _camera;
         private readonly LayerMask       _characterLayer;
         private readonly PartySelection  _selection;
         private readonly List<Character> _activePartyMembers;
@@ -56,6 +56,9 @@ namespace World.Actors.Brains{
             _boxBorderColor     = boxBorderColor;
             _boxFillColor       = boxFillColor;
         }
+
+        /// Updates the reference to the active world camera.
+        public void SetCamera(Camera camera) => _camera = camera;
 
         public void OnPressStarted(Vector2 screenPos){
             _isPressed        = true;

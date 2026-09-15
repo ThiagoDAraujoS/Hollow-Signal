@@ -47,6 +47,13 @@ namespace World.Anchors{
                 _instance = null;
         }
 
+        /// Sets the active world camera and finds the scene's virtual camera.
+        public static void SetRenderingCamera(Camera camera){
+            if (_instance == null) return;
+            _instance.renderingCamera   = camera;
+            _instance.cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
+        }
+
         private void OnEnable(){
             if (moveActionRef != null){
                 moveActionRef.action.performed += OnMovePerformed;

@@ -8,12 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Plane1
-  m_Shader: {fileID: 4800000, guid: 999a314f49df4ca6af8012cb32f85a75, type: 3}
+  m_Shader: {fileID: 4800000, guid: 963bec4484a749faad5b8cb10e18734f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _ALPHATOCOVERAGE_ON
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -33,7 +33,17 @@ Material:
     - _AlphaToCoverage: 1
     - _Cull: 0
     - _Cutoff: 0.5
+    - _EnableFog: 0
+    - _FogEnd: 30
+    - _FogFarBlend: 1
+    - _FogIntensity: 1
+    - _FogMultiply: 1
+    - _FogNearBlend: 0
+    - _FogPreserveDark: 0.5
+    - _FogStart: 5
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.49019608, g: 0.5058824, b: 0.6431373, a: 1}
+    - _FogFarColor: {r: 0.05, g: 0.08, b: 0.15, a: 1}
+    - _FogNearColor: {r: 0.3, g: 0.4, b: 0.5, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

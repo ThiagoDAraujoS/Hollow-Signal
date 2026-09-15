@@ -3,51 +3,40 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.Shared.SaveLoad{
-    /// Abstract base controller for save and load panels.
-    /// Handles common carousel lifecycle, action button state, and back navigation.
+    /// Abstract base controller for save and load panels handling bullet action and back navigation.
     [DisallowMultipleComponent]
     public abstract class BaseGameFilePanelController : MonoBehaviour{
         [Header("Carousel Reference")] [SerializeField]
         protected GameFileCarouselController carouselController;
 
-        [Header("Buttons")] [SerializeField] protected Button actionButton;
-
         [SerializeField] protected Button backButton;
 
         public event Action OnBackRequested;
 
-        protected virtual void Awake(){
-            actionButton.interactable = false;
-            actionButton.onClick.AddListener(HandleActionClicked);
-            backButton.onClick.AddListener(HandleBackClicked);
-        }
+        /// Binds button listeners and initializes action state.
+        protected virtual void Awake() => backButton.onClick.AddListener(HandleBackClicked);
+        
+        /// Subscribes to carousel bullet action and selection events.
+        protected virtual void OnEnable() => carouselController.OnBulletActionRequested += HandleAction;
 
-        protected virtual void OnEnable(){
-            carouselController.OnSelectionChanged += HandleSelectionChanged;
-            UpdateActionButtonState(carouselController.SelectedBullet != null);
-        }
+        /// Unsubscribes from carousel events.
+        protected virtual void OnDisable() => carouselController.OnBulletActionRequested -= HandleAction;
 
-        protected virtual void OnDisable() => carouselController.OnSelectionChanged -= HandleSelectionChanged;
 
-        protected virtual void OnDestroy(){
-            actionButton.onClick.RemoveListener(HandleActionClicked);
-            backButton.onClick.RemoveListener(HandleBackClicked);
-        }
+        /// Unregisters button listeners.
+        protected virtual void OnDestroy() => backButton.onClick.RemoveListener(HandleBackClicked);
+
 
         /// Flushes save bullets from the carousel.
-        protected virtual void DestroyList(){
-            carouselController.DestroyCarousel();
-            UpdateActionButtonState(false);
-        }
+        protected virtual void DestroyList() => carouselController.DestroyCarousel();
 
+        /// Triggers back navigation event.
         public void HandleBackClicked() => OnBackRequested?.Invoke();
-
-        protected virtual void HandleSelectionChanged(GameFileBullet selectedBullet) =>
-            UpdateActionButtonState(selectedBullet != null);
-
-        protected void UpdateActionButtonState(bool hasSelection) => actionButton.interactable = hasSelection;
+  
+        /// Forwards legacy button click to action handler.
+        protected virtual void HandleActionButtonClicked() => HandleAction(carouselController.SelectedBullet);
 
         public abstract    void BuildList();
-        protected abstract void HandleActionClicked();
+        protected abstract void HandleAction(GameFileBullet bullet);
     }
 }

@@ -9,7 +9,7 @@ namespace World.Actors.Brains {
     /// projecting squad formation destinations onto the NavMesh, and streaming continuous steering updates.
     /// </summary>
     public class PlayerCommandDispatcher {
-        private readonly Camera _camera;
+        private Camera _camera;
         private readonly LayerMask _groundLayer;
         private readonly float _continuousRepathInterval;
         private const float RayDistance = 300f;
@@ -26,6 +26,9 @@ namespace World.Actors.Brains {
             _groundLayer = groundLayer;
             _continuousRepathInterval = continuousRepathInterval;
         }
+
+        /// Updates the reference to the active world camera.
+        public void SetCamera(Camera camera) => _camera = camera;
 
         /// <summary>
         /// Signals that the player has pressed down the command button, starting the hold timer.

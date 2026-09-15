@@ -118,6 +118,16 @@ namespace Core.Managers{
             await Instance._blackboard.DeserializeFiles(fileNames, onFailure);
         }
 
+        /// Starts a new game session using the default template.
+        public static async Task StartNewGameAsync() => await SceneCoordinator.StartGameSessionAsync(DefaultSaveTemplate);
+
+        /// Loads the most recent save file and launches the game session.
+        public static async Task ContinueGameAsync(){
+            List<SaveFileMetadata> saves = GetSaveFileList();
+            if (saves.Count == 0) return;
+            await SceneCoordinator.StartGameSessionAsync(saves[0].slotName);
+        }
+
         /// Gathers all save folders from disk and reconstructs their metadata by reading
         /// their coined meta.json files, sorting them the newest first.
         public static List<SaveFileMetadata> GetSaveFileList(){

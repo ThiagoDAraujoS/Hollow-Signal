@@ -21,18 +21,19 @@ namespace World.Actors.Player{
         private UniqueId _uniqueId;
 
         private void Awake(){
-            _uniqueId = GetComponent<UniqueId>();
-            movement  = GetComponent<CharacterMovement>();
-            sheet     = GetComponent<CharacterSheet>();
-            nmAgent   = GetComponent<NavMeshAgent>();
-            animator  = GetComponentInChildren<Animator>();
+            _uniqueId        = GetComponent<UniqueId>();
+            movement         = GetComponent<CharacterMovement>();
+            sheet            = GetComponent<CharacterSheet>();
+            nmAgent          = GetComponentInChildren<NavMeshAgent>(true);
+            animator         = GetComponentInChildren<Animator>(true);
+            movement.enabled = false;
         }
 
         private void Reset(){
             movement = GetComponent<CharacterMovement>();
             sheet    = GetComponent<CharacterSheet>();
-            nmAgent  = GetComponent<NavMeshAgent>();
-            animator = GetComponentInChildren<Animator>();
+            nmAgent  = GetComponentInChildren<NavMeshAgent>(true);
+            animator = GetComponentInChildren<Animator>(true);
         }
 
         public Sheet      Sheet           => sheet;

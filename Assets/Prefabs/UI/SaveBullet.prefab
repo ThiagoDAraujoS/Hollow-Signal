@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4160353929129942183
 RectTransform:
   m_ObjectHideFlags: 0
@@ -223,8 +223,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '|Time:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 729d48eb9996dbf47b3932ee989f972d, type: 2}
-  m_sharedMaterial: {fileID: 5151487963368343437, guid: 729d48eb9996dbf47b3932ee989f972d,
+  m_fontAsset: {fileID: 11400000, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66, type: 2}
+  m_sharedMaterial: {fileID: 5780516889251147014, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -430,7 +430,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9056604, g: 0.89284444, b: 0.89284444, a: 1}
+  m_Color: {r: 0.44313726, g: 0.44313726, b: 0.44313726, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -515,8 +515,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '|Location:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 729d48eb9996dbf47b3932ee989f972d, type: 2}
-  m_sharedMaterial: {fileID: 5151487963368343437, guid: 729d48eb9996dbf47b3932ee989f972d,
+  m_fontAsset: {fileID: 11400000, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66, type: 2}
+  m_sharedMaterial: {fileID: 5780516889251147014, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1062,7 +1062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1497,8 +1497,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '|Character:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 729d48eb9996dbf47b3932ee989f972d, type: 2}
-  m_sharedMaterial: {fileID: 5151487963368343437, guid: 729d48eb9996dbf47b3932ee989f972d,
+  m_fontAsset: {fileID: 11400000, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66, type: 2}
+  m_sharedMaterial: {fileID: 5780516889251147014, guid: 2cc8cc0ce8dfe9b4ebda8e9696cb5a66,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}

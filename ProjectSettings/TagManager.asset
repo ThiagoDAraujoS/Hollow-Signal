@@ -41,6 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Canvas
+    uniqueID: 2123381075
+    locked: 0
+  - name: FrontOfCanva
+    uniqueID: 2968978525
+    locked: 0
   m_RenderingLayers:
   - Default
   - Light Layer 1
