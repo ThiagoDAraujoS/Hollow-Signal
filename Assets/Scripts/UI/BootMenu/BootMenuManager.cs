@@ -7,19 +7,30 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.BootMenu{
-    /// Manages boot menu actions including starting a new game, continuing, and updating button states.
+    /// Manages boot menu actions including starting a new game, continuing, loading, deleting, and updating button states.
     [DisallowMultipleComponent]
     public class BootMenuManager : MonoBehaviour{
-        [SerializeField] private Button          continueButton;
-        [SerializeField] private TextMeshProUGUI continueText;
-        [SerializeField] private Color           activeTextColor   = Color.white;
-        [SerializeField] private Color           disabledTextColor = new(0.314f, 0.314f, 0.314f, 1f);
+        [SerializeField] private Button                  continueButton;
+        [SerializeField] private TextMeshProUGUI         continueText;
+        [SerializeField] private Color                   activeTextColor   = Color.white;
+        [SerializeField] private Color                   disabledTextColor = new(0.314f, 0.314f, 0.314f, 1f);
+        [SerializeField] private LoadGamePanelController loadGamePanel;
 
         /// Evaluates available save files and initializes continue button state.
         private void Start() => RefreshContinueButton();
 
-        /// Refreshes continue button interactability when menu activates.
-        private void OnEnable() => RefreshContinueButton();
+        /// Refreshes continue button interactability and subscribes to panel delete events.
+        private void OnEnable(){
+            RefreshContinueButton();
+            if (loadGamePanel != null)
+                loadGamePanel.OnSaveDeleted += HandleSaveDeleted;
+        }
+
+        /// Unsubscribes from panel delete events.
+        private void OnDisable(){
+            if (loadGamePanel != null)
+                loadGamePanel.OnSaveDeleted -= HandleSaveDeleted;
+        }
 
         /// Starts a fresh game session using the default save template.
         public async void StartNewGame(){
@@ -41,6 +52,12 @@ namespace UI.BootMenu{
             }
         }
 
+        /// Loads the save file currently selected in the load game panel.
+        public void LoadSelectedGame() => loadGamePanel.HandleActionButtonClicked();
+
+        /// Deletes the save file currently selected in the load game panel.
+        public void DeleteSelectedGame() => loadGamePanel.DeleteSelected();
+
         /// Closes the application or exits play mode in editor.
         public void QuitGame(){
 #if UNITY_EDITOR
@@ -56,6 +73,9 @@ namespace UI.BootMenu{
             continueButton.interactable = hasSaves;
             continueText.color          = hasSaves ? activeTextColor : disabledTextColor;
         }
+
+        /// Refreshes continue button when a save is deleted from the panel.
+        private void HandleSaveDeleted(string slotName) => RefreshContinueButton();
 
         /// Fetches all save files from SaveSystem formatted for carousel bullets.
         public static List<GameFileBulletData> FetchSaveBulletData(){

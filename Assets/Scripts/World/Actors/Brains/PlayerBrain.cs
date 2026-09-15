@@ -205,9 +205,18 @@ namespace World.Actors.Brains{
             OnContinuousCommand?.Invoke(_currentScreenPos);
         }
 
+        /// Selects a hero or dispatches direct command at pointer position.
         private void OnCommandStarted(InputAction.CallbackContext context){
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
+
+            if (_selection.Count == 0){
+                Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, mousePos, characterLayer);
+                if (hitCharacter != null){
+                    _selection.SingleUnitSelect(hitCharacter);
+                    return;
+                }
+            }
 
             _commandDispatcher.OnCommandStarted();
             _commandDispatcher.ExecuteDirectCommand(mousePos, Lead, _selection.Selected);

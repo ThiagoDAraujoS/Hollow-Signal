@@ -51,7 +51,7 @@ Material:
     - _UseUIAlphaClip: 1
     - unity_GUIZTestMode: 8
     m_Colors:
-    - _Color: {r: 0.7438581, g: 0.7168476, b: 0.8396226, a: 1}
+    - _Color: {r: 0.5882353, g: 0.52156866, b: 0.5176471, a: 1}
     - _FogFarColor: {r: 0.05, g: 0.08, b: 0.15, a: 1}
     - _FogNearColor: {r: 0.3, g: 0.4, b: 0.5, a: 1}
   m_BuildTextureStacks: []

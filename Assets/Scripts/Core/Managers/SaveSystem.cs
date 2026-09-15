@@ -36,9 +36,8 @@ namespace Core.Managers{
 
             Instance      = this;
             _baseSavePath = Path.Combine(Application.persistentDataPath, "Saves");
-            if (!Directory.Exists(_baseSavePath)){
+            if (!Directory.Exists(_baseSavePath))
                 Directory.CreateDirectory(_baseSavePath);
-            }
 
             _blackboard = gameObject.GetComponent<Blackboard>();
         }
@@ -75,9 +74,8 @@ namespace Core.Managers{
                 Directory.CreateDirectory(TempDirectory);
 
                 // IMPORTANT: Flush all active game objects into the Blackboard dict before saving
-                foreach (BlackboardClient client in BlackboardClient.ActiveClients){
+                foreach (BlackboardClient client in BlackboardClient.ActiveClients)
                     client.FlushStateToBlackboard();
-                }
 
                 await Blackboard.SerializeBoard(onFailure);
 
@@ -108,9 +106,8 @@ namespace Core.Managers{
         }
 
         /// Loads a specific Blackboard partition on demand from the active save slot directory.
-        public static async Task LoadFile(string fileName, Action<string> onFailure = null){
+        public static async Task LoadFile(string fileName, Action<string> onFailure = null) =>
             await Instance._blackboard.DeserializeFiles(new[]{ fileName }, onFailure);
-        }
 
         /// Loads multiple Blackboard partitions in parallel on demand from the active save slot directory.
         public static async Task LoadFiles(IEnumerable<string> fileNames, Action<string> onFailure = null){
@@ -126,6 +123,19 @@ namespace Core.Managers{
             List<SaveFileMetadata> saves = GetSaveFileList();
             if (saves.Count == 0) return;
             await SceneCoordinator.StartGameSessionAsync(saves[0].slotName);
+        }
+
+        /// Deletes a save slot directory and its contents from disk.
+        public static bool DeleteSave(string slotName){
+            if (string.IsNullOrEmpty(slotName)) return false;
+            if (string.Equals(slotName, TempDirectoryName, StringComparison.OrdinalIgnoreCase)) return false;
+            if (Instance != null && string.Equals(slotName, Instance.defaultSaveTemplate, StringComparison.OrdinalIgnoreCase)) return false;
+
+            _baseSavePath ??= Path.Combine(Application.persistentDataPath, "Saves");
+            string targetDir = Path.Combine(_baseSavePath, slotName);
+            if (!Directory.Exists(targetDir)) return false;
+            Directory.Delete(targetDir, true);
+            return true;
         }
 
         /// Gathers all save folders from disk and reconstructs their metadata by reading

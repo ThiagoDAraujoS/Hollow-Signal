@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace UI.Shared.SaveLoad{
     /// Represents a single save file slot bullet in the carousel with neon selector effects.
     [ExecuteAlways]
-    public class GameFileBullet : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler{
+    public class GameFileBullet : MonoBehaviour, IPointerClickHandler{
         [SerializeField] private TextMeshProUGUI nameContainer;
         [SerializeField] private TextMeshProUGUI locationContainer;
         [SerializeField] private TextMeshProUGUI timeContainer;
@@ -31,16 +31,15 @@ namespace UI.Shared.SaveLoad{
 
         public string                       SlotName   { get; private set; }
         public bool                         IsSelected => isSelected;
-        public event Action<GameFileBullet> OnHovered;
-        public event Action<GameFileBullet> OnActionRequested;
+        public event Action<GameFileBullet> OnClicked;
 
-        /// Initializes selector color and binds fallback button click.
+        /// Initializes selector color and binds button click listener.
         private void Awake(){
             EnsureBaseColor();
             _selectionWeight = isSelected ? 1f : 0f;
             _flickerMultiplier = isSelected ? 1f : 0f;
             if (TryGetComponent<Button>(out var button))
-                button.onClick.AddListener(() => OnActionRequested?.Invoke(this));
+                button.onClick.AddListener(() => OnClicked?.Invoke(this));
         }
 
         /// Populates text, snapshot, and slot metadata for this save bullet.
@@ -69,6 +68,7 @@ namespace UI.Shared.SaveLoad{
         /// Sets the selection state and refreshes container visibility.
         public void SetSelected(bool selected){
             isSelected = selected;
+            if (selectorContainer == null) return;
             if (!selectorContainer.gameObject.activeSelf)
                 selectorContainer.gameObject.SetActive(true);
             if (Application.isPlaying) return;
@@ -77,20 +77,19 @@ namespace UI.Shared.SaveLoad{
             ApplyVisualState();
         }
 
-        /// Notifies listeners that cursor hovered over this bullet.
-        public void OnPointerEnter(PointerEventData eventData) => OnHovered?.Invoke(this);
-
-        /// Notifies listeners that this bullet was clicked to trigger action.
-        public void OnPointerClick(PointerEventData eventData) => OnActionRequested?.Invoke(this);
+        /// Notifies listeners that this bullet was clicked.
+        public void OnPointerClick(PointerEventData eventData) => OnClicked?.Invoke(this);
 
         /// Caches initial selector container color to prevent dark-out.
         private void EnsureBaseColor(){
+            if (selectorContainer == null) return;
             if (_baseColor == default || _baseColor.a <= 0.01f)
                 _baseColor = selectorContainer.color.a > 0.01f ? selectorContainer.color : Color.white;
         }
 
         /// Updates selector container color tint based on weight and flicker.
         private void ApplyVisualState(){
+            if (selectorContainer == null) return;
             Color c = _baseColor * _flickerMultiplier;
             c.a = _baseColor.a * _selectionWeight;
             selectorContainer.color = c;

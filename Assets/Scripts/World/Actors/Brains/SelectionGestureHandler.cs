@@ -5,15 +5,7 @@ using World.Actors.Player;
 using World.Anchors;
 
 namespace World.Actors.Brains{
-    /// <summary>
-    /// Encapsulates mouse gesture state for selection:
-    /// - Right-Click tap (threshold distance & duration) -> Raycasts character for single unit selection.
-    /// - Right-Click double tap -> Snaps camera to character body and follows until WASD.
-    /// - Shift + Right-Click -> Adds unit to selection.
-    /// - Right-Click drag (> threshold distance) -> Marquee drag box selection.
-    /// - Shift + Right-Click drag -> Additive box selection.
-    /// - Right-Click hold (> threshold duration without dragging) -> Fires context menu request.
-    /// </summary>
+    /// Encapsulates mouse gesture state for selection, double-click tracking, and context menu triggering.
     public class SelectionGestureHandler{
         private const float DoubleClickWindow = 0.3f;
 
@@ -38,6 +30,7 @@ namespace World.Actors.Brains{
 
         public event Action<Vector2> OnContextMenuRequested;
 
+        /// Constructs handler with input thresholds, layer masks, and visual preferences.
         public SelectionGestureHandler(
             Camera camera,
             LayerMask characterLayer,
@@ -60,6 +53,7 @@ namespace World.Actors.Brains{
         /// Updates the reference to the active world camera.
         public void SetCamera(Camera camera) => _camera = camera;
 
+        /// Registers gesture start position and timestamp.
         public void OnPressStarted(Vector2 screenPos){
             _isPressed        = true;
             IsDragging        = false;
@@ -68,6 +62,7 @@ namespace World.Actors.Brains{
             _pressStartTime   = Time.unscaledTime;
         }
 
+        /// Checks drag distance and hold duration thresholds each frame.
         public void Update(Vector2 currentScreenPos){
             if (!_isPressed || _contextMenuFired) return;
 
@@ -80,6 +75,7 @@ namespace World.Actors.Brains{
             }
         }
 
+        /// Resolves tap selection, drag box selection, or deselect on empty ground click.
         public void OnPressCanceled(Vector2 releasePos, bool isShiftPressed){
             if (!_isPressed) return;
             _isPressed = false;
@@ -98,26 +94,31 @@ namespace World.Actors.Brains{
             }
             else if (!_contextMenuFired){
                 Character hitCharacter = SelectionScanner.RaycastCharacter(_camera, releasePos, _characterLayer);
-                if (hitCharacter == null) return;
+                if (hitCharacter == null){
+                    if (!isShiftPressed)
+                        _selection.Clear();
+                    return;
+                }
 
                 if (isShiftPressed)
                     _selection.AddUnitSelect(hitCharacter);
-                else {
+                else{
                     _selection.SingleUnitSelect(hitCharacter);
 
-                    if (_lastClickedCharacter == hitCharacter && Time.unscaledTime - _lastClickTime <= DoubleClickWindow) {
+                    if (_lastClickedCharacter == hitCharacter && Time.unscaledTime - _lastClickTime <= DoubleClickWindow){
                         CameraAnchor.Track(hitCharacter.BodyTransform);
                         _lastClickedCharacter = null;
-                        _lastClickTime = 0f;
+                        _lastClickTime        = 0f;
                     }
-                    else {
+                    else{
                         _lastClickedCharacter = hitCharacter;
-                        _lastClickTime = Time.unscaledTime;
+                        _lastClickTime        = Time.unscaledTime;
                     }
                 }
             }
         }
 
+        /// Renders selection marquee box onto the screen GUI.
         public void DrawGUI(Vector2 currentScreenPos){
             if (!IsDragging) return;
 
@@ -129,6 +130,7 @@ namespace World.Actors.Brains{
             SelectionScanner.DrawScreenRectBorder(guiRect, 2f, _boxBorderColor);
         }
 
+        /// Resets active drag and hold flags.
         public void Reset(){
             _isPressed        = false;
             IsDragging        = false;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,6 +41,7 @@ namespace UI.Shared.SaveLoad{
         private int testSelectIndex = -1;
 
         private readonly List<GameFileBullet> _registeredBullets = new();
+        private          Coroutine            _removalCoroutine;
 
         public bool PreserveFirstItem{
             get => preserveFirstItem;
@@ -48,7 +50,6 @@ namespace UI.Shared.SaveLoad{
 
         public GameFileBullet               SelectedBullet{ get; private set; }
         public event Action<GameFileBullet> OnSelectionChanged;
-        public event Action<GameFileBullet> OnBulletActionRequested;
 
         /// Initializes layout and binds bullet listeners.
         private void Awake(){
@@ -103,8 +104,7 @@ namespace UI.Shared.SaveLoad{
             }
             BindBulletHandlers();
             UpdateLayout();
-            if (_registeredBullets.Count > 0)
-                SelectBullet(_registeredBullets[0]);
+            ClearSelection();
         }
 
         /// Sets train position along the rail using normalized progress.
@@ -117,7 +117,8 @@ namespace UI.Shared.SaveLoad{
         public void SelectBullet(GameFileBullet bulletToSelect){
             SelectedBullet = bulletToSelect;
             foreach (GameFileBullet bullet in _registeredBullets)
-                bullet.SetSelected(bullet == bulletToSelect);
+                if (bullet != null)
+                    bullet.SetSelected(bullet == bulletToSelect);
             OnSelectionChanged?.Invoke(SelectedBullet);
         }
 
@@ -125,27 +126,91 @@ namespace UI.Shared.SaveLoad{
         public void ClearSelection(){
             SelectedBullet = null;
             foreach (GameFileBullet bullet in _registeredBullets)
-                bullet.SetSelected(false);
+                if (bullet != null)
+                    bullet.SetSelected(false);
             OnSelectionChanged?.Invoke(null);
+        }
+
+        /// Deletes a bullet and smoothly animates remaining items along the track.
+        public void DeleteBullet(GameFileBullet bullet){
+            if (bullet == null) return;
+            RectTransform rt = bullet.GetComponent<RectTransform>();
+            int index = items.IndexOf(rt);
+            if (index < 0) return;
+
+            if (SelectedBullet == bullet)
+                ClearSelection();
+
+            bullet.OnClicked -= HandleBulletClicked;
+            _registeredBullets.Remove(bullet);
+            items.RemoveAt(index);
+
+            if (_removalCoroutine != null)
+                StopCoroutine(_removalCoroutine);
+
+            if (Application.isPlaying)
+                _removalCoroutine = StartCoroutine(AnimateBulletRemoval(rt));
+            else{
+                DestroyImmediate(rt.gameObject);
+                UpdateLayout();
+            }
+        }
+
+        /// Smoothly interpolates remaining bullets to their new layout positions and destroys removed bullet.
+        private IEnumerator AnimateBulletRemoval(RectTransform removedRt){
+            float elapsed = 0f;
+            const float duration = 0.25f;
+
+            Vector2[] startPositions = new Vector2[items.Count];
+            Vector2[] targetPositions = new Vector2[items.Count];
+            for (int i = 0; i < items.Count; i++){
+                startPositions[i] = items[i].anchoredPosition;
+                targetPositions[i] = CalculateItemTrackPosition(i, items.Count);
+            }
+
+            Vector3 initialScale = removedRt.localScale;
+
+            while (elapsed < duration){
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                for (int i = 0; i < items.Count; i++)
+                    items[i].anchoredPosition = Vector2.Lerp(startPositions[i], targetPositions[i], smoothT);
+
+                if (removedRt != null)
+                    removedRt.localScale = Vector3.Lerp(initialScale, Vector3.zero, smoothT);
+
+                yield return null;
+            }
+
+            UpdateLayout();
+            if (removedRt != null)
+                Destroy(removedRt.gameObject);
+            _removalCoroutine = null;
         }
 
         /// Positions all items along the spline rail based on progress and spacing.
         public void UpdateLayout(){
             if (items.Count == 0) return;
+            int index = 0;
+            foreach (RectTransform item in items)
+                item.anchoredPosition = CalculateItemTrackPosition(index++, items.Count);
+        }
+
+        /// Calculates anchored position on track for an item at a given index.
+        private Vector2 CalculateItemTrackPosition(int index, int totalCount){
             Vector2 baseline = endPoint - startPoint;
             float trackLength = baseline.magnitude;
-            if (trackLength < 0.001f) return;
+            if (trackLength < 0.001f) return startPoint;
             Vector2 trackDir = baseline / trackLength;
             Vector2 trackNormal = new(-trackDir.y, trackDir.x);
             float startLeadDistance = (startCardPadding * itemSpacing) + startPixelOffset;
-            float totalTrainSpan = Mathf.Max(0, items.Count - 1 - endCardPadding) * itemSpacing;
+            float totalTrainSpan = Mathf.Max(0, totalCount - 1 - endCardPadding) * itemSpacing;
             float endLeadDistance = Mathf.Max(startLeadDistance, trackLength + totalTrainSpan + endPixelOffset);
             float leadTravelDistance = Mathf.Lerp(startLeadDistance, endLeadDistance, scrollProgress);
-            int index = 0;
-            foreach (RectTransform item in items){
-                float itemDist = leadTravelDistance - (index++ * itemSpacing);
-                item.anchoredPosition = EvaluateTrackPosition(itemDist, trackLength, trackDir, trackNormal);
-            }
+            float itemDist = leadTravelDistance - (index * itemSpacing);
+            return EvaluateTrackPosition(itemDist, trackLength, trackDir, trackNormal);
         }
 
         /// Calculates anchored coordinate on spline track at a given distance.
@@ -165,35 +230,26 @@ namespace UI.Shared.SaveLoad{
                     items.Add(rectTransform);
         }
 
-        /// Binds hover and action requested events on all bullets.
+        /// Binds click events on all bullets.
         public void BindBulletHandlers(){
             UnbindBulletHandlers();
             foreach (RectTransform item in items){
                 if (!item.TryGetComponent<GameFileBullet>(out var bullet)) continue;
-                bullet.OnHovered += HandleBulletHovered;
-                bullet.OnActionRequested += HandleBulletActionRequested;
+                bullet.OnClicked += HandleBulletClicked;
                 _registeredBullets.Add(bullet);
                 if (bullet.IsSelected) SelectedBullet = bullet;
             }
         }
 
-        /// Unbinds hover and action requested events from bullets.
+        /// Unbinds click events from bullets.
         private void UnbindBulletHandlers(){
-            foreach (GameFileBullet bullet in _registeredBullets){
-                bullet.OnHovered -= HandleBulletHovered;
-                bullet.OnActionRequested -= HandleBulletActionRequested;
-            }
+            foreach (GameFileBullet bullet in _registeredBullets)
+                bullet.OnClicked -= HandleBulletClicked;
             _registeredBullets.Clear();
         }
 
-        /// Updates carousel selection when bullet is hovered.
-        private void HandleBulletHovered(GameFileBullet bullet) => SelectBullet(bullet);
-
-        /// Commits selection and forwards action event when bullet is clicked.
-        private void HandleBulletActionRequested(GameFileBullet bullet){
-            SelectBullet(bullet);
-            OnBulletActionRequested?.Invoke(bullet);
-        }
+        /// Commits selection when bullet is clicked.
+        private void HandleBulletClicked(GameFileBullet bullet) => SelectBullet(bullet);
 
         /// Creates default arch animation curve for spline track.
         private static AnimationCurve CreateSquareArchCurve() => new(
