@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Config;
-using Core.UI;
 using Narrative.Localization;
 using UI.Shared.Overlays;
 using UnityEngine;

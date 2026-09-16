@@ -1,9 +1,11 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace Narrative.Localization{
     /// Lightweight UI component that automatically updates a TextMeshProUGUI element with localized text.
     [RequireComponent(typeof(TextMeshProUGUI))]
+    [MovedFrom(true, "Core.Localization", "CRPG.Runtime", null)]
     public class LocalizedText : MonoBehaviour{
         [Tooltip("The localization table (e.g. 'system', 'items', 'masteries') containing the key.")]
         [SerializeField] private string tableName = "system";

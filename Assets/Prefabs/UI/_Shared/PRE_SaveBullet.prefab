@@ -305,7 +305,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3aed73ae50c7854890653fa1843600c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizedText
+  m_EditorClassIdentifier: CRPG.Runtime::Narrative.Localization.LocalizedText
   tableName: system
   localizationKey: UI_TIME
 --- !u!1 &2975949308556416320
@@ -597,7 +597,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3aed73ae50c7854890653fa1843600c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizedText
+  m_EditorClassIdentifier: CRPG.Runtime::Narrative.Localization.LocalizedText
   tableName: system
   localizationKey: UI_LOCATION
 --- !u!1 &5759098875968299125
@@ -1579,6 +1579,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3aed73ae50c7854890653fa1843600c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizedText
+  m_EditorClassIdentifier: CRPG.Runtime::Narrative.Localization.LocalizedText
   tableName: system
   localizationKey: UI_CHARACTER

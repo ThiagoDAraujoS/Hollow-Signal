@@ -8,7 +8,6 @@ namespace World.Anchors{
         private static CameraAnchor _instance;
 
         [Header("Input")] [SerializeField] private InputActionReference moveActionRef;
-        [SerializeField]                   private InputActionReference zoomActionRef;
 
         [Header("Movement Settings")] [SerializeField]
         private float moveSpeed = 15f;
@@ -55,28 +54,18 @@ namespace World.Anchors{
         }
 
         private void OnEnable(){
-            if (moveActionRef != null){
-                moveActionRef.action.performed += OnMovePerformed;
-                moveActionRef.action.canceled  += OnMoveCanceled;
-                moveActionRef.action.Enable();
-            }
-
-            if (zoomActionRef == null) return;
-            zoomActionRef.action.performed += OnZoomPerformed;
-            zoomActionRef.action.Enable();
+            if (moveActionRef == null) return;
+            moveActionRef.action.performed += OnMovePerformed;
+            moveActionRef.action.canceled  += OnMoveCanceled;
+            moveActionRef.action.Enable();
         }
 
         private void OnDisable(){
-            if (moveActionRef != null){
-                moveActionRef.action.performed -= OnMovePerformed;
-                moveActionRef.action.canceled  -= OnMoveCanceled;
-                moveActionRef.action.Disable();
-                _moveInput = Vector2.zero;
-            }
-
-            if (zoomActionRef == null) return;
-            zoomActionRef.action.performed -= OnZoomPerformed;
-            zoomActionRef.action.Disable();
+            if (moveActionRef == null) return;
+            moveActionRef.action.performed -= OnMovePerformed;
+            moveActionRef.action.canceled  -= OnMoveCanceled;
+            moveActionRef.action.Disable();
+            _moveInput = Vector2.zero;
         }
 
         private void OnMovePerformed(InputAction.CallbackContext context){
@@ -86,12 +75,10 @@ namespace World.Anchors{
 
         private void OnMoveCanceled(InputAction.CallbackContext context) => _moveInput = Vector2.zero;
 
-        private void OnZoomPerformed(InputAction.CallbackContext context){
-            float scrollDelta = context.ReadValue<Vector2>().y;
-            if (Mathf.Abs(scrollDelta) < 0.01f) return;
-
-            float scrollSign = Mathf.Sign(scrollDelta);
-            ApplyZoom(scrollSign);
+        /// Applies orthographic camera zoom step and invokes the OnZoom event.
+        public static void Zoom(float scrollSign){
+            if (_instance == null) return;
+            _instance.ApplyZoom(scrollSign);
             OnZoom?.Invoke(scrollSign);
         }
 

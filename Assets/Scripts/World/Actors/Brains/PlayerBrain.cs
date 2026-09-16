@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using World.Actors.Player;
@@ -26,6 +27,7 @@ namespace World.Actors.Brains{
         private InputActionReference primarySelectActionRef;
 
         [SerializeField] private InputActionReference pointActionRef;
+        [SerializeField] private InputActionReference scrollActionRef;
         [SerializeField] private InputActionReference selectAllActionRef;
         [SerializeField] private InputActionReference cycleLeaderActionRef;
         [SerializeField] private InputActionReference deselectActionRef;
@@ -60,8 +62,9 @@ namespace World.Actors.Brains{
 
         [SerializeField] private Color boxFillColor = new(0.2f, 0.8f, 0.2f, 0.2f);
 
-        private readonly PartySelection          _selection    = new();
-        private readonly List<BoundAction>       _boundActions = new();
+        private readonly PartySelection          _selection        = new();
+        private readonly List<BoundAction>       _boundActions     = new();
+        private readonly List<RaycastResult>     _uiRaycastResults = new();
         private          SelectionGestureHandler _gestureHandler;
         private          PlayerCommandDispatcher _commandDispatcher;
 
@@ -95,6 +98,9 @@ namespace World.Actors.Brains{
                 PlayerInput playerInput = GetComponent<PlayerInput>();
                 modifierAppendActionRef = InputActionReference.Create(playerInput.actions.FindAction("ModifierAppend"));
             }
+
+            if (scrollActionRef == null && TryGetComponent<PlayerInput>(out var input))
+                scrollActionRef = InputActionReference.Create(input.actions.FindAction("Zoom"));
 
             if (mainCamera == null)
                 mainCamera = Camera.main;
@@ -173,6 +179,9 @@ namespace World.Actors.Brains{
             _boundActions.Add(new BoundAction(slot3ActionRef,         _ => SelectSlot(2)));
             _boundActions.Add(new BoundAction(slot4ActionRef,         _ => SelectSlot(3)));
 
+            if (scrollActionRef != null)
+                _boundActions.Add(new BoundAction(scrollActionRef, OnScrollPerformed));
+
             if (modifierAltActionRef != null)
                 _boundActions.Add(new BoundAction(modifierAltActionRef, _ => OnAltModifierChanged?.Invoke(true), _ => OnAltModifierChanged?.Invoke(false)));
         }
@@ -209,6 +218,7 @@ namespace World.Actors.Brains{
         private void OnCommandStarted(InputAction.CallbackContext context){
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             if (_selection.Count == 0){
                 Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, mousePos, characterLayer);
@@ -228,6 +238,7 @@ namespace World.Actors.Brains{
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos)) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             _gestureHandler.OnPressStarted(startPos);
         }
@@ -235,6 +246,42 @@ namespace World.Actors.Brains{
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
             Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.OnPressCanceled(releasePos, IsAppendPressed);
+        }
+
+        /// Searches for an IScrollable target under the pointer in UI or the 3D world.
+        private IScrollable FindScrollable(Vector2 screenPos){
+            if (EventSystem.current != null){
+                PointerEventData pointerData = new(EventSystem.current){ position = screenPos };
+                _uiRaycastResults.Clear();
+                EventSystem.current.RaycastAll(pointerData, _uiRaycastResults);
+                foreach (RaycastResult result in _uiRaycastResults){
+                    IScrollable uiScrollable = result.gameObject.GetComponentInParent<IScrollable>();
+                    if (uiScrollable != null)
+                        return uiScrollable;
+                }
+            }
+
+            if (mainCamera != null && Physics.Raycast(mainCamera.ScreenPointToRay(screenPos), out RaycastHit hit, 500f))
+                return hit.collider.GetComponentInParent<IScrollable>();
+
+            return null;
+        }
+
+        /// Routes scroll wheel input to an IScrollable target or defaults to camera map zoom.
+        private void OnScrollPerformed(InputAction.CallbackContext context){
+            float scrollDelta = context.ReadValue<Vector2>().y;
+            if (Mathf.Abs(scrollDelta) < 0.01f) return;
+
+            Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
+            IScrollable scrollable = FindScrollable(mousePos);
+            if (scrollable != null){
+                scrollable.OnScroll(scrollDelta);
+                return;
+            }
+
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+
+            CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }
 
         private void SelectSlot(int index){
@@ -250,16 +297,14 @@ namespace World.Actors.Brains{
             }
         }
 
-        private void UpdateSelectionCircles(){
-            foreach (Character member in activePartyMembers){
-                if (member == null) continue;
-
+        private void UpdateSelectionCircles() =>
+            activePartyMembers.ForEach(member => {
+                if (member == null) return;
                 if (_selection.Contains(member))
                     member.TurnSelectionCircleOn();
                 else
                     member.TurnSelectionCircleOff();
-            }
-        }
+            });
 
         private void OnGUI() => _gestureHandler.DrawGUI(_currentScreenPos);
     }
