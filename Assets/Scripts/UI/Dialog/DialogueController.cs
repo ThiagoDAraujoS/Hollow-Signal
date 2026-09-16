@@ -1,4 +1,5 @@
-﻿using Narrative.Dialog;
+﻿using System;
+using Narrative.Dialog;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,8 @@ namespace UI.Dialog{
     [DisallowMultipleComponent]
     public class DialogueController : MonoBehaviour{
         public static DialogueController Instance{ get; private set; }
+
+        public static event Action<bool> OnDialogueActiveChanged;
 
         [Header("Containers")]
         [SerializeField] private GameObject dialogRoot;
@@ -39,6 +42,7 @@ namespace UI.Dialog{
         public void BeginDialogue(DialogueBehaviour dialogue, string startingKnot){
             _currentDialogue = dialogue;
             dialogRoot.SetActive(true);
+            OnDialogueActiveChanged?.Invoke(true);
             ClearTranscript();
             GoToKnot(startingKnot);
         }
@@ -47,6 +51,7 @@ namespace UI.Dialog{
         public void EndDialogue(){
             ClearOptions();
             dialogRoot.SetActive(false);
+            OnDialogueActiveChanged?.Invoke(false);
             _currentDialogue = null;
             _currentNode = null;
         }

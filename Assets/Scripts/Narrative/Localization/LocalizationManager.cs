@@ -92,10 +92,17 @@ namespace Narrative.Localization{
         /// Sets a new active language and reloads all resident tables.
         public static void SetLanguage(string language) => _ = SetLanguageAsync(language);
 
-        /// Retrieves a localized string scoped directly to a specific file table.
+        /// Retrieves a localized string scoped directly to a specific file table, falling back to any loaded table.
         public static string Get(string tableName, string key, params object[] args){
-            if (_instance._tables.TryGetValue(tableName, out Dictionary<string, string> tableDict) && tableDict.TryGetValue(key, out string val))
+            if (string.IsNullOrEmpty(key)) return string.Empty;
+            if (_instance == null) return key;
+
+            if (!string.IsNullOrEmpty(tableName) && _instance._tables.TryGetValue(tableName, out Dictionary<string, string> tableDict) && tableDict.TryGetValue(key, out string val))
                 return args is { Length: > 0 } ? string.Format(val, args) : val;
+
+            foreach (Dictionary<string, string> dict in _instance._tables.Values)
+                if (dict.TryGetValue(key, out string fallbackVal))
+                    return args is { Length: > 0 } ? string.Format(fallbackVal, args) : fallbackVal;
 
             return key;
         }

@@ -1716,6 +1716,12 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!224 &1159877231 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7645504264695560367, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1230671495
 GameObject:
   m_ObjectHideFlags: 0
@@ -1762,6 +1768,8 @@ GameObject:
   - component: {fileID: 1638821593}
   - component: {fileID: 1638821592}
   - component: {fileID: 1638821597}
+  - component: {fileID: 1638821599}
+  - component: {fileID: 1638821598}
   m_Layer: 0
   m_Name: GameSessionManager
   m_TagString: Untagged
@@ -1846,6 +1854,39 @@ MonoBehaviour:
   tableNames:
   - items
   - masteries
+--- !u!114 &1638821598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638821591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaab6f36e4544f478151793a23a8377a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.Crisis.CrisisManager
+--- !u!114 &1638821599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638821591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb4ae4400d7a420ab4a915f96cff995f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::UI.Dialog.DialogueController
+  dialogRoot: {fileID: 6774079608150515091}
+  transcriptContent: {fileID: 6774079608150515090}
+  optionsContent: {fileID: 1159877231}
+  transcriptScrollRect: {fileID: 6774079608150515094}
+  optionsScrollRect: {fileID: 6774079608150515092}
+  transcriptPrefab: {fileID: 8912437465409624943, guid: 3f6e5ab6dde836a42964cba464d38c2d,
+    type: 3}
+  optionPrefab: {fileID: 5288062884429853100, guid: b40a18686d6842c4591fb09931841300,
+    type: 3}
 --- !u!1 &1758965032
 GameObject:
   m_ObjectHideFlags: 0
@@ -2190,6 +2231,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogUI
       objectReference: {fileID: 0}
+    - target: {fileID: 2634204679738336112, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6150522471014346614, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2248,12 +2294,12 @@ PrefabInstance:
     - target: {fileID: 7450348133218905411, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 7645504264695560367, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 9022004265975360796, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
@@ -2265,6 +2311,42 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09a1729e264fd294b9e05ae7a974a1dd, type: 3}
+--- !u!224 &6774079608150515090 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7450348133218905411, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6774079608150515091 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2634204679738336112, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6774079608150515092 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8279456489992308715, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
+--- !u!114 &6774079608150515094 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8670325275437626902, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

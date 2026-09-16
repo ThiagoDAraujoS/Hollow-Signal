@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Input;
+using UI.Dialog;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -69,6 +70,7 @@ namespace World.Actors.Brains{
         private          PlayerCommandDispatcher _commandDispatcher;
 
         private Vector2 _currentScreenPos;
+        private bool    _isDialogueActive;
 
         public static PartySelection     Selection          => _instance._selection;
         public static Character          Lead               => _instance._selection.Lead;
@@ -192,6 +194,7 @@ namespace World.Actors.Brains{
 
             pointActionRef.action.Enable();
             modifierAppendActionRef.action.Enable();
+            DialogueController.OnDialogueActiveChanged += HandleDialogueActiveChanged;
             UpdateSelectionCircles();
         }
 
@@ -201,11 +204,21 @@ namespace World.Actors.Brains{
 
             pointActionRef.action.Disable();
             modifierAppendActionRef.action.Disable();
+            DialogueController.OnDialogueActiveChanged -= HandleDialogueActiveChanged;
+            _commandDispatcher.Reset();
+            _gestureHandler.Reset();
+        }
+
+        private void HandleDialogueActiveChanged(bool isActive){
+            _isDialogueActive = isActive;
+            if (!isActive) return;
             _commandDispatcher.Reset();
             _gestureHandler.Reset();
         }
 
         private void Update(){
+            if (_isDialogueActive) return;
+
             _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.Update(_currentScreenPos);
 
@@ -214,11 +227,21 @@ namespace World.Actors.Brains{
             OnContinuousCommand?.Invoke(_currentScreenPos);
         }
 
+        /// Checks whether the screen position directly hits a UI element using EventSystem raycast.
+        private bool IsPointerOverUI(Vector2 screenPos){
+            if (EventSystem.current == null) return false;
+            PointerEventData pointerData = new(EventSystem.current){ position = screenPos };
+            _uiRaycastResults.Clear();
+            EventSystem.current.RaycastAll(pointerData, _uiRaycastResults);
+            return _uiRaycastResults.Count > 0;
+        }
+
         /// Selects a hero or dispatches direct command at pointer position.
         private void OnCommandStarted(InputAction.CallbackContext context){
+            if (_isDialogueActive) return;
+
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
-            if (!SelectionScanner.IsPointerInsideViewport(mousePos)) return;
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if (!SelectionScanner.IsPointerInsideViewport(mousePos) || IsPointerOverUI(mousePos)) return;
 
             if (_selection.Count == 0){
                 Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, mousePos, characterLayer);
@@ -236,14 +259,17 @@ namespace World.Actors.Brains{
         private void OnCommandCanceled(InputAction.CallbackContext context) => _commandDispatcher.OnCommandCanceled();
 
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
+            if (_isDialogueActive) return;
+
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
-            if (!SelectionScanner.IsPointerInsideViewport(startPos)) return;
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if (!SelectionScanner.IsPointerInsideViewport(startPos) || IsPointerOverUI(startPos)) return;
 
             _gestureHandler.OnPressStarted(startPos);
         }
 
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
+            if (_isDialogueActive) return;
+
             Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.OnPressCanceled(releasePos, IsAppendPressed);
         }
@@ -279,7 +305,7 @@ namespace World.Actors.Brains{
                 return;
             }
 
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if (IsPointerOverUI(mousePos)) return;
 
             CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }

@@ -29,8 +29,7 @@ namespace Narrative.Dialog{
         }
 
         /// Resolves a localized string for this dialogue, prioritizing this dialogue's specific table.
-        public string GetLocalizedString(string key, params object[] args){
-            return LocalizationManager.Get(LocTableName, key, args);
-        }
+        public string GetLocalizedString(string key, params object[] args) =>
+            string.IsNullOrEmpty(key) ? string.Empty : LocalizationManager.Get(LocTableName, key, args);
     }
 }
