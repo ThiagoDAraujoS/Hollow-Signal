@@ -20,21 +20,23 @@ namespace World.Actors.Player{
 
         private UniqueId _uniqueId;
 
+        /// Caches required component references across awake and edit-time calls.
+        public void EnsureInitialized(){
+            _uniqueId ??= GetComponent<UniqueId>();
+            movement  ??= GetComponent<CharacterMovement>();
+            sheet     ??= GetComponent<CharacterSheet>();
+            nmAgent   ??= GetComponentInChildren<NavMeshAgent>(true);
+            animator  ??= GetComponentInChildren<Animator>(true);
+        }
+
+        /// Caches references and disables default standalone movement.
         private void Awake(){
-            _uniqueId        = GetComponent<UniqueId>();
-            movement         = GetComponent<CharacterMovement>();
-            sheet            = GetComponent<CharacterSheet>();
-            nmAgent          = GetComponentInChildren<NavMeshAgent>(true);
-            animator         = GetComponentInChildren<Animator>(true);
+            EnsureInitialized();
             movement.enabled = false;
         }
 
-        private void Reset(){
-            movement = GetComponent<CharacterMovement>();
-            sheet    = GetComponent<CharacterSheet>();
-            nmAgent  = GetComponentInChildren<NavMeshAgent>(true);
-            animator = GetComponentInChildren<Animator>(true);
-        }
+        /// Re-links component references upon reset.
+        private void Reset() => EnsureInitialized();
 
         public Sheet      Sheet           => sheet;
         public Transform  SelectionCircle => selectionCircle;
@@ -42,9 +44,13 @@ namespace World.Actors.Player{
         public Vector3    WorldPosition   => BodyTransform.position;
         public Quaternion WorldRotation   => BodyTransform.rotation;
 
+        /// Activates the ground selection circle visual indicator.
         public void TurnSelectionCircleOn()  => selectionCircle.gameObject.SetActive(true);
+
+        /// Deactivates the ground selection circle visual indicator.
         public void TurnSelectionCircleOff() => selectionCircle.gameObject.SetActive(false);
 
+        /// Toggles visual body active state and disables movement components if inactive.
         public void SetVisualsActive(bool active){
             body.SetActive(active);
 
@@ -53,7 +59,9 @@ namespace World.Actors.Player{
             nmAgent.enabled  = false;
         }
 
+        /// Registers character with the session party, activates visuals, and warps to spawn.
         public void JoinParty(){
+            EnsureInitialized();
             GameSessionManager.Instance.SetCharacterActive(_uniqueId.Id, true);
             SetVisualsActive(true);
             PlayerBrain.AddPartyMember(this);
@@ -63,7 +71,9 @@ namespace World.Actors.Player{
             movement.enabled = true;
         }
 
+        /// Deregisters character from session party, deselects, and deactivates visuals.
         public void LeaveParty(){
+            EnsureInitialized();
             GameSessionManager.Instance.SetCharacterActive(_uniqueId.Id, false);
             PlayerBrain.RemovePartyMember(this);
             PlayerBrain.Deselect(this);

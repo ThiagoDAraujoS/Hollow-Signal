@@ -4,15 +4,6 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 
-#ifndef UNITY_TEXTURE_INCLUDED
-// Fallback definition for regular .shader files where Texture.hlsl is not included
-struct UnityTexture2D
-{
-    Texture2D tex;
-    SamplerState samplerstate;
-};
-#endif
-
 // ----------------------------------------------------------------------------------
 // 4x4 and 8x8 Bayer Ordered Dithering Threshold Matrices
 // ----------------------------------------------------------------------------------
@@ -104,10 +95,10 @@ float3 ProcessRetroBayerLUT(
     float colorFragmentation,
     float linearToSRGBInput)
 {
-    // Apply pixelation grid
-    float pixelSize = max(1.0, pixelScale);
-    float2 downscaledRes = screenResolution / pixelSize;
-    float2 pixelatedUV = (floor(screenUV * downscaledRes) + 0.5) / downscaledRes;
+    // Apply pixelation grid with integer precision
+    uint pixelSize = max(1u, (uint)round(pixelScale));
+    uint2 screenPixel = uint2(screenUV * screenResolution);
+    uint2 virtualCoord = screenPixel / pixelSize;
 
     // Convert Linear camera input to perceptual gamma / sRGB space for uniform dithering & LUT lookup
     float3 c = inColor;
@@ -116,8 +107,8 @@ float3 ProcessRetroBayerLUT(
         c = LinearToSRGB(c);
     }
 
-    // Bayer Dither
-    uint2 ditherCoord = uint2(pixelatedUV * downscaledRes);
+    // Bayer Dither: Exact integer indexing from the virtual retro pixel
+    uint2 ditherCoord = virtualCoord;
     float dither = GetBayerDitherOffset(ditherCoord, ditherMatrix8x8 > 0.5);
     c += dither * ditherSpread;
 
@@ -145,39 +136,8 @@ float3 ProcessRetroBayerLUT(
 }
 
 // ----------------------------------------------------------------------------------
-// Shader Graph Custom Function Wrapper (uses UnityTexture2D from Texture.hlsl or fallback)
+// Standard HLSL Entry Function
 // ----------------------------------------------------------------------------------
-void RetroBayerLUT_float(
-    float3 InColor,
-    float2 ScreenUV,
-    float2 ScreenResolution,
-    UnityTexture2D LUTTexture,
-    float CubeResolution,
-    float2 TileLayout,
-    float DitherSpread,
-    float DitherMatrix8x8,
-    float PixelScale,
-    float ColorFragmentation,
-    float LinearToSRGBInput,
-    out float3 OutColor)
-{
-    OutColor = ProcessRetroBayerLUT(
-        InColor,
-        ScreenUV,
-        ScreenResolution,
-        LUTTexture.tex,
-        LUTTexture.samplerstate,
-        CubeResolution,
-        TileLayout,
-        DitherSpread,
-        DitherMatrix8x8,
-        PixelScale,
-        ColorFragmentation,
-        LinearToSRGBInput
-    );
-}
-
-// Standard HLSL overload without UnityTexture2D dependency
 void RetroBayerLUT_float(
     float3 InColor,
     float2 ScreenUV,

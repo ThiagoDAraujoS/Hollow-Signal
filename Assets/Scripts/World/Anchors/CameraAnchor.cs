@@ -32,6 +32,7 @@ namespace World.Anchors{
         public Bounds                     CurrentBounds => bounds;
         public static event Action<float> OnZoom;
 
+        /// Initializes singleton instance, default camera references, and retro hard stop component.
         private void Awake(){
             if (_instance == null)
                 _instance = this;
@@ -39,8 +40,10 @@ namespace World.Anchors{
                 renderingCamera = Camera.main;
             if (cinemachineCamera == null)
                 cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
+            EnsureRetroHardStop();
         }
 
+        /// Cleans up singleton instance reference on destroy.
         private void OnDestroy(){
             if (_instance == this)
                 _instance = null;
@@ -51,8 +54,16 @@ namespace World.Anchors{
             if (_instance == null) return;
             _instance.renderingCamera   = camera;
             _instance.cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
+            _instance.EnsureRetroHardStop();
         }
 
+        /// Ensures the virtual camera has the retro hard stop extension attached.
+        private void EnsureRetroHardStop(){
+            if (cinemachineCamera != null && !cinemachineCamera.TryGetComponent<CinemachineRetroHardStop>(out _))
+                cinemachineCamera.gameObject.AddComponent<CinemachineRetroHardStop>();
+        }
+
+        /// Subscribes to move input actions and enables action map.
         private void OnEnable(){
             if (moveActionRef == null) return;
             moveActionRef.action.performed += OnMovePerformed;
@@ -60,6 +71,7 @@ namespace World.Anchors{
             moveActionRef.action.Enable();
         }
 
+        /// Unsubscribes from move input actions and disables action map.
         private void OnDisable(){
             if (moveActionRef == null) return;
             moveActionRef.action.performed -= OnMovePerformed;
@@ -68,11 +80,13 @@ namespace World.Anchors{
             _moveInput = Vector2.zero;
         }
 
+        /// Detaches target follow and reads pan direction vector on move action.
         private void OnMovePerformed(InputAction.CallbackContext context){
             _trackedTarget = null;
             _moveInput     = context.ReadValue<Vector2>();
         }
 
+        /// Resets move input vector when move action ends.
         private void OnMoveCanceled(InputAction.CallbackContext context) => _moveInput = Vector2.zero;
 
         /// Applies orthographic camera zoom step and invokes the OnZoom event.
@@ -82,6 +96,7 @@ namespace World.Anchors{
             OnZoom?.Invoke(scrollSign);
         }
 
+        /// Adjusts and clamps orthographic camera lens size.
         private void ApplyZoom(float scrollSign){
             if (cinemachineCamera == null) return;
 
@@ -90,28 +105,27 @@ namespace World.Anchors{
             cinemachineCamera.Lens = lens;
         }
 
-        private void Update(){
-            if (_moveInput == Vector2.zero) return;
-            MoveAnchor();
-        }
-
+        /// Updates anchor position via manual input or clamped target tracking.
         private void LateUpdate(){
-            if (_trackedTarget == null) return;
-            transform.position = bounds.Clamp(_trackedTarget.position);
+            if (_moveInput != Vector2.zero)
+                MoveAnchor();
+            else if (_trackedTarget != null)
+                transform.position = bounds.Clamp(_trackedTarget.position);
         }
 
-        /// <summary>
-        /// Configures the camera anchor's initial position and map boundaries when a new map is loaded.
-        /// </summary>
+        /// Configures camera anchor position and map boundaries when a new map loads.
         public static void SetUpCamera(Vector3 position, Bounds newBounds){
             _instance.bounds             = newBounds;
             _instance.transform.position = _instance.bounds.Clamp(position);
         }
 
+        /// Sets the transform target for the camera anchor to follow.
         public static void Track(Transform target) => _instance._trackedTarget = target;
 
+        /// Clears the camera anchor's tracked target.
         public static void Detach() => _instance._trackedTarget = null;
 
+        /// Translates camera anchor according to input direction relative to rendering camera angle.
         private void MoveAnchor(){
             Vector3 camForward = renderingCamera.transform.forward;
             Vector3 camRight   = renderingCamera.transform.right;
@@ -123,10 +137,10 @@ namespace World.Anchors{
             Vector3 moveDirection = (camForward * _moveInput.y) + (camRight * _moveInput.x);
             Vector3 newPosition   = transform.position + moveDirection * (moveSpeed * Time.deltaTime);
 
-            newPosition        = bounds.Clamp(newPosition);
-            transform.position = newPosition;
+            transform.position = bounds.Clamp(newPosition);
         }
 
+        /// Draws bounding box gizmo in editor scene view.
         private void OnDrawGizmos(){
             if (bounds == null) return;
 
@@ -151,22 +165,12 @@ namespace World.Anchors{
             this.max = max;
         }
 
-        /// <summary>
-        /// Calculates and returns the center and size of the bounding area for use with Gizmos or calculations.
-        /// </summary>
-        public (Vector3 center, Vector3 size) GetCenterAndSize(float elevation = 0f){
-            Vector3 center = new((min.x + max.x) * 0.5f, elevation, (min.y + max.y) * 0.5f);
-            Vector3 size   = new(Mathf.Abs(max.x - min.x), 0.1f, Mathf.Abs(max.y - min.y));
-            return (center, size);
-        }
+        /// Clamps a 3D position's horizontal and depth coordinates within the 2D bounding rectangle.
+        public Vector3 Clamp(Vector3 target) =>
+            new(Mathf.Clamp(target.x, min.x, max.x), target.y, Mathf.Clamp(target.z, min.y, max.y));
 
-        /// <summary>
-        /// Clamps a 3D position's X and Z coordinates within the 2D bounding limits.
-        /// </summary>
-        public Vector3 Clamp(Vector3 position){
-            position.x = Mathf.Clamp(position.x, Mathf.Min(min.x, max.x), Mathf.Max(min.x, max.x));
-            position.z = Mathf.Clamp(position.z, Mathf.Min(min.y, max.y), Mathf.Max(min.y, max.y));
-            return position;
-        }
+        /// Calculates center and size of the bounding area at a given world elevation.
+        public (Vector3 center, Vector3 size) GetCenterAndSize(float y) =>
+            (new Vector3((min.x + max.x) * 0.5f, y, (min.y + max.y) * 0.5f), new Vector3(max.x - min.x, 0.1f, max.y - min.y));
     }
 }

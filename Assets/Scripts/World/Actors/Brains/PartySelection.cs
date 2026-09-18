@@ -4,11 +4,7 @@ using System.Linq;
 using World.Actors.Player;
 
 namespace World.Actors.Brains{
-    /// <summary>
     /// Pure C# data structure managing party unit selection using a HashSet of Character.
-    /// Guarantees O(1) lookups, uniqueness, tracks the designated Lead character,
-    /// and provides Baldur's Gate 3-style party selection behaviors.
-    /// </summary>
     public class PartySelection{
         public Character Lead{ get; private set; }
 
@@ -18,20 +14,13 @@ namespace World.Actors.Brains{
 
         public event Action OnSelectionChanged;
 
-        /// <summary>
         /// Selects a single unit, clearing any previous selection.
-        /// </summary>
         public void SingleUnitSelect(Character selectedUnit) => Select(selectedUnit);
 
-        /// <summary>
-        /// Adds a unit to the current selection without wiping previous members (Shift/Append).
-        /// </summary>
+        /// Adds a unit to the current selection without wiping previous members.
         public void AddUnitSelect(Character selectedUnit) => Append(selectedUnit);
 
-        /// <summary>
-        /// Toggles a unit's selection state (Shift/Ctrl + Click).
-        /// If already selected, removes it. If not, adds it and sets it as the Lead.
-        /// </summary>
+        /// Toggles a unit's selection state between selected and unselected.
         public void ToggleAddSelection(Character selectedUnit){
             if (selectedUnit == null) return;
 
@@ -41,22 +30,13 @@ namespace World.Actors.Brains{
                 Append(selectedUnit);
         }
 
-        /// <summary>
-        /// Marquee/Drag box selection: wipes current selection and selects all units inside the box.
-        /// The first unit becomes the Lead.
-        /// </summary>
+        /// Wipes current selection and selects all units inside the drag box.
         public void DragboxSelect(List<Character> listOfSelectedUnits) => Select(listOfSelectedUnits);
 
-        /// <summary>
-        /// Additive box selection (Shift + Drag box): appends all units inside the box
-        /// to the existing selection without wiping previous members.
-        /// </summary>
+        /// Appends all units inside the box to existing selection without wiping previous members.
         public void AdditiveBoxSelect(List<Character> listOfSelectedUnits) => Append(listOfSelectedUnits);
 
-        /// <summary>
-        /// Selects all members of the active party (~ or hotkey).
-        /// Retains current Lead if still in the party, otherwise defaults to the first party member.\n
-        /// </summary>
+        /// Selects all members of the active party roster.
         public void SelectAll(List<Character> activePartyMembersList){
             Selected.Clear();
 
@@ -75,10 +55,7 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Cycles the Lead character among currently selected members (Tab key),
-        /// preserving the canonical order defined in the active party members list.
-        /// </summary>
+        /// Cycles the designated lead character among currently selected members.
         public void CycleLeader(List<Character> activePartyMembersList){
             List<Character> selectedPartyOrdered =
                 activePartyMembersList.Where(t => Selected.Contains(t)).ToList();
@@ -89,9 +66,7 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Clears all characters from the selection (Escape key or click-to-empty).
-        /// </summary>
+        /// Clears all characters from the selection.
         public void Clear(){
             if (Selected.Count == 0 && Lead == null) return;
             Selected.Clear();
@@ -99,13 +74,13 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
-        /// <summary>
         /// Checks whether a character is currently selected.
-        /// </summary>
         public bool Contains(Character character) => Selected.Contains(character);
 
+        /// Selects a single unit via sanitized collection assignment.
         private void Select(Character character) => Select(new List<Character>{ character });
 
+        /// Selects a collection of units and resets the lead character to the first entry.
         private void Select(List<Character> characters){
             List<Character> clean = Sanitize(characters);
             Selected.Clear();
@@ -123,8 +98,10 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
+        /// Appends a single unit to the current selection.
         private void Append(Character character) => Append(new List<Character>{ character });
 
+        /// Appends a collection of units to the current selection.
         private void Append(List<Character> characters){
             List<Character> clean = Sanitize(characters);
             if (clean.Count == 0) return;
@@ -138,8 +115,10 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
+        /// Removes a single unit from current selection.
         private void Remove(Character character) => Remove(new List<Character>{ character });
 
+        /// Removes a collection of units from current selection and reassigns lead if removed.
         private void Remove(List<Character> characters){
             List<Character> clean = Sanitize(characters);
             if (clean.Count == 0) return;
@@ -153,9 +132,11 @@ namespace World.Actors.Brains{
             OnSelectionChanged?.Invoke();
         }
 
+        /// Filters null entries out of a character candidate list.
         private static List<Character> Sanitize(List<Character> list) =>
             list == null ? new List<Character>() : list.Where(e => e != null).ToList();
 
+        /// Retrieves any active selected character to serve as fallback lead.
         private Character GetAnyCharacter(){
             using HashSet<Character>.Enumerator enumerator = Selected.GetEnumerator();
             return enumerator.MoveNext() ? enumerator.Current : null;

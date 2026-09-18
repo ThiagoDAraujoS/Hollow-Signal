@@ -10,11 +10,7 @@ using World.Actors.Player;
 using World.Anchors;
 
 namespace World.Actors.Brains{
-    /// <summary>
     /// Central input coordinator and party facade.
-    /// Delegates selection gestures to SelectionGestureHandler, movement and usable commands to PlayerCommandDispatcher,
-    /// and selection state to PartySelection.
-    /// </summary>
     public class PlayerBrain : MonoBehaviour{
         private static PlayerBrain _instance;
 
@@ -90,13 +86,14 @@ namespace World.Actors.Brains{
 
         public static bool IsAltPressed => _instance.modifierAltActionRef != null && _instance.modifierAltActionRef.action.IsPressed();
 
+        /// Initializes singleton instance, binds input action references, and sets up selection handlers.
         private void Awake(){
             if (_instance == null)
                 _instance = this;
             else if (_instance != this)
                 Destroy(gameObject);
 
-            if (modifierAppendActionRef == null) {
+            if (modifierAppendActionRef == null){
                 PlayerInput playerInput = GetComponent<PlayerInput>();
                 modifierAppendActionRef = InputActionReference.Create(playerInput.actions.FindAction("ModifierAppend"));
             }
@@ -128,6 +125,7 @@ namespace World.Actors.Brains{
             _selection.OnSelectionChanged += UpdateSelectionCircles;
         }
 
+        /// Cleans up selection event listeners and singleton instance reference.
         private void OnDestroy(){
             if (_instance != this) return;
             _selection.OnSelectionChanged -= UpdateSelectionCircles;
@@ -142,33 +140,42 @@ namespace World.Actors.Brains{
             _instance._gestureHandler.SetCamera(camera);
         }
 
+        /// Appends character to active party roster if not already present.
         public static void AddPartyMember(Character character){
             if (!_instance.activePartyMembers.Contains(character))
                 _instance.activePartyMembers.Add(character);
         }
 
+        /// Removes character from active party roster.
         public static void RemovePartyMember(Character character) => _instance.activePartyMembers.Remove(character);
 
+        /// Clears all characters from active party roster.
         public static void ClearPartyMembers() => _instance.activePartyMembers.Clear();
 
+        /// Checks if a character is currently in the active party roster.
         public static bool IsPartyMember(Character character) => _instance.activePartyMembers.Contains(character);
 
+        /// Checks if a character is currently part of the active selection.
         public static bool IsSelected(Character character) => _instance._selection.Contains(character);
 
+        /// Removes a character from the active selection.
         public static void Deselect(Character character){
             if (_instance._selection.Contains(character))
                 _instance._selection.ToggleAddSelection(character);
         }
 
+        /// Inspects character or interactable sheet and fires inspection event.
         public static void Inspect(ISelectable selectable){
             if (selectable?.Sheet == null) return;
             CurrentInspectedSheet = selectable.Sheet;
             OnSheetInspected?.Invoke(CurrentInspectedSheet);
         }
 
+        /// Commands all currently selected units to halt movement.
         public static void StopSelectedUnits() =>
             PlayerCommandDispatcher.StopUnits(_instance._selection.Selected);
 
+        /// Binds input system action callbacks to party commands and selection behaviors.
         private void InitializeBoundActions(){
             _boundActions.Add(new BoundAction(commandActionRef,       OnCommandStarted,       OnCommandCanceled));
             _boundActions.Add(new BoundAction(primarySelectActionRef, OnPrimarySelectStarted, OnPrimarySelectCanceled));
@@ -188,6 +195,7 @@ namespace World.Actors.Brains{
                 _boundActions.Add(new BoundAction(modifierAltActionRef, _ => OnAltModifierChanged?.Invoke(true), _ => OnAltModifierChanged?.Invoke(false)));
         }
 
+        /// Enables bound input actions and registers dialogue listeners.
         private void OnEnable(){
             foreach (BoundAction t in _boundActions)
                 t.Enable();
@@ -198,6 +206,7 @@ namespace World.Actors.Brains{
             UpdateSelectionCircles();
         }
 
+        /// Disables bound input actions and unregisters dialogue listeners.
         private void OnDisable(){
             foreach (BoundAction t in _boundActions)
                 t.Disable();
@@ -209,6 +218,7 @@ namespace World.Actors.Brains{
             _gestureHandler.Reset();
         }
 
+        /// Resets gesture and command dispatchers when dialogue enters or exits.
         private void HandleDialogueActiveChanged(bool isActive){
             _isDialogueActive = isActive;
             if (!isActive) return;
@@ -216,6 +226,7 @@ namespace World.Actors.Brains{
             _gestureHandler.Reset();
         }
 
+        /// Updates pointer tracking, gesture recognition, and continuous movement dispatching.
         private void Update(){
             if (_isDialogueActive) return;
 
@@ -256,8 +267,10 @@ namespace World.Actors.Brains{
             OnDirectCommand?.Invoke(mousePos);
         }
 
+        /// Resets command dispatcher state on command button release.
         private void OnCommandCanceled(InputAction.CallbackContext context) => _commandDispatcher.OnCommandCanceled();
 
+        /// Starts selection gesture handling on primary select press.
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
             if (_isDialogueActive) return;
 
@@ -267,6 +280,7 @@ namespace World.Actors.Brains{
             _gestureHandler.OnPressStarted(startPos);
         }
 
+        /// Concludes selection gesture handling on primary select release.
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
             if (_isDialogueActive) return;
 
@@ -310,19 +324,20 @@ namespace World.Actors.Brains{
             CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }
 
+        /// Selects active party member corresponding to slot index.
         private void SelectSlot(int index){
             if (index < 0 || index >= activePartyMembers.Count) return;
             Character hero = activePartyMembers[index];
 
-            if (IsAppendPressed) {
+            if (IsAppendPressed)
                 _selection.AddUnitSelect(hero);
-            }
-            else {
+            else{
                 _selection.SingleUnitSelect(hero);
                 CameraAnchor.Track(hero.BodyTransform);
             }
         }
 
+        /// Synchronizes ground selection ring indicators with current selection state.
         private void UpdateSelectionCircles() =>
             activePartyMembers.ForEach(member => {
                 if (member == null) return;
@@ -332,6 +347,7 @@ namespace World.Actors.Brains{
                     member.TurnSelectionCircleOff();
             });
 
+        /// Draws selection box marquee graphics.
         private void OnGUI() => _gestureHandler.DrawGUI(_currentScreenPos);
     }
 }

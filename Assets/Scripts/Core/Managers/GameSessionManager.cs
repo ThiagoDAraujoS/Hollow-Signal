@@ -11,8 +11,6 @@ using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Core.Managers{
     /// Persistent proxy session manager.
-    /// Loaded on session start, fetches core files using the pre-configured SaveSystem,
-    /// tracks active party characters across scenes, and bootstraps the correct gameplay level scene.
     public class GameSessionManager : TrackedBehaviour{
         public static GameSessionManager Instance{ get; private set; }
 
@@ -31,12 +29,14 @@ namespace Core.Managers{
         public static MapManager               CurrentMapManager{ get; private set; }
         public static event Action<MapManager> OnMapLoaded;
 
+        /// Assigns active map manager, bootstraps the hero party, and triggers the map loaded event.
         public static void LoadingMapFinished(MapManager manager){
             CurrentMapManager = manager;
             Instance.InitializeParty(manager);
             OnMapLoaded?.Invoke(manager);
         }
 
+        /// Enforces singleton instance across scene loads.
         protected override void OnAwake(){
             if (Instance != null && Instance != this){
                 Destroy(gameObject);
@@ -46,33 +46,35 @@ namespace Core.Managers{
             Instance = this;
         }
 
+        /// Cleans up singleton instance reference on destroy.
         private void OnDestroy(){
             if (Instance == this)
                 Instance = null;
         }
 
+        /// Asynchronously loads save dependencies and additively loads the active map scene.
         private async void Start(){
             try{
                 List<string> deps = dependencyDatabase.GetSceneDependencies(currentMapName);
-                await SaveSystem.LoadFiles(deps,
-                                           _ => {
-                                               /*TODO: Restore the game to its main menu state and show an error message */
-                                           });
+                await SaveSystem.LoadFiles(deps, _ => { });
 
                 await SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
                 Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
             }
             catch (Exception e){
                 Debug.LogError($"Could not load scene {currentMapName}. Details: {e}");
-                /*TODO: Restore the game to its main menu state and show an error message */
             }
         }
 
+        /// Spawns and configures active party members in formation at the map's default spawn point.
         public void InitializeParty(MapManager map){
             Character[] allHeroes = heroesContainer.GetComponentsInChildren<Character>(includeInactive: true);
             PlayerBrain.ClearPartyMembers();
 
+            List<Character> activeHeroes = new();
+
             foreach (Character hero in allHeroes){
+                hero.EnsureInitialized();
                 string heroId         = hero.GetComponent<UniqueId>().Id;
                 bool   shouldBeActive = activeCharacterIds.Contains(heroId);
 
@@ -80,15 +82,33 @@ namespace Core.Managers{
 
                 if (!shouldBeActive) continue;
                 PlayerBrain.AddPartyMember(hero);
-                hero.nmAgent.enabled = true;
-                hero.nmAgent.Warp(map.DefaultSpawnPoint.position);
+                hero.nmAgent.enabled  = true;
                 hero.movement.enabled = true;
+                activeHeroes.Add(hero);
+            }
+
+            if (activeHeroes.Count == 0) return;
+
+            Transform spawn = map.DefaultSpawnPoint;
+            Character lead  = activeHeroes[0];
+            Dictionary<Character, Vector3> destinations = FormationCalculator.CalculateFormationPositions(
+                spawn.position,
+                lead,
+                activeHeroes,
+                overrideFacing: spawn.rotation
+            );
+
+            foreach ((Character hero, Vector3 pos) in destinations){
+                hero.nmAgent.Warp(pos);
+                hero.transform.rotation = spawn.rotation;
             }
         }
 
+        /// Checks whether a character ID is currently marked as an active party member.
         public bool IsCharacterActive(string characterId) =>
             !string.IsNullOrEmpty(characterId) && activeCharacterIds.Contains(characterId);
 
+        /// Updates the active tracking status of a character in the session party.
         public void SetCharacterActive(string characterId, bool isActive){
             if (string.IsNullOrEmpty(characterId)) return;
 
@@ -98,20 +118,21 @@ namespace Core.Managers{
                 activeCharacterIds.Remove(characterId);
         }
 
+        /// Serializes active character IDs into the persistence partition.
         public override void OnSaveState(Partition state){
             base.OnSaveState(state);
             state["active_character_ids"] = new List<string>(activeCharacterIds);
         }
 
+        /// Restores active character ID list from persisted state.
         public override void OnLoadState(Partition state){
             base.OnLoadState(state);
-            if (state == null || !state.TryGetValue("active_character_ids", out object rawList)) return;
+            if (!state.TryGetValue("active_character_ids", out object rawList)) return;
             activeCharacterIds.Clear();
             if (rawList is not IEnumerable enumerable) return;
-            foreach (object item in enumerable){
+            foreach (object item in enumerable)
                 if (item != null)
                     activeCharacterIds.Add(item.ToString());
-            }
         }
     }
 }

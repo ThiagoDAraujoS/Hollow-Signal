@@ -6,8 +6,6 @@ using World.Actors.Player;
 
 namespace World.Actors.Brains{
     /// Calculates offset destination positions for squads moving together in real-time exploration.
-    /// Uses NavMesh path arrival tangents to face the true direction of arrival, applies a tactical
-    /// wedge offset, and conditionally executes a relaxation pass when obstacles displace units.
     public static class FormationCalculator{
         private const float DefaultSpacing        = 1.5f;
         private const float DefaultSampleRadius   = 2.0f;
@@ -20,8 +18,9 @@ namespace World.Actors.Brains{
             Vector3                        targetPoint,
             Character                      lead,
             IReadOnlyCollection<Character> units,
-            float                          spacing      = DefaultSpacing,
-            float                          sampleRadius = DefaultSampleRadius){
+            float                          spacing        = DefaultSpacing,
+            float                          sampleRadius   = DefaultSampleRadius,
+            Quaternion?                    overrideFacing = null){
 
             Dictionary<Character, Vector3> destinations = new(units.Count);
             if (units.Count == 0) return destinations;
@@ -31,7 +30,7 @@ namespace World.Actors.Brains{
 
             if (units.Count == 1) return destinations;
 
-            Quaternion facing = DetermineArrivalFacing(effectiveLead.WorldPosition, targetPoint, effectiveLead.WorldRotation);
+            Quaternion facing = overrideFacing ?? DetermineArrivalFacing(effectiveLead.WorldPosition, targetPoint, effectiveLead.WorldRotation);
 
             bool wasAnyUnitDisplaced = false;
             int  followerIndex       = 0;
@@ -88,46 +87,37 @@ namespace World.Actors.Brains{
             foreach (int _ in Enumerable.Range(0, RelaxationIterations))
                 foreach ((Character unitA, int i) in keys.Select((u, idx) => (u, idx)))
                     foreach (Character unitB in keys.Skip(i + 1)){
-                        Vector3 posA  = destinations[unitA];
-                        Vector3 posB  = destinations[unitB];
-                        Vector3 delta = posA - posB;
+                        Vector3 posA = destinations[unitA];
+                        Vector3 posB = destinations[unitB];
+
+                        Vector3 delta = posB - posA;
                         delta.y = 0f;
-                        float distance = delta.magnitude;
+                        float dist = delta.magnitude;
 
-                        if (distance >= minSeparation) continue;
+                        if (dist >= minSeparation || dist < 0.001f) continue;
 
-                        Vector3 pushDir = distance > 0.001f ? delta / distance : Vector3.right;
-                        float   overlap = minSeparation - distance;
+                        Vector3 pushDir     = delta / dist;
+                        float   overlapHalf = (minSeparation - dist) * 0.5f;
 
-                        if (unitA == effectiveLead){
-                            Vector3 newB = posB - (pushDir * overlap);
-                            if (NavMesh.SamplePosition(newB, out NavMeshHit hitB, sampleRadius, NavMesh.AllAreas))
-                                destinations[unitB] = hitB.position;
-                        }
-                        else if (unitB == effectiveLead){
-                            Vector3 newA = posA + (pushDir * overlap);
-                            if (NavMesh.SamplePosition(newA, out NavMeshHit hitA, sampleRadius, NavMesh.AllAreas))
+                        if (unitA != effectiveLead){
+                            Vector3 candidateA = posA - pushDir * overlapHalf;
+                            if (NavMesh.SamplePosition(candidateA, out NavMeshHit hitA, sampleRadius, NavMesh.AllAreas))
                                 destinations[unitA] = hitA.position;
                         }
-                        else{
-                            Vector3 newA = posA + (pushDir * (overlap * 0.5f));
-                            Vector3 newB = posB - (pushDir * (overlap * 0.5f));
 
-                            if (NavMesh.SamplePosition(newA, out NavMeshHit hitA, sampleRadius, NavMesh.AllAreas))
-                                destinations[unitA] = hitA.position;
-                            if (NavMesh.SamplePosition(newB, out NavMeshHit hitB, sampleRadius, NavMesh.AllAreas))
+                        if (unitB != effectiveLead){
+                            Vector3 candidateB = posB + pushDir * overlapHalf;
+                            if (NavMesh.SamplePosition(candidateB, out NavMeshHit hitB, sampleRadius, NavMesh.AllAreas))
                                 destinations[unitB] = hitB.position;
                         }
                     }
         }
 
-        /// Returns the local lateral and longitudinal wedge position offset for a given follower index.
-        private static Vector3 GetWedgeOffset(int index, float spacing) =>
-            index switch{
-                0 => new Vector3(-spacing,                                                    0f, -spacing),
-                1 => new Vector3(spacing,                                                     0f, -spacing),
-                2 => new Vector3(0f,                                                          0f, -spacing * 2f),
-                _ => new Vector3((index % 2 == 0 ? -1f : 1f) * spacing * (1f + index * 0.5f), 0f, -spacing * (1f + index * 0.5f))
-            };
+        /// Computes the alternating tactical wedge local-space offset for a follower index.
+        private static Vector3 GetWedgeOffset(int followerIndex, float spacing){
+            int   tier = (followerIndex / 2) + 1;
+            float sign = (followerIndex % 2 == 0) ? 1.0f : -1.0f;
+            return new Vector3(sign * tier * spacing, 0f, -tier * spacing * 0.85f);
+        }
     }
 }

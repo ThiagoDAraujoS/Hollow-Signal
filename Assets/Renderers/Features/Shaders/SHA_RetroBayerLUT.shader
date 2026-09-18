@@ -50,13 +50,14 @@
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                float pixelSize = max(1.0, _PixelSize);
-                float2 screenRes = _ScreenParams.xy;
-                float2 downscaledRes = screenRes / pixelSize;
-                float2 pixelatedUV = (floor(input.texcoord * downscaledRes) + 0.5) / downscaledRes;
+                // Hardware integer pixel coordinates on the render target (exact, zero floating-point error)
+                uint2 screenPixel = uint2(input.positionCS.xy);
+                uint pixelSize = max(1u, (uint)round(_PixelSize));
+                uint2 virtualPixel = screenPixel / pixelSize;
 
-                // Sample camera scene color
-                half4 sceneColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, pixelatedUV);
+                // Direct texel load at integer coordinates: guarantees uniform 2x2 retro pixel blocks
+                uint2 sampleCoord = virtualPixel * pixelSize;
+                half4 sceneColor = LOAD_TEXTURE2D_X(_BlitTexture, sampleCoord);
                 float3 c = sceneColor.rgb;
 
                 // Convert Linear camera input to sRGB for perceptually uniform dither and 0-255 LUT lookup
@@ -65,8 +66,8 @@
                     c = LinearToSRGB(c);
                 }
 
-                // Bayer Dither
-                uint2 ditherCoord = uint2(pixelatedUV * downscaledRes);
+                // Bayer Dither: Exact integer indexing from the virtual retro pixel (no floating-point jitter)
+                uint2 ditherCoord = virtualPixel;
                 float dither = GetBayerDitherOffset(ditherCoord, _DitherMatrixSize > 0.5);
                 c += dither * _DitherSpread;
 

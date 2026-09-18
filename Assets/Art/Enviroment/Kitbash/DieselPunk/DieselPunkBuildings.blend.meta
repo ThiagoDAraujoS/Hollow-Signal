@@ -1,0 +1,474 @@
+fileFormatVersion: 2
+guid: 2fe78dac7e102424c81d354ffe0fe96e
+ModelImporter:
+  serializedVersion: 24501
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasEXLargesB
+    second: {fileID: 2100000, guid: 4906fd9cf34e39e4fbc4923beb82813c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasFlagsDirt
+    second: {fileID: 2100000, guid: 4a9646ea490b12a44a8cbce5b776f433, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasLarges
+    second: {fileID: 2100000, guid: 5fcb7103d34a4a049872e484a7ae607b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasMediums
+    second: {fileID: 2100000, guid: 1c375b7664f879648a5855925ec6f1ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasSmallsPost
+    second: {fileID: 2100000, guid: 6428804c30475104abba5621876f09d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_AtlasTowers
+    second: {fileID: 2100000, guid: ce5585e4cd2d7064794af8d6dd6787ee, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickDarkDirt
+    second: {fileID: 2100000, guid: 0a91805cf6ff75d41b648886cff0cc3f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickDarkDirtB
+    second: {fileID: 2100000, guid: 97ce9756196365547b94669189bba33d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickOrangeDirtB
+    second: {fileID: 2100000, guid: 0d315b8dc63e5244cab051e5033d06c0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickOrangeDirtBArch
+    second: {fileID: 2100000, guid: 5c663a4a8ca20d048a49bc9a29b17591, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickOrangeDirtBurned
+    second: {fileID: 2100000, guid: 0529e22adc80a094d808feb34cbea1d5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickOrangeDirtBurnedB
+    second: {fileID: 2100000, guid: beb10a573d928b9448e0303baaa2190b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickOrangeDirtD
+    second: {fileID: 2100000, guid: 154a4cca4ab958347bd1f3d264cb4a06, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickRedDirt
+    second: {fileID: 2100000, guid: c5570641208f39d479272d43e92765ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BrickRedStones
+    second: {fileID: 2100000, guid: ec899f4463cfd1649b28935a5c313fd6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_BricksStoneOld
+    second: {fileID: 2100000, guid: 096b4b42713ffc7478190d5cb0871413, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_Cardboard
+    second: {fileID: 2100000, guid: 810bd0aa27548594cb09d6acda5b0e56, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_CobblestoneDamaged
+    second: {fileID: 2100000, guid: 62c7054a350f5d5478ce6c94deadb8ef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_ConcreteOld
+    second: {fileID: 2100000, guid: 438e9bc6116fd664aab1ba83bd8dc5d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_ConcreteOldBright
+    second: {fileID: 2100000, guid: 60ed5be06d267234e8ca624ab6a65f0d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_ConcretePaintedBrown
+    second: {fileID: 2100000, guid: 7c5e3976527f6b544a4d367984ae78b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_ConcretePaintedRed
+    second: {fileID: 2100000, guid: f334cadb1a88454439d0ff38dc8cb041, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_ConcreteTiles
+    second: {fileID: 2100000, guid: b9735a62e8a1a964ea6fa7eb60909dbb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_EmissiveLettering
+    second: {fileID: 2100000, guid: 9ae3c2896886ced4e920ce3978e74a60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_FloorGratingOld
+    second: {fileID: 2100000, guid: 4064652fc5d818b4ebcb58a8d886893b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GalvanizedSteelDirt
+    second: {fileID: 2100000, guid: dc8ed48c076e03240848584f8493c5e4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GalvanizedSteelDirtDark
+    second: {fileID: 2100000, guid: 26865e8d9a1c45344909e4a148828158, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GlassBrownDirt
+    second: {fileID: 2100000, guid: c85facf83c03bfa4b8be6179ab2ba9b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GlassDirty
+    second: {fileID: 2100000, guid: 362fce4aa7b871f479efdc9861c8d268, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GoldRoughDirt
+    second: {fileID: 2100000, guid: 26cbed339f348574b832c1ea3966afab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_GoldRoughDirtB
+    second: {fileID: 2100000, guid: 9ef6521edf8e4ff4a960f6cfb642f795, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_Lamp
+    second: {fileID: 2100000, guid: 4031636bf21c8ff4db917dacdda436d4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalBarrelsDirt
+    second: {fileID: 2100000, guid: b8d74897e790ef44d98833599442e635, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalBlackA
+    second: {fileID: 2100000, guid: 490d6840471cb204ea4c24fcadd455f5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalBridge
+    second: {fileID: 2100000, guid: 1bd09c185bc94af42b8f037449f297a5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalBronze
+    second: {fileID: 2100000, guid: 54f30863f206d88438737561fd81df8b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalDarkCorrugated
+    second: {fileID: 2100000, guid: f9edc22e8c561494ab0503cb234fc7e5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalDirtRusty
+    second: {fileID: 2100000, guid: 59fff99e7baa36840a4b9f4a1f1bca9e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalDirtRustyDark
+    second: {fileID: 2100000, guid: 2d6c4d19ac6b44a499bc3c6f0d40b8cc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalIndustrialA
+    second: {fileID: 2100000, guid: 6c5e1287151b6644b867001c9f455dbd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalIndustrialB
+    second: {fileID: 2100000, guid: 0d8dba9ee5308cd4cbd1cb800743b4d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalIndustrialFloor
+    second: {fileID: 2100000, guid: b2b8b16021a31414d9dced14160a6a03, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPGreenOld
+    second: {fileID: 2100000, guid: cbcce06d400d3f74a9a7ecff80111151, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPLightBlue
+    second: {fileID: 2100000, guid: fd3aa543cd8e7ed4bbc3800e9e175ec1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPRed
+    second: {fileID: 2100000, guid: 79cb7e2e79475a04c9e2f0b369d0dc32, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaintGreenDirt
+    second: {fileID: 2100000, guid: 04e1c09ec188990499bff43bf0b04a96, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaintRedDirt
+    second: {fileID: 2100000, guid: 9ba2422bd294fa943bc356dc91b7df02, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaintedBlackDirt
+    second: {fileID: 2100000, guid: 51acf48d2a542874c849229753e31e8d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaintedRB
+    second: {fileID: 2100000, guid: 75b628380c24a8c47a64ac8f1e2af6f6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaintedWhiteDirt
+    second: {fileID: 2100000, guid: 5da8bb0f441e1fc499ade40399b718e9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaneledDamage
+    second: {fileID: 2100000, guid: 5fae14cba05f6d1438cf845e03f2c98a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaneledDamageB
+    second: {fileID: 2100000, guid: 03e4b59ba03bebc47baed255f7e083c7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPaneledDamageDark
+    second: {fileID: 2100000, guid: 93d4d8599d6773940ba4d47e6445de4d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalPanelsRoof
+    second: {fileID: 2100000, guid: ff23abbf8b828684d878f4045b3caa30, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalRustedDirt
+    second: {fileID: 2100000, guid: 4780bd1e3d187fc4580e16b66fd87dcf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetalTubesDirt
+    second: {fileID: 2100000, guid: 3bc189ca4fb0c5442b620255d8052287, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_MetallicDarkBlue
+    second: {fileID: 2100000, guid: 85404854bd00d7c4ea1c8b23aefeb276, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PalimananStoneDirt
+    second: {fileID: 2100000, guid: 7ae1e77bb35fea446aa5b6d2ca75153f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PalimananStoneWhiteDirt
+    second: {fileID: 2100000, guid: 9c3bb1a0294664845ae2b507a8bb5fc7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PalimananStoneWhiteDirtB
+    second: {fileID: 2100000, guid: 5acedb3ce4d7e8545b6835080213c1ce, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PalimananStoneWhiteDirtC
+    second: {fileID: 2100000, guid: 55aac223d4d00d8408d62df4f3b7610e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PalimananStoneWhiteDirtD
+    second: {fileID: 2100000, guid: a0b60ec85af3c9c46965a5b2a6fc4309, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PanelFloorDirty
+    second: {fileID: 2100000, guid: 40040f4bae6c17f44968df4b5355f033, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_PlasterGray
+    second: {fileID: 2100000, guid: 3a5c7b7575a92c6459ef5d826e77c525, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_RoofSlate
+    second: {fileID: 2100000, guid: c1e3dba99b4cf95499381f4ecc3ef155, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_RubberDirt
+    second: {fileID: 2100000, guid: 5df08b94350a29d46aac94adb7b40c41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_RustedMetal
+    second: {fileID: 2100000, guid: d8618ccd9bd00f14199a8ef45fdce9b8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_RustedMetalA
+    second: {fileID: 2100000, guid: 237a511ae5705cc4fb30708f18a5cdc8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_WoodDarkB
+    second: {fileID: 2100000, guid: d838b3addceb28c469f817c62f6c937a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_WoodOldPBlack
+    second: {fileID: 2100000, guid: fd8f3426b3308c74c9347d8b777159d6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_WoodOldPBlackP
+    second: {fileID: 2100000, guid: 9e804512c94e0a14a98b9cbd16a9343a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KB3D_DPK_WoodOldPBrownA
+    second: {fileID: 2100000, guid: ffc502893b7b1bf4aa8e3d0dfb62f613, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 0
+    importBlendShapes: 0
+    importCameras: 0
+    importLights: 0
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 1
+    preserveHierarchy: 1
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 0
+  referencedClips: []
+  importAnimation: 0
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 0
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
