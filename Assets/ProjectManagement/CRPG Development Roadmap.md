@@ -1,102 +1,131 @@
-# Hollow Signal — Development Roadmap
+# Hollow Signal — Master Development Roadmap
 
-## Phase 1: Core Memory, Foundation & Locomotion (Complete)
-- [x] **Blackboard & Save System:** Global, Scene, and Entity dictionaries, UUID generation, and JSON serialize/deserialize loop.
-- [x] **Localization & Text Registry:** Map string IDs to text without hardcoding.
-- [x] **Skill & Mastery Database Parsers:** JSON parsers loading mechanical strings and Mastery definitions.
-- [x] **Character Sheet Component:** Active masteries, skill level calculations with mastery deltas.
-- [x] **NavMesh & Click-to-Move:** Walkable layer, flipped mouse controls (Left: Command, Right: Select), continuous Diablo-style steering.
-- [x] **Player Brain & Unit Selection:** BG3-style single/double-click selection, box select, camera tracking, ModifierAppend (Shift) multi-selection.
-- [x] **Squad Movement & Formations:** FormationCalculator tactical wedge distribution, arrival facing, stop command.
-- [x] **Base Scene & Sleep-Spawn Coordinator:** 5-step boot loop, GameSessionManager waking and placing heroes on map load.
-
----
-
-## Phase 2: Boot Scene Architecture & Core Menu Suite (Current Milestone)
-> **Context & Pivot:** Rather than relying on fragile temporary mockups that require double work later, we paused gameplay iteration to construct the definitive, production-grade UI harness in the `Boot` scene. This establishes the visual language, Animator state choreography, and foundational screens needed before integrating in-game dialogue and map loops.
-
-- [x] **2.1 Spline-Arc Carousel & Save Bullet System (Complete):**
-  - Continuous parametric track rail with square-wave cam profile and start/end card padding.
-  - Tactile Save Bullet prefab with broken-neon pulse shader/curve and single-select tagging.
-  - Decoupled `SaveBulletData` container struct.
-- [x] **2.2 Load Game Panel & Coordinator (Complete):**
-  - `LoadPanelController` bridging `SaveSystem.GetSaveFileList()` to `SaveCarouselController`.
-  - Animation Event hooks: `BuildLoadList()` and `DestroyLoadList()`.
-  - Asynchronous game session boot trigger via `SceneCoordinator.StartGameSessionAsync(slot)`.
-- [ ] **2.3 Save Game Panel (Tomorrow's Priority):**
-  - Adapt `SaveCarouselController` for save game capture and overwrite flow.
-  - "New Save" slot creation element at index 0.
-  - Slot overwrite modal confirmation prompt.
-  - Save file metadata snapshot rendering (location, play time, hero roster preview).
-- [ ] **2.4 Main Menu & Master UI Choreographer:**
-  - Production Title Menu layout (New Game, Continue, Load Game, Save Game, Settings, Quit).
-  - State-driven Animator architecture (Dumb buttons triggering Animator parameters; keyframes driving scene curtains and view swaps).
-  - Curtain fade-out/fade-in transitions synchronized with scene load completion.
-- [ ] **2.5 Settings Panel (Essential Scope):**
-  - Language toggle/dropdown to test and validate multi-file streaming localization runtime.
-  - Master volume slider placeholder.
-  - *(Full display settings, keybinding rebinding, and credits deferred to late polish phase)*.
+## Core Vision & Design Pillars
+- **Dieselpunk Arcane Story:** A story-driven tactical CRPG set in an isolated city trapped inside an atmospheric bubble.
+- **The Triad Simulation Engine (Masteries → Black Box Skills → Problem Archetypes):**
+  - **Masteries:** Character background identities (e.g. *Dockyard Boiler-Hauler*) acquired at creation and level-up.
+  - **Black Box Skills:** An extensive list (~100) of hidden skills never directly manipulated by the player. Masteries and equipped items silently provide stacking bonuses to these skills.
+  - **Problem Archetypes:** Physical obstacles, narrative dilemmas, attacks, and defenses presented as sensory situations with divergent physical approaches.
+  - **Unified Action Resolution:** Whether picking a rusted lock, negotiating with a smuggler, or swinging an industrial wrench in combat, all actions flow through the same engine: **Sensory Problem Description → Deduce Approach → Query Best Black Box Skill & Contributing Mastery → Roll d20 vs DC (with optional Advantage / Reroll burn) → Reveal Mastery & Method Quip**.
+- **Tactical Zone Crisis Mode:** Fast, fluid, non-grid tactical combat where characters move between spatial zones, claim spots that grant **temporary masteries** (cover, high ground, machinery controls), and execute actions through the archetype choice interface.
 
 ---
 
-## Phase 3: Dialogue Engine, Prompts & Narrative Runtime (Next Milestone)
-> **Context:** The compiler pipeline and multi-file localization stream are built. Once the Boot UI suite is finalized, we build the in-game message presentation UI to test live conversation trees.
-
-- [x] **3.1 Dialogue Compiler & Code Generation (Complete):**
-  - CSV-to-AST parser and code generator emitting type-safe C# dialogue node trees.
-- [x] **3.2 Multi-File Streaming Localization (Complete):**
-  - Extended localization registry to stream language files on demand.
-- [ ] **3.3 In-Game Dialogue Box & Message Presentation UI:**
-  - Tactile CRT/terminal presentation window for dialogue, speaker names, and portraits.
-  - Typewriter text effect with click-to-skip.
-  - Interactive response choice buttons with skill DC previews and disabled state styling.
-- [ ] **3.4 Dialogue Runtime Runner & State Machine:**
-  - Runtime interpreter traversing compiled C# dialogue tree nodes.
-  - Blackboard condition evaluation (`CheckFlag`, `GetVariable`) and mutation (`SetFlag`, `ModifyStat`).
-- [ ] **3.5 Skill Check Resolver & Dice Engine:**
-  - Query `CharacterSheet.GetEffectiveSkill(skill)`, roll dice against Target DC.
-  - Return rich margins: Critical Success, Success, Failure, Critical Failure.
-  - Integrate skill check rolls directly into dialogue choice branching.
+## Phase 1: Core Foundation, Memory & Locomotion (COMPLETE)
+- [x] **Memory Model & Multi-File Streaming:** Modular data loading, JSON persistence, and dynamic asset streaming.
+- [x] **Blackboard & Save System:** Global, Scene, and Entity blackboard dictionaries with full serialize/deserialize loop.
+- [x] **Localization Registry:** Multi-file localization streaming without hardcoded strings.
+- [x] **Skill & Mastery Database:** Structured mechanical enums, JSON definitions, and data asset parsers.
+- [x] **NavMesh & Locomotion:** NavMesh navigation, inverted CRPG mouse controls (Left: Command/Move, Right: Select), Diablo-style continuous steering.
+- [x] **Player Brain & Unit Selection:** Single-click, double-click, drag-box marquee, and Shift-append squad selection.
+- [x] **Squad Formations:** `FormationCalculator` tactical wedge distribution, arrival facing alignment, and stop command.
+- [x] **Boot Scene & Sleep-Spawn Coordinator:** 5-step boot loop, GameSessionManager waking and placing heroes on map load.
+- [x] **Dialogue Compiler Pipeline:** CSV-to-AST parser and code generator emitting compiled C# dialogue state machines (`MedicalTerminalDialogue.cs`).
+- [x] **Dialogue Graph Runtime:** Core node traversal, branching choice evaluation, one-shot choice consumption, and knot navigation.
 
 ---
 
-## Phase 4: World Interaction & Exploration Mechanics
-- [ ] **4.1 Interactive Objects & Map Portals (IUsable & Map Transitions):**
-  - Implement interactable doors, terminals, containers, and transition triggers implementing `IUsable`.
-  - Character arrival alignment to `UseSpot` and `UseRotation`.
-  - Usable confirmation handshake: arrival triggers prompt dialog; player confirmation burns action and executes task.
-  - Map transition pipeline: disable agents -> record target `AnchorPoint` -> unload map -> load additive map -> rewarp squad on NavMesh.
-- [ ] **4.2 Hold-to-Open Context Menu UI:**
-  - Hook into `SelectionGestureHandler.OnContextMenuRequested`.
-  - Classic RPG context menu on right-click hold (Examine, Use, Talk, Attack).
-- [ ] **4.3 Alt-Key World Highlight System:**
-  - Hook `modifierAltActionRef` and `PlayerBrain.OnAltModifierChanged`.
-  - Display screen-space highlight indicators/tooltips over interactable objects, items, and NPCs while Alt is held.
+## Phase 2: Menu Suite & UI Shell
+### 2.1 Boot Menu Suite
+- [x] **Main Menu:** Production Title Menu layout (New Game, Continue, Load Game, Settings, Quit).
+- [x] **Load Game Menu:** Spline-arc carousel with tactile Save Bullets, metadata snapshot preview, and async session loading.
+- [ ] **Boot Settings Menu:**
+  - Language toggle/dropdown validating multi-file streaming localization runtime.
+  - Master, Music, and SFX volume sliders.
+  - Fullscreen / Resolution display options.
+
+### 2.2 In-Game System Suite (Pause / Escape Menu)
+- [ ] **In-Game Menu Frame:** Modal pause overlay invoked via `Escape`.
+- [ ] **In-Game Save Menu:** Save Game carousel view with "Create New Save" bullet at index 0 and overwrite confirmation.
+- [ ] **In-Game Load Menu:** Shared carousel instance allowing quick loads during gameplay.
+- [ ] **In-Game Settings Menu:** Audio, video, and gameplay preferences while in session.
+- [ ] **Exit Flow:** Return to Boot Scene with memory cleanup and session teardown.
 
 ---
 
-## Phase 5: Tactical Zone / Turn-Based Combat System (Crisis Mode)
-- [ ] **5.1 Spatial Topology: Tactical Zones & Modular Slots:**
-  - Define `TacticalZone` nodes across key map areas with neighbor adjacency graph.
-  - Implement `TacticalSlot` pre-selected standing positions with occupancy tracking.
-  - Create `ISlotModifier` for modular slot bonuses (+1 skill bonuses, cover, terminal spots, environmental hazards).
-  - Support free intra-zone spot adjustments at the start of a turn (0 Movement cost).
-  - Voronoi nearest-zone click raycasting and BFS step-distance path calculation.
-- [ ] **5.2 Turn Budget & Action Economy:**
-  - Standard Turn: 1 Zone Move + 1 Action.
-  - Double Move: 2 Zone Moves + 0 Actions.
-  - Overdrive / Dash: 2 Zone Moves + 1 Action (calls Skill Check Resolver for Dash test; failure halts movement at second zone and inflicts penalty).
-- [ ] **5.3 Command Dissector & Usable Handshake:**
-  - Dissect clicks into atomic execution plan: `[Walk, Walk, (Dash Roll), Use]`.
-  - Confirmation handshake on terminals/attacks before action expenditure.
-- [ ] **5.4 IGOUGO Turn Flow & Ambush Checks:**
-  - Ambush roll at Crisis start (perception/hearing check to seize initiative; enemies go first by default).
-  - Team phase state machine: Player Phase <-> Enemy Phase.
-  - End Turn button and turn budget reset loop.
+## Phase 3: Character Sheet, Inventory & Resource Economy
+> **Design Goal:** Expand the character sheet from a raw stat container into a full CRPG identity sheet where equipped items feed into the Black Box skills and players manage their push-your-luck resource pool.
+
+### 3.1 Character Sheet Expansion & Stats
+- [ ] **Core Attributes & Derived Stats:** Health, Action Points / Move Speed, Initiative, and Resistances.
+- [ ] **Reroll / Advantage Resource Pool (e.g., Grit / Steam / Resolve):**
+  - Burn resource to gain **Advantage** (roll 2 d20s, take the highest).
+  - Burn resource to **Reroll** a failed check at critical narrative moments.
+  - Replenished via rest, consumables, or roleplaying triumphs.
+- [ ] **Dynamic Skill Evaluation:** Method querying `(Base + Mastery Deltas + Equipment Deltas + Temporary Spot Buffs)` for any hidden skill.
+
+### 3.2 Inventory & Equipment System
+- [ ] **Item Data Structure:** Weapons, armor, tools, curios, and consumables with stat/skill modifiers.
+- [ ] **Equipment Slots:** Main Hand, Off-Hand, Head, Body, Accessory 1, Accessory 2.
+- [ ] **Equipment Modifiers:** Items inject direct bonuses/penalties into the Black Box skills (e.g. *Hydraulic Wrench: +3 FixMachinery, +2 Smash*).
+- [ ] **Tactile Grid / Slot Inventory UI:** Dieselpunk inventory grid with equip/unequip, item tooltips, and weight/slot limits.
+
+### 3.3 Character Sheet & Progression UI
+- [ ] **Character Sheet Inspection UI:** View character identity, equipped masteries, health/status, and equipment.
+- [ ] **Character Level-Up Menu:** Spend progression points to acquire new background Masteries.
+- [ ] **Character Creator Menu:** Custom hero creation at New Game (portrait, name, starting Masteries, starting equipment).
 
 ---
 
-## Phase 6: Progression & Narrative Expansion
-- [ ] **Inventory & Equipment:** Equippable items modifying character stats/skills.
-- [ ] **Loot & Scavenging Containers:** World containers feeding into inventory.
-- [ ] **Level Up & Mastery Acquisition:** Experience thresholds, leveling UI, choosing new masteries.
+## Phase 4: Black Box Resolution & Narrative Runtime
+> **Design Goal:** Seamlessly connect physical world obstacles to the player's deduced choices, hidden skill evaluation, and narrative payoff.
+
+### 4.1 World Interaction & Dialogue Pausing
+- [ ] **World Input Pausing:**
+  - When `DialogueController.OnDialogueActiveChanged(true)` triggers, disable player movement raycasting and camera pan input.
+  - Re-enable world controls seamlessly when dialogue terminates.
+- [ ] **Click-to-Start Dialogue & IUsable Handshake:**
+  - Walk up to interactable object/NPC, align to `UseSpot` and `UseRotation`, then launch dialogue.
+
+### 4.2 Black Box Skill Check Engine
+- [ ] **Resolution Pipeline:**
+  - When a dialogue choice requires an action/check:
+    1. Query acting hero's `CharacterSheet` for highest applicable skill bonus.
+    2. Trace the contributing `Mastery` (or equipment) granting that bonus.
+    3. Roll `d20 + TotalBonus vs Target DC`.
+    4. Support Advantage / Disadvantage (2d20 pick high/low).
+    5. Prompt player for Resource Burn (Grit/Reroll) upon failure.
+- [ ] **Mastery Reveal & Flavor Quip Display:**
+  - Format transcript output with dieselpunk styling:
+    - Action Header: `[ACTION: BRUTE FORCE]`
+    - Mastery Credit: `:: RELEVANT MASTERY: DOCKYARD BOILER-HAULER ::`
+    - Method Quip: Narrative text explaining how their specific background solved the obstacle.
+    - Roll Breakdown: `[PASSED] // Roll: 12 + 3 = 15 vs DC 13`.
+
+### 4.3 Dialogue UI Presentation Polish
+- [ ] **Typewriter Text Effect:** Smooth text animation with click-to-skip.
+- [ ] **Hotkeys:** Keyboard number keys (`1`, `2`, `3`...) to trigger choices.
+- [ ] **Dialogue Test Room (`DialogTest.unity`):** End-to-end verification of dialogue, branching, skill rolls, and mastery reveals.
+
+---
+
+## Phase 5: World Exploration & Map Topology
+- [ ] **Interactive World Objects:** Usable containers, doors, valve wheels, terminals.
+- [ ] **Map Portals & Seamless Map Swapping:**
+  - Transition trigger: disable agents → record target anchor → unload current map → load additive map → re-spawn party on NavMesh.
+- [ ] **(Deferred) Alt-Key World Highlight:** Silhouette or label highlight over interactables when holding Alt.
+
+---
+
+## Phase 6: Tactical Zone & Combat Simulation (Crisis Mode)
+> **Design Goal:** Turn-based combat that uses the exact same simulation rules as dialogue. Actions, attacks, and defenses are choices made through problem archetypes.
+
+### 6.1 Spatial Topology: Tactical Zones & Modular Spots
+- [ ] **Tactical Zones:** Pre-authored spatial polygon zones across combat areas with adjacency graphs.
+- [ ] **Modular Spots:** Fixed positions inside zones (Cover, High Ground, Terminal console, Chokepoint).
+- [ ] **Temporary Masteries from Spots:**
+  - Stepping onto a Heavy Cover spot grants temporary mastery: *Covered Defender (+3 Dodge, +3 BallisticDefense)*.
+  - Stepping onto a Console spot grants temporary mastery: *Substation Operator (+4 HackCircuits)*.
+- [ ] **Intra-Zone Micro Movement:** Free repositioning between spots inside the current zone (0 Move cost).
+
+### 6.2 Turn Economy & Action Flow
+- [ ] **Turn Budget:** 1-2 Zone Moves + 1 Action per turn.
+- [ ] **Actions via Dialogue/Choice Archetypes:**
+  - Attacking an enemy or operating an environmental hazard opens an action prompt:
+    - *[1] [OVERCHARGE] Slam power conduit into the wet floor.*
+    - *[2] [POINT BLANK] Fire trench shotgun at the lead automaton.*
+    - *[3] [TAKE COVER] Hunker behind reinforced sandbags.*
+- [ ] **IGOUGO Turn Flow:**
+  - Player Phase ↔ Enemy Phase.
+  - Turn Wheel / Indicator UI showing active faction and hero turn state.
+- [ ] **Enemy Phase Simulation:** AI units navigate zones, claim spots, and execute archetype actions against players.

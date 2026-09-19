@@ -4,29 +4,25 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace HollowSignal.Editor.Characters
-{
-    public static class AvatarExtractor
-    {
-        public enum PromptResult
-        {
+namespace Editor.Characters{
+    public static class AvatarExtractor{
+        public enum PromptResult{
             Yes,
             YesToAll,
             No,
             NoToAll
         }
 
-        private class AvatarModalDialog : EditorWindow
-        {
-            public PromptResult Result = PromptResult.No;
-            private string _heading = "";
-            private string _body = "";
-            private bool _allowAll;
+        private class AvatarModalDialog : EditorWindow{
+            public  PromptResult Result   = PromptResult.No;
+            private string       _heading = "";
+            private string       _body    = "";
+            private bool         _allowAll;
 
-            public static PromptResult ShowDialog(string windowTitle, string heading, string body, bool allowAll)
-            {
+            public static PromptResult ShowDialog(string windowTitle, string heading, string body, bool allowAll){
                 if (!allowAll)
                     return EditorUtility.DisplayDialog(windowTitle, $"{heading}\n\n{body}", "Yes", "No")
                         ? PromptResult.Yes
@@ -34,17 +30,16 @@ namespace HollowSignal.Editor.Characters
 
                 var win = CreateInstance<AvatarModalDialog>();
                 win.titleContent = new GUIContent(windowTitle);
-                win._heading = heading;
-                win._body = body;
-                win._allowAll = allowAll;
-                win.minSize = new Vector2(500, 220);
-                win.maxSize = new Vector2(500, 220);
+                win._heading     = heading;
+                win._body        = body;
+                win._allowAll    = allowAll;
+                win.minSize      = new Vector2(500, 220);
+                win.maxSize      = new Vector2(500, 220);
                 win.ShowModalUtility();
                 return win.Result;
             }
 
-            private void OnGUI()
-            {
+            private void OnGUI(){
                 EditorGUILayout.Space(12);
                 EditorGUILayout.LabelField(_heading, EditorStyles.boldLabel);
                 EditorGUILayout.Space(6);
@@ -55,27 +50,23 @@ namespace HollowSignal.Editor.Characters
                 GUILayout.FlexibleSpace();
 
                 GUI.backgroundColor = new Color(0.35f, 0.75f, 0.35f);
-                if (GUILayout.Button("Yes", GUILayout.Width(90), GUILayout.Height(28)))
-                {
+                if (GUILayout.Button("Yes", GUILayout.Width(90), GUILayout.Height(28))){
                     Result = PromptResult.Yes;
                     Close();
                 }
 
-                if (_allowAll && GUILayout.Button("Yes for All", GUILayout.Width(100), GUILayout.Height(28)))
-                {
+                if (_allowAll && GUILayout.Button("Yes for All", GUILayout.Width(100), GUILayout.Height(28))){
                     Result = PromptResult.YesToAll;
                     Close();
                 }
 
                 GUI.backgroundColor = new Color(0.85f, 0.45f, 0.45f);
-                if (GUILayout.Button("No", GUILayout.Width(90), GUILayout.Height(28)))
-                {
+                if (GUILayout.Button("No", GUILayout.Width(90), GUILayout.Height(28))){
                     Result = PromptResult.No;
                     Close();
                 }
 
-                if (_allowAll && GUILayout.Button("No for All", GUILayout.Width(100), GUILayout.Height(28)))
-                {
+                if (_allowAll && GUILayout.Button("No for All", GUILayout.Width(100), GUILayout.Height(28))){
                     Result = PromptResult.NoToAll;
                     Close();
                 }
@@ -86,38 +77,33 @@ namespace HollowSignal.Editor.Characters
             }
         }
 
-        [MenuItem("Assets/Characters/Convert FBX to Standalone AVT Avatar", false, 20)]
+        [MenuItem("Assets/Characters/Convert FBX to Standalone AVT Avatar",         false, 20)]
         [MenuItem("Tools/Characters/Convert Selected FBX to Standalone AVT Avatar", false, 10)]
-        public static void ConvertSelectedFbxAvatars()
-        {
+        public static void ConvertSelectedFbxAvatars(){
             var selectedObjects = Selection.objects;
-            if (selectedObjects == null || selectedObjects.Length == 0)
-            {
+            if (selectedObjects == null || selectedObjects.Length == 0){
                 EditorUtility.DisplayDialog("No Selection", "Please select one or more FBX model files in the Project window.", "OK");
                 return;
             }
 
             var fbxPaths = new List<string>();
-            foreach (var obj in selectedObjects)
-            {
+            foreach (var obj in selectedObjects){
                 string assetPath = AssetDatabase.GetAssetPath(obj);
                 if (!string.IsNullOrEmpty(assetPath) && assetPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase))
                     fbxPaths.Add(assetPath);
             }
 
-            if (fbxPaths.Count == 0)
-            {
+            if (fbxPaths.Count == 0){
                 EditorUtility.DisplayDialog("No FBX Selected", "None of the selected items are FBX files.", "OK");
                 return;
             }
 
-            bool hasMultiple = fbxPaths.Count > 1;
+            bool          hasMultiple        = fbxPaths.Count > 1;
             PromptResult? globalCreateChoice = null;
             PromptResult? globalDeleteChoice = null;
-            int processedCount = 0;
+            int           processedCount     = 0;
 
-            foreach (string fbxPath in fbxPaths)
-            {
+            foreach (string fbxPath in fbxPaths){
                 bool allowAllNow = hasMultiple && processedCount < fbxPaths.Count - 1;
                 ProcessSingleFbx(fbxPath, allowAllNow, ref globalCreateChoice, ref globalDeleteChoice);
                 processedCount++;
@@ -131,19 +117,17 @@ namespace HollowSignal.Editor.Characters
         [MenuItem("Assets/Characters/Convert FBX to Standalone AVT Avatar", true)]
         public static bool ValidateConvertSelectedFbxAvatars() =>
             Selection.objects != null &&
-            Selection.objects.Any(obj =>
-            {
+            Selection.objects.Any(obj => {
                 string p = AssetDatabase.GetAssetPath(obj);
                 return !string.IsNullOrEmpty(p) && p.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase);
             });
 
         private static void ProcessSingleFbx(
-            string fbxPath,
-            bool allowAll,
+            string            fbxPath,
+            bool              allowAll,
             ref PromptResult? globalCreateChoice,
-            ref PromptResult? globalDeleteChoice)
-        {
-            string fileName = Path.GetFileNameWithoutExtension(fbxPath);
+            ref PromptResult? globalDeleteChoice){
+            string        fileName = Path.GetFileNameWithoutExtension(fbxPath);
             ModelImporter importer = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
             if (importer == null) return;
 
@@ -152,8 +136,7 @@ namespace HollowSignal.Editor.Characters
                 ? $"{Path.GetDirectoryName(dir).Replace("\\", "/")}/Avatars"
                 : $"{dir}/Avatars";
 
-            if (!Directory.Exists(targetFolder))
-            {
+            if (!Directory.Exists(targetFolder)){
                 Directory.CreateDirectory(targetFolder);
                 AssetDatabase.Refresh();
             }
@@ -166,11 +149,10 @@ namespace HollowSignal.Editor.Characters
 
             string avtAssetPath = $"{targetFolder}/{avtBaseName}.asset";
 
-            bool hasInternalAvatar = false;
-            Object[] subAssets = AssetDatabase.LoadAllAssetsAtPath(fbxPath);
+            bool     hasInternalAvatar = false;
+            Object[] subAssets         = AssetDatabase.LoadAllAssetsAtPath(fbxPath);
             foreach (var sub in subAssets)
-                if (sub is Avatar)
-                {
+                if (sub is Avatar){
                     hasInternalAvatar = true;
                     break;
                 }
@@ -178,8 +160,7 @@ namespace HollowSignal.Editor.Characters
             bool shouldCreateAvt;
             if (globalCreateChoice.HasValue)
                 shouldCreateAvt = globalCreateChoice.Value == PromptResult.YesToAll;
-            else
-            {
+            else{
                 PromptResult res = AvatarModalDialog.ShowDialog(
                     "Create AVT Standalone Avatar?",
                     $"Model: {fileName}",
@@ -195,27 +176,23 @@ namespace HollowSignal.Editor.Characters
 
             Avatar finalStandaloneAvatar = null;
 
-            if (shouldCreateAvt)
-            {
+            if (shouldCreateAvt){
                 if (importer.animationType != ModelImporterAnimationType.Human ||
-                    importer.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel)
-                {
+                    importer.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel){
                     importer.animationType = ModelImporterAnimationType.Human;
-                    importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                    importer.avatarSetup   = ModelImporterAvatarSetup.CreateFromThisModel;
                     importer.SaveAndReimport();
                 }
 
                 subAssets = AssetDatabase.LoadAllAssetsAtPath(fbxPath);
                 Avatar sourceAvatar = null;
                 foreach (var sub in subAssets)
-                    if (sub is Avatar av && av.isValid)
-                    {
+                    if (sub is Avatar av && av.isValid){
                         sourceAvatar = av;
                         break;
                     }
 
-                if (sourceAvatar != null)
-                {
+                if (sourceAvatar != null){
                     Avatar newAvatar = Object.Instantiate(sourceAvatar);
                     newAvatar.name = avtBaseName;
 
@@ -238,10 +215,9 @@ namespace HollowSignal.Editor.Characters
             bool shouldDeleteInternal;
             if (globalDeleteChoice.HasValue)
                 shouldDeleteInternal = globalDeleteChoice.Value == PromptResult.YesToAll;
-            else
-            {
-                string targetDesc = finalStandaloneAvatar != null 
-                    ? $"and set the rig to track '{avtBaseName}.asset'" 
+            else{
+                string targetDesc = finalStandaloneAvatar != null
+                    ? $"and set the rig to track '{avtBaseName}.asset'"
                     : "";
 
                 PromptResult res = AvatarModalDialog.ShowDialog(
@@ -259,16 +235,14 @@ namespace HollowSignal.Editor.Characters
 
             if (!shouldDeleteInternal) return;
 
-            if (finalStandaloneAvatar != null)
-            {
+            if (finalStandaloneAvatar != null){
                 importer.animationType = ModelImporterAnimationType.Human;
-                importer.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
-                importer.sourceAvatar = finalStandaloneAvatar;
+                importer.avatarSetup   = ModelImporterAvatarSetup.CopyFromOther;
+                importer.sourceAvatar  = finalStandaloneAvatar;
                 importer.SaveAndReimport();
                 Debug.Log($"[AvatarExtractor] Switched {fileName} to CopyFromOther ({finalStandaloneAvatar.name}). Internal avatar removed!");
             }
-            else
-            {
+            else{
                 importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
                 importer.SaveAndReimport();
                 Debug.Log($"[AvatarExtractor] Cleared internal avatar on {fileName}.");
@@ -276,39 +250,34 @@ namespace HollowSignal.Editor.Characters
         }
 
         [MenuItem("Tools/Characters/Link Standalone Avatars in Active Scene", false, 20)]
-        public static void LinkAvatarsInActiveScene()
-        {
+        public static void LinkAvatarsInActiveScene(){
             var animators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
-            if (animators == null || animators.Length == 0)
-            {
+            if (animators == null || animators.Length == 0){
                 EditorUtility.DisplayDialog("No Animators", "No Animator components found in the active scene.", "OK");
                 return;
             }
 
             string[] avatarGuids = AssetDatabase.FindAssets("AVT_ t:Avatar");
-            var avatarList = new List<Avatar>();
-            foreach (var guid in avatarGuids)
-            {
+            var      avatarList  = new List<Avatar>();
+            foreach (var guid in avatarGuids){
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                var av = AssetDatabase.LoadAssetAtPath<Avatar>(path);
+                var    av   = AssetDatabase.LoadAssetAtPath<Avatar>(path);
                 if (av != null)
                     avatarList.Add(av);
             }
 
             int linkedCount = 0;
 
-            foreach (var anim in animators)
-            {
+            foreach (var anim in animators){
                 string goName = anim.gameObject.name;
 
-                foreach (var av in avatarList)
-                {
+                foreach (var av in avatarList){
                     string cleanName = av.name.Replace("AVT_MIXAMO_", "").Replace("AVT_", "");
                     if (goName.IndexOf(cleanName, StringComparison.OrdinalIgnoreCase) < 0 &&
                         (anim.avatar == null || anim.avatar.name.IndexOf(cleanName, StringComparison.OrdinalIgnoreCase) < 0))
                         continue;
 
-                    SerializedObject so = new SerializedObject(anim);
+                    SerializedObject   so         = new SerializedObject(anim);
                     SerializedProperty avatarProp = so.FindProperty("m_Avatar");
                     if (avatarProp == null) break;
 
@@ -323,10 +292,10 @@ namespace HollowSignal.Editor.Characters
             }
 
             UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
-                UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+                SceneManager.GetActiveScene());
 
             EditorUtility.DisplayDialog("Linking Complete",
-                $"Linked {linkedCount} Animator(s) in the active scene to their standalone AVT avatars!", "OK");
+                                        $"Linked {linkedCount} Animator(s) in the active scene to their standalone AVT avatars!", "OK");
         }
     }
 }

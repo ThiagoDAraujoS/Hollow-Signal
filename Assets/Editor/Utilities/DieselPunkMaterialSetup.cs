@@ -42,6 +42,17 @@ namespace Editor.Utilities{
                 mat.SetColor("_OcclusionTint", new Color(0.2f, 0.22f, 0.25f, 1.0f));
                 mat.SetFloat("_DirectOcclusion", 0.35f);
 
+                mat.SetFloat("_EnableRidgeCavity", 1.0f);
+                mat.EnableKeyword("_ENABLE_RIDGE_CAVITY");
+                mat.SetFloat("_CavityStrength", 1.5f);
+                mat.SetFloat("_CavityPower", 1.2f);
+                mat.SetFloat("_CavityRadius", 1.5f);
+                mat.SetColor("_CavityTint", new Color(0.15f, 0.15f, 0.18f, 1.0f));
+                mat.SetFloat("_RidgeStrength", 0.8f);
+                mat.SetFloat("_RidgePower", 2.0f);
+                mat.SetColor("_RidgeTint", new Color(1.25f, 1.25f, 1.25f, 1.0f));
+                mat.SetFloat("_CurvatureBias", 1.0f);
+
                 mat.SetFloat("_EnableHeightGrad", 0.0f);
                 mat.SetFloat("_HeightGradMinY", 0.0f);
                 mat.SetFloat("_HeightGradMaxY", 15.0f);

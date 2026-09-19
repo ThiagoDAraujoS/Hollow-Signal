@@ -14,6 +14,17 @@
         [HDR] _OcclusionTint ("Crevice Shadow Tint", Color) = (0.2, 0.22, 0.25, 1.0)
         _DirectOcclusion   ("Direct Light AO Factor", Float) = 0.35
 
+        [Header(Ridge and Cavity Detection)]
+        [Toggle(_ENABLE_RIDGE_CAVITY)] _EnableRidgeCavity ("Enable Ridge & Cavity", Float) = 1.0
+        _CavityStrength    ("Cavity (Crevice) Darkness", Range(0.0, 5.0)) = 1.5
+        _CavityPower       ("Cavity Exponent (Pinch)", Range(0.5, 4.0)) = 1.2
+        _CavityRadius      ("Crevice Sample Radius (Pixels)", Range(0.5, 5.0)) = 1.5
+        [HDR] _CavityTint  ("Cavity Shadow Tint", Color) = (0.15, 0.15, 0.18, 1.0)
+        _RidgeStrength     ("Ridge (Peak) Highlight", Range(0.0, 3.0)) = 0.8
+        _RidgePower        ("Ridge Exponent", Range(0.5, 4.0)) = 2.0
+        [HDR] _RidgeTint   ("Ridge Highlight Tint", Color) = (1.25, 1.25, 1.25, 1.0)
+        _CurvatureBias     ("Curvature Sensitivity", Range(0.1, 5.0)) = 1.0
+
         [Header(World Height Gradient)]
         [Toggle(_ENABLE_HEIGHT_GRADIENT)] _EnableHeightGrad ("Enable Height Gradient", Float) = 0.0
         _HeightGradMinY    ("Height Min Y (Base Level)", Float) = 0.0
@@ -59,6 +70,7 @@
             #pragma vertex vert
             #pragma fragment frag
 
+            #pragma shader_feature_local _ENABLE_RIDGE_CAVITY
             #pragma shader_feature_local _ENABLE_HEIGHT_GRADIENT
             #pragma shader_feature_local _ENABLE_SHADOW_SHARPNESS
 
@@ -72,6 +84,8 @@
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
             struct Attributes
             {
@@ -103,11 +117,19 @@
                 half4  _BaseColor;
                 half4  _OcclusionTint;
                 half4  _HeightGradColor;
+                half4  _CavityTint;
+                half4  _RidgeTint;
                 half   _Saturation;
                 half   _OcclusionStrength;
                 half   _OcclusionPower;
                 half   _OcclusionContrast;
                 half   _DirectOcclusion;
+                half   _CavityStrength;
+                half   _CavityPower;
+                half   _CavityRadius;
+                half   _RidgeStrength;
+                half   _RidgePower;
+                half   _CurvatureBias;
                 half   _HeightGradMinY;
                 half   _HeightGradMaxY;
                 half   _HeightGradStrength;
@@ -139,6 +161,80 @@
                 return output;
             }
 
+            // Computes Blender-style Ridge and Cavity factor
+            // Returns: Cavity factor (0 = deep crevice, 1 = neutral), Ridge factor (1 = neutral, >1 = highlight)
+            void EvaluateRidgeAndCavity(
+                float2 screenUV,
+                float3 positionWS,
+                half3 normalWS,
+                float rawDepth,
+                out half outCavityFactor,
+                out half3 outRidgeTint)
+            {
+                outCavityFactor = 1.0;
+                outRidgeTint = half3(1.0, 1.0, 1.0);
+
+                // View-space surface normal
+                half3 normalVS = TransformWorldToViewNormal(normalWS);
+
+                // 1. Intra-mesh Curvature via Screen-Space Derivatives
+                half3 dNdx = ddx(normalVS);
+                half3 dNdy = ddy(normalVS);
+                half derivativeCurv = (-dNdx.x - dNdy.y) * _CurvatureBias;
+
+                // 2. Screen-Space Normal Buffer Kernel Sampling
+                float2 texelSize = rcp(_ScreenParams.xy);
+                float2 offset = texelSize * _CavityRadius;
+
+                float2 uv0 = screenUV + float2(-offset.x,  offset.y); // TL
+                float2 uv1 = screenUV + float2( offset.x,  offset.y); // TR
+                float2 uv2 = screenUV + float2(-offset.x, -offset.y); // BL
+                float2 uv3 = screenUV + float2( offset.x, -offset.y); // BR
+
+                half3 n0 = TransformWorldToViewNormal(SampleSceneNormals(uv0));
+                half3 n1 = TransformWorldToViewNormal(SampleSceneNormals(uv1));
+                half3 n2 = TransformWorldToViewNormal(SampleSceneNormals(uv2));
+                half3 n3 = TransformWorldToViewNormal(SampleSceneNormals(uv3));
+
+                // Depth discontinuity rejection to avoid silhouette halos
+                float centerEyeDepth = LinearEyeDepth(rawDepth, _ZBufferParams);
+                float d0 = abs(LinearEyeDepth(SampleSceneDepth(uv0), _ZBufferParams) - centerEyeDepth);
+                float d1 = abs(LinearEyeDepth(SampleSceneDepth(uv1), _ZBufferParams) - centerEyeDepth);
+                float d2 = abs(LinearEyeDepth(SampleSceneDepth(uv2), _ZBufferParams) - centerEyeDepth);
+                float d3 = abs(LinearEyeDepth(SampleSceneDepth(uv3), _ZBufferParams) - centerEyeDepth);
+
+                float depthThreshold = max(0.05, centerEyeDepth * 0.05);
+                float w0 = d0 < depthThreshold ? 1.0 : 0.0;
+                float w1 = d1 < depthThreshold ? 1.0 : 0.0;
+                float w2 = d2 < depthThreshold ? 1.0 : 0.0;
+                float w3 = d3 < depthThreshold ? 1.0 : 0.0;
+                float totalWeight = w0 + w1 + w2 + w3;
+
+                half screenCurv = 0.0;
+                if (totalWeight > 1.5)
+                {
+                    half leftX   = (n0.x * w0 + n2.x * w2) / max(0.001, w0 + w2);
+                    half rightX  = (n1.x * w1 + n3.x * w3) / max(0.001, w1 + w3);
+                    half bottomY = (n2.y * w2 + n3.y * w3) / max(0.001, w2 + w3);
+                    half topY    = (n0.y * w0 + n1.y * w1) / max(0.001, w0 + w1);
+
+                    screenCurv = ((leftX - rightX) + (bottomY - topY)) * _CurvatureBias;
+                }
+
+                // Combined curvature measure: positive = valley (cavity), negative = ridge (peak)
+                half totalCurvature = screenCurv + derivativeCurv;
+
+                // Cavity (Valley / Inward Crevice)
+                half valley = saturate(totalCurvature * _CavityStrength);
+                valley = pow(valley, _CavityPower);
+                outCavityFactor = 1.0 - valley;
+
+                // Ridge (Convex Peak / Outer Edge Highlight)
+                half ridge = saturate(-totalCurvature * _RidgeStrength);
+                ridge = pow(ridge, _RidgePower);
+                outRidgeTint = lerp(half3(1.0, 1.0, 1.0), _RidgeTint.rgb, ridge);
+            }
+
             half4 frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
@@ -164,11 +260,27 @@
                 shapedAO = (shapedAO - 0.5) * _OcclusionContrast + 0.5;
                 half ao = lerp(1.0, shapedAO, _OcclusionStrength);
 
-                // Crevice shadow tint
-                half3 creviceColor = lerp(baseAlbedo * _OcclusionTint.rgb, baseAlbedo, ao);
-
-                // Normal & Shadows
+                // Normal calculation
                 half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
+
+                // 3. Blender-style Ridge & Cavity Detection
+                #if defined(_ENABLE_RIDGE_CAVITY)
+                    float2 screenUV = input.positionCS.xy / _ScreenParams.xy;
+                    half cavityFactor;
+                    half3 ridgeTint;
+                    EvaluateRidgeAndCavity(screenUV, input.positionWS, normalWS, input.positionCS.z, cavityFactor, ridgeTint);
+
+                    // Apply cavity darkening & crevice tint
+                    half3 cavityColor = lerp(_CavityTint.rgb, half3(1.0, 1.0, 1.0), cavityFactor);
+                    baseAlbedo *= cavityColor;
+                    ao *= cavityFactor;
+
+                    // Apply ridge peak highlight
+                    baseAlbedo *= ridgeTint;
+                #endif
+
+                // Crevice shadow tint from texture AO
+                half3 creviceColor = lerp(baseAlbedo * _OcclusionTint.rgb, baseAlbedo, ao);
 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     float4 shadowCoord = input.shadowCoord;
@@ -182,7 +294,7 @@
                 Light mainLight = GetMainLight(shadowCoord);
                 half NdotL = saturate(dot(normalWS, mainLight.direction));
 
-                // 3. Stylized Shadow Sharpness (Crisp graphic falloff)
+                // 4. Stylized Shadow Sharpness (Crisp graphic falloff)
                 #if defined(_ENABLE_SHADOW_SHARPNESS)
                     half halfSoft = max(0.0001, _ShadowSoftness * 0.5);
                     NdotL = smoothstep(_ShadowThreshold - halfSoft, _ShadowThreshold + halfSoft, NdotL);
