@@ -4,7 +4,7 @@
     {
         [Header(Color and Saturation)]
         [MainTexture] _BaseMap ("Albedo (RGB) + AO (A)", 2D) = "white" {}
-        [MainColor]   _BaseColor ("Color Tint", Color) = (1, 1, 1, 1)
+        [MainColor] [HDR] _BaseColor ("Color Tint", Color) = (1, 1, 1, 1)
         _Saturation   ("Saturation", Float) = 1.0
 
         [Header(Ambient Occlusion Tuning)]

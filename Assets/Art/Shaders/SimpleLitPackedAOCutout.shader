@@ -4,7 +4,7 @@
     {
         [Header(Color and Saturation)]
         [MainTexture] _BaseMap ("Albedo (RGB) + Cutout Alpha (A)", 2D) = "white" {}
-        [MainColor]   _BaseColor ("Color Tint", Color) = (1, 1, 1, 1)
+        [MainColor] [HDR] _BaseColor ("Color Tint", Color) = (1, 1, 1, 1)
         _Saturation   ("Saturation", Float) = 1.0
 
         [Header(Cutout Transparency)]
@@ -226,7 +226,7 @@
                 outRidgeTint = lerp(half3(1.0, 1.0, 1.0), _RidgeTint.rgb, ridge);
             }
 
-            half4 frag(Varyings input) : SV_Target
+            half4 frag(Varyings input, FRONT_FACE_TYPE facing : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -250,8 +250,9 @@
                     baseAlbedo *= lerp(half3(1.0, 1.0, 1.0), bottomTint, _HeightGradStrength);
                 #endif
 
-                // Normal calculation
+                // Normal calculation - flip normal for back faces so double-sided quads catch light from whichever side is facing the camera
                 half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
+                normalWS = IS_FRONT_VFACE(facing, normalWS, -normalWS);
 
                 // 2. Blender-style Ridge & Cavity Detection (Screen-space procedural occlusion)
                 half cavityDarkening = 1.0;
@@ -569,12 +570,14 @@
                 return output;
             }
 
-            half4 frag(Varyings input) : SV_Target
+            half4 frag(Varyings input, FRONT_FACE_TYPE facing : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a;
                 clip(alpha - _Cutoff);
-                return half4(NormalizeNormalPerPixel(input.normalWS), 0.0);
+                half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
+                normalWS = IS_FRONT_VFACE(facing, normalWS, -normalWS);
+                return half4(normalWS, 0.0);
             }
             ENDHLSL
         }

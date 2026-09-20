@@ -2,19 +2,29 @@
 
 namespace Utilities{
     public class RotateTo : MonoBehaviour{
-        public float speed = 5f;
+        public float speed = 90f;
         public Vector3 rot1;
         public Vector3 rot2;
         public Vector3 target;
+        public AnimationCurve curve = AnimationCurve.Linear(0, 1, 1, 1);
 
-        /// <summary>Initializes target rotation to rot1.</summary>
-        private void Start() => target = rot1;
+        private float _totalAngle;
+        private Vector3 _lastTarget;
 
-        /// <summary>Interpolates rotation spherically towards the target.</summary>
+        /// <summary>Rotates towards target using RotateTowards modulated by an animation curve.</summary>
         private void LateUpdate(){
+            if (target != _lastTarget){
+                _lastTarget = target;
+                _totalAngle = Mathf.Max(0.01f, Quaternion.Angle(transform.localRotation, Quaternion.Euler(target)));
+            }
+
             Quaternion targetRot = Quaternion.Euler(target);
-            if (Quaternion.Angle(transform.localRotation, targetRot) > 0.01f)
-                transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRot, speed * Time.deltaTime);
+            float remaining = Quaternion.Angle(transform.localRotation, targetRot);
+            if (remaining > 0.01f){
+                float progress = 1f - Mathf.Clamp01(remaining / _totalAngle);
+                float step = Mathf.Max(0.05f, curve.Evaluate(progress)) * speed * Time.deltaTime;
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetRot, step);
+            }
         }
 
         /// <summary>Sets target to rot1.</summary>

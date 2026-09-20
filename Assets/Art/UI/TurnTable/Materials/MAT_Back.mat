@@ -7,15 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PanelFlicker
-  m_Shader: {fileID: 4800000, guid: 9393c86e016e4611a1dd75428c9a4ef2, type: 3}
+  m_Name: MAT_Back
+  m_Shader: {fileID: 4800000, guid: b95d27a03d95441b8d84fff3693434fc, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords:
+  m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
+  - _ALPHATEST_ON
+  - _ENABLE_RIDGE_CAVITY
   - _SURFACE_TYPE_TRANSPARENT
-  m_LightmapFlags: 4
+  m_InvalidKeywords: []
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -24,12 +26,12 @@ Material:
   - MOTIONVECTORS
   - DepthOnly
   - SHADOWCASTER
-  m_LockedProperties: _Color
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 8ae018e3e3e8d5a49bf52a240efb4898, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0d62b5ccd45e9af4fb45874154ac1690, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -41,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailMask:
-        m_Texture: {fileID: 2800000, guid: 756fba3826e014b4c97a31bdec569e05, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
@@ -53,11 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 8ae018e3e3e8d5a49bf52a240efb4898, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MaskTex:
-        m_Texture: {fileID: 2800000, guid: 756fba3826e014b4c97a31bdec569e05, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0d62b5ccd45e9af4fb45874154ac1690, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -91,38 +89,68 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _AlphaClip: 0
+    - _AlphaClip: 1
     - _AlphaToMask: 0
-    - _AutoFlicker: 0
-    - _BaseBrightness: 1.15
+    - _AmbientBoost: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _BlendOp: 0
     - _BumpScale: 1
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _CavityPower: 1.2
+    - _CavityRadius: 1.5
+    - _CavityStrength: 1.5
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _ColorMask: 15
+    - _ColorMode: 0
     - _Cull: 2
-    - _Cutoff: 0.5
+    - _CurvatureBias: 1
+    - _Cutoff: 0.35
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DirectOcclusion: 0.35
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
     - _DstBlendAlpha: 10
+    - _EmissionEnabled: 0
+    - _EnableHeightGrad: 0
+    - _EnableRidgeCavity: 1
+    - _EnableShadowSharpness: 0
     - _EnvironmentReflections: 1
-    - _FlickerAmount: 0.158
-    - _FlickerSharpness: 10
-    - _FlickerSpeed: 30
+    - _FlipbookBlending: 0
+    - _FlipbookMode: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _MaxBrightness: 7.08
+    - _HeightGradMaxY: 15
+    - _HeightGradMinY: 0
+    - _HeightGradStrength: 0.5
+    - _LightingEnabled: 0
     - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionContrast: 1
+    - _OcclusionPower: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ShineIntensity: 0.4976495
+    - _RidgePower: 2
+    - _RidgeStrength: 0.8
+    - _SampleGI: 0
+    - _Saturation: 1
+    - _ShadowSoftness: 0.15
+    - _ShadowThreshold: 0.25
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
@@ -132,21 +160,28 @@ Material:
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
     - _Surface: 1
-    - _UseUIAlphaClip: 0
+    - _UseUIAlphaClip: 1
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
+    - _ZTest: 4
     - _ZWrite: 0
     - unity_GUIZTestMode: 8
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.6132076, g: 0.6132076, b: 0.6132076, a: 1}
+    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CavityTint: {r: 0.15, g: 0.15, b: 0.18, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FlickerColor: {r: 1, g: 0.20382665, b: 0, a: 1}
-    - _ShineColor: {r: 7.689735, g: 7.689735, b: 7.689735, a: 1}
+    - _HeightGradColor: {r: 0.4, g: 0.4, b: 0.45, a: 1}
+    - _OcclusionTint: {r: 0.2, g: 0.22, b: 0.25, a: 1}
+    - _RidgeTint: {r: 1.25, g: 1.25, b: 1.25, a: 1}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &6555743630047941551
+--- !u!114 &1647648385633917723
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
