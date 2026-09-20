@@ -30,6 +30,7 @@ namespace Core.Crisis{
             new WaitUntil(() => Instance == null || Instance.CurrentPhase == CrisisPhase.PlayerPhase || Instance.CurrentPhase == CrisisPhase.Exploration);
 
         /// Initiates tactical crisis combat mode and begins the first round.
+        [ContextMenu("Start Crisis")]
         public void StartCrisis(){
             CurrentPhase = CrisisPhase.PlayerPhase;
             RoundNumber  = 1;
@@ -45,6 +46,7 @@ namespace Core.Crisis{
         }
 
         /// Concludes active player turn phase and transitions into enemy phase.
+        [ContextMenu("End Player Phase -> Enemy")]
         public void EndPlayerPhase(){
             OnPlayerPhaseEnded?.Invoke();
             StartEnemyPhase();
@@ -57,12 +59,14 @@ namespace Core.Crisis{
         }
 
         /// Concludes enemy turn phase and advances round to the next player phase.
+        [ContextMenu("End Enemy Phase -> Player")]
         public void EndEnemyPhase(){
             OnEnemyPhaseEnded?.Invoke();
             StartPlayerPhase();
         }
 
         /// Disengages tactical combat mode and restores real-time exploration.
+        [ContextMenu("End Crisis")]
         public void EndCrisis(){
             CurrentPhase = CrisisPhase.Exploration;
             RoundNumber  = 0;

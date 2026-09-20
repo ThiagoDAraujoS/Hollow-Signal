@@ -1,8 +1,15 @@
+using Core.Crisis;
 using UnityEngine;
 using Utilities;
 
 namespace UI.TurnTable{
     public class TurnTableController : MonoBehaviour{
+        [Header("Animator Control")]
+        [Tooltip("The Animator component driving UI states.")]
+        public Animator animator;
+        public string isOnParam = "IsOn";
+        public string isRedParam = "IsRed";
+
         [Header("Lights (Animate these in the Animation window)")]
         public Light centerLight;
         public Light allyLight;
@@ -63,26 +70,63 @@ namespace UI.TurnTable{
         private float _nextDropTime;
         private float _throttleTimer;
 
-        /// <summary>Initializes stopwatch routines.</summary>
-        private void Awake() => Init();
+        /// Captures animator and initializes stopwatch routines.
+        private void Awake(){
+            animator = GetComponent<Animator>();
+            Init();
+        }
 
-        /// <summary>Ensures stopwatches are restored after hot reload.</summary>
-        private void OnEnable() => Init();
+        /// Subscribes to CrisisManager turn lifecycle events.
+        private void OnEnable(){
+            Init();
+            CrisisManager.OnCrisisStarted += HandleCrisisStarted;
+            CrisisManager.OnPlayerPhaseStarted += HandlePlayerPhaseStarted;
+            CrisisManager.OnEnemyPhaseStarted += HandleEnemyPhaseStarted;
+            CrisisManager.OnCrisisEnded += HandleCrisisEnded;
+        }
 
-        /// <summary>Instantiates non-serialized stopwatch instances if null.</summary>
+        /// Unsubscribes from CrisisManager events.
+        private void OnDisable(){
+            CrisisManager.OnCrisisStarted -= HandleCrisisStarted;
+            CrisisManager.OnPlayerPhaseStarted -= HandlePlayerPhaseStarted;
+            CrisisManager.OnEnemyPhaseStarted -= HandleEnemyPhaseStarted;
+            CrisisManager.OnCrisisEnded -= HandleCrisisEnded;
+        }
+
+        /// Synchronizes initial animator parameters with active crisis state.
+        private void Start(){
+            animator.SetBool(isOnParam, CrisisManager.Instance.IsCrisis);
+            animator.SetBool(isRedParam, CrisisManager.Instance.CurrentPhase == CrisisPhase.EnemyPhase);
+        }
+
+        /// Instantiates stopwatch instance and schedules voltage drop.
         private void Init(){
-            _dropWatch ??= new Stopwatch(dropDuration, p => _dropModifier = dropCurve.Evaluate(p));
+            _dropWatch = new Stopwatch(dropDuration, p => _dropModifier = dropCurve.Evaluate(p));
             ScheduleNextDrop();
         }
 
-        /// <summary>Updates modulated values and rotates gears.</summary>
+        /// Updates modulated values and rotates gears.
         private void LateUpdate(){
-            if (_dropWatch == null) Init();
             UpdateLights();
             UpdateGears();
         }
 
-        /// <summary>Modulates animator-driven brightness fields with perpetual micro-shimmer and intermittent voltage drops.</summary>
+        /// Tactical combat starts in player phase.
+        private void HandleCrisisStarted(){
+            animator.SetBool(isOnParam, true);
+            animator.SetBool(isRedParam, false);
+        }
+
+        /// Player turn begins.
+        private void HandlePlayerPhaseStarted(int round) => animator.SetBool(isRedParam, false);
+
+        /// Enemy turn begins.
+        private void HandleEnemyPhaseStarted() => animator.SetBool(isRedParam, true);
+
+        /// Tactical combat ends and returns to exploration.
+        private void HandleCrisisEnded() => animator.SetBool(isOnParam, false);
+
+        /// Modulates animator-driven brightness fields with perpetual micro-shimmer and intermittent voltage drops.
         private void UpdateLights(){
             if (!_dropWatch.Run()){
                 _dropModifier = 1f;
@@ -101,7 +145,7 @@ namespace UI.TurnTable{
             enemyLight.intensity = enemyBrightness * flicker;
         }
 
-        /// <summary>Rotates key gear, multiplying gearSpeed by throttleCurve when throttled or 1f when straight.</summary>
+        /// Rotates key gear, multiplying gearSpeed by throttleCurve when throttled or 1f when straight.
         private void UpdateGears(){
             if (Mathf.Approximately(gearSpeed, 0f)) return;
 
@@ -115,14 +159,11 @@ namespace UI.TurnTable{
             keyGear.Rotate(gearAxis * (gearSpeed * modifier * Time.deltaTime), Space.Self);
         }
 
-        /// <summary>Animation Event: Randomly triggers one or more emitters from the side currently rotating.</summary>
+        /// Randomly triggers one or more emitters from the side currently rotating.
         [ContextMenu("Cast Particles")]
         public void CastParticles(){
-            var pool = gearSpeed >= 0f ? allySparkEmitters : enemySparkEmitters;
-            if (pool == null || pool.Length == 0) return;
-
-            int count = Random.Range(minEmittersToCast, maxEmittersToCast + 1);
-            count = Mathf.Clamp(count, 1, pool.Length);
+            ParticleSystem[] pool = gearSpeed >= 0f ? allySparkEmitters : enemySparkEmitters;
+            int count = Mathf.Clamp(Random.Range(minEmittersToCast, maxEmittersToCast + 1), 1, pool.Length);
 
             int[] indices = new int[pool.Length];
             for (int i = 0; i < indices.Length; i++) indices[i] = i;
@@ -132,43 +173,16 @@ namespace UI.TurnTable{
             }
 
             for (int i = 0; i < count; i++){
-                var ps = pool[indices[i]];
-                if (ps == null) continue;
-                ps.Play();
-                ps.Emit(particlesPerBurst);
+                pool[indices[i]].Play();
+                pool[indices[i]].Emit(particlesPerBurst);
             }
         }
 
-        /// <summary>Animation Event alias for CastParticles.</summary>
+        /// Animation Event alias for CastParticles.
         public void CastParticle() => CastParticles();
 
-        /// <summary>Schedules next timestamp for intermittent voltage drops.</summary>
+        /// Schedules next timestamp for intermittent voltage drops.
         [ContextMenu("Schedule Next Drop")]
         public void ScheduleNextDrop() => _nextDropTime = Time.time + Random.Range(minFlickerInterval, maxFlickerInterval);
-
-        // =========================================================================
-        // ANIMATION EVENT STUBS (Prevents missing receiver warnings if called by legacy clips)
-        // =========================================================================
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void DecelerateGears(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void AccelerateBurst(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void StartContinuousSpin(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void PickSideEnemy(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void PickSideAlly(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void WakeLowPower(){}
-
-        /// <summary>Legacy animation event receiver stub.</summary>
-        public void FadeDownLights(){}
     }
 }

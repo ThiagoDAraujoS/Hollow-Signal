@@ -41,6 +41,14 @@
 - [ ] **In-Game Settings Menu:** Audio, video, and gameplay preferences while in session.
 - [ ] **Exit Flow:** Return to Boot Scene with memory cleanup and session teardown.
 
+### 2.3 Tactical TurnTable Widget (Crisis UI)
+- [x] **3D Mechanical TurnTable Prefab:** Complete physical assembly of housing, gears, indicator lens, arrow, and spark emitters (`TurnTable.prefab`).
+- [x] **Animator State Choreography:** Authored `AC_TurnTableAnimController` with 7 state clips (`ANIM_Off`, `ANIM_TurningOn`, `ANIM_On`, `ANIM_PickingASide`, `ANIM_Green`, `ANIM_Red`, `ANIM_TurningOff`).
+- [x] **Dynamic Filament Flicker & Voltage Drops:** Perpetual Perlin micro-shimmer and intermittent voltage drops modulating animatable brightness fields (`centerBrightness`, `allyBrightness`, `enemyBrightness`).
+- [x] **Mechanical Gear Drive & Clock Throttle:** Curve-sampled clock throttle (`throttleCurve`) scaling evaluation cadence with `gearSpeed` and `referenceSpeed` pivot.
+- [x] **Directional Spark Particle Systems:** Direction-aware burst triggers (`CastParticles`) randomly firing emitters from ally/enemy pools with snappier half-durations.
+- [x] **MVC Observer Integration with CrisisManager:** Pure View architecture observing `CrisisManager` model lifecycle events (`OnCrisisStarted`, `OnPlayerPhaseStarted`, `OnEnemyPhaseStarted`, `OnCrisisEnded`) via boolean parameters (`IsOn`, `IsRed`).
+
 ---
 
 ## Phase 3: Character Sheet, Inventory & Resource Economy
@@ -125,7 +133,7 @@
     - *[1] [OVERCHARGE] Slam power conduit into the wet floor.*
     - *[2] [POINT BLANK] Fire trench shotgun at the lead automaton.*
     - *[3] [TAKE COVER] Hunker behind reinforced sandbags.*
-- [ ] **IGOUGO Turn Flow:**
-  - Player Phase ↔ Enemy Phase.
-  - Turn Wheel / Indicator UI showing active faction and hero turn state.
+- [x] **IGOUGO Turn Flow & Visual Indicator:**
+  - Player Phase ↔ Enemy Phase lifecycle managed by `CrisisManager`.
+  - TurnTable widget providing physical mechanical feedback for phase transitions.
 - [ ] **Enemy Phase Simulation:** AI units navigate zones, claim spots, and execute archetype actions against players.

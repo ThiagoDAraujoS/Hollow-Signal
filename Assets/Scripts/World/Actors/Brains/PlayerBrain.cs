@@ -34,9 +34,8 @@ namespace World.Actors.Brains{
         [SerializeField] private InputActionReference slot3ActionRef;
         [SerializeField] private InputActionReference slot4ActionRef;
 
-        [Header("Modifier Key Actions")]
-        [FormerlySerializedAs("modifierShiftActionRef")]
-        [SerializeField] private InputActionReference modifierAppendActionRef;
+        [Header("Modifier Key Actions")] [FormerlySerializedAs("modifierShiftActionRef")] [SerializeField]
+        private InputActionReference modifierAppendActionRef;
 
         [SerializeField] private InputActionReference modifierAltActionRef;
 
@@ -90,8 +89,10 @@ namespace World.Actors.Brains{
         private void Awake(){
             if (_instance == null)
                 _instance = this;
-            else if (_instance != this)
+            else if (_instance != this){
                 Destroy(gameObject);
+                return;
+            }
 
             if (modifierAppendActionRef == null){
                 PlayerInput playerInput = GetComponent<PlayerInput>();
@@ -197,6 +198,8 @@ namespace World.Actors.Brains{
 
         /// Enables bound input actions and registers dialogue listeners.
         private void OnEnable(){
+            if (_instance != this) return;
+
             foreach (BoundAction t in _boundActions)
                 t.Enable();
 
@@ -208,6 +211,8 @@ namespace World.Actors.Brains{
 
         /// Disables bound input actions and unregisters dialogue listeners.
         private void OnDisable(){
+            if (_instance != this) return;
+
             foreach (BoundAction t in _boundActions)
                 t.Disable();
 
@@ -312,7 +317,7 @@ namespace World.Actors.Brains{
             float scrollDelta = context.ReadValue<Vector2>().y;
             if (Mathf.Abs(scrollDelta) < 0.01f) return;
 
-            Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
+            Vector2     mousePos   = pointActionRef.action.ReadValue<Vector2>();
             IScrollable scrollable = FindScrollable(mousePos);
             if (scrollable != null){
                 scrollable.OnScroll(scrollDelta);
@@ -324,7 +329,7 @@ namespace World.Actors.Brains{
             CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }
 
-        /// Selects active party member corresponding to slot index.
+        /// Selects active party member corresponding to slot index.\
         private void SelectSlot(int index){
             if (index < 0 || index >= activePartyMembers.Count) return;
             Character hero = activePartyMembers[index];
