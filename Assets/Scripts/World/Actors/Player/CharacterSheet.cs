@@ -1,94 +1,92 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using Core.Crisis;
 using Core.State;
 using Data;
 using UnityEngine;
-using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace World.Actors.Player{
     [DisallowMultipleComponent]
     public class CharacterSheet : Sheet{
-        [Header("Character Sheet Data")] public Tracked<int> level = new("level", 1);
-
+        [Header("Progression")]
+        public Tracked<int> level = new("level", 1);
         public Tracked<int> experience = new("experience", 0);
 
-        [SerializeField] private MasteryDatabase masteryDatabase;
+        [Header("Vitality Pools")]
+        public VitalityPool flesh = new("flesh", 10);
+        public VitalityPool composure = new("composure", 10);
 
-        [SerializeField] private List<Mastery> activeMasteries = new();
+        [Header("Tactical")]
+        [SerializeField] private int baseMoveSpeed = 1;
+        [SerializeField] private CrisisTurn crisisTurn = new("crisis_turn");
 
-        private readonly Dictionary<Skill, int> _skills = new();
+        [Header("Mastery Buckets")]
+        [SerializeField] private MasteryDatabase database;
+        [SerializeField] private MasteryCollection innateMasteries = new("innate_masteries");
+        [SerializeField] private MasteryCollection equippedConditions = new("equipped_conditions");
+        [SerializeField] private MasteryCollection chronicConditions = new("chronic_conditions");
+        [SerializeField] private MasteryCollection temporaryConditions = new("temporary_conditions");
 
         public int Level => level;
-
         public int Experience => experience;
+        public VitalityPool Flesh => flesh;
+        public VitalityPool Composure => composure;
+        public int MoveSpeed => baseMoveSpeed;
+        public bool IsIncapacitated => flesh.IsDead;
+        public CrisisTurn CrisisTurn => crisisTurn;
 
-        public IReadOnlyList<Mastery> ActiveMasteries => activeMasteries;
+        public MasteryCollection InnateMasteries => innateMasteries;
+        public MasteryCollection EquippedConditions => equippedConditions;
+        public MasteryCollection ChronicConditions => chronicConditions;
+        public MasteryCollection TemporaryConditions => temporaryConditions;
 
         protected override void OnAwake(){
             base.OnAwake();
+            innateMasteries.SetDatabase(database);
+            equippedConditions.SetDatabase(database);
+            chronicConditions.SetDatabase(database);
+            temporaryConditions.SetDatabase(database);
             RebuildAllSkills();
         }
 
+        /// Returns the bounded effective skill bonus clamped between 0 and 4 across all active buckets.
+        public int GetEffectiveSkill(Skill skill){
+            int rawTotal = innateMasteries.GetRawSkillDelta(skill)
+                         + equippedConditions.GetRawSkillDelta(skill)
+                         + chronicConditions.GetRawSkillDelta(skill)
+                         + temporaryConditions.GetRawSkillDelta(skill);
+            return Mathf.Clamp(rawTotal, 0, 4);
+        }
+
+        /// Finds the primary active mastery contributing a positive bonus to the specified skill.
+        public Mastery GetContributingMastery(Skill skill){
+            return innateMasteries.GetContributingMastery(skill)
+                ?? equippedConditions.GetContributingMastery(skill)
+                ?? chronicConditions.GetContributingMastery(skill)
+                ?? temporaryConditions.GetContributingMastery(skill);
+        }
+
+        /// Adds or removes maximum vitality adjustments from equipment.
+        public void ModifyMaxVitality(int fleshDelta, int composureDelta){
+            flesh.SetMax(flesh.Max + fleshDelta);
+            composure.SetMax(composure.Max + composureDelta);
+        }
+
+        /// Restores composure and wipes volatile conditions during a safe room rest.
+        public void RestAndRecover(){
+            temporaryConditions.Clear();
+            composure.HealAll();
+            CrisisManager.Instance.Scheduler.CancelForTarget(GetComponent<UniqueId>().Id);
+            RebuildAllSkills();
+        }
+
+        /// Rebuilds all skill values across all active collections.
         public void RebuildAllSkills(){
-            _skills.Clear();
-            foreach (Mastery mastery in activeMasteries)
-                ApplyMasteryDelta(mastery, isAdding: true);
+            innateMasteries.RebuildSkills();
+            equippedConditions.RebuildSkills();
+            chronicConditions.RebuildSkills();
+            temporaryConditions.RebuildSkills();
         }
 
-        public int GetEffectiveSkill(Skill skill) => _skills.GetValueOrDefault(skill, 0);
-
-        private void ApplyMasteryDelta(Mastery mastery, bool isAdding){
-            int changeMultiplier = isAdding ? 1 : -1;
-            foreach (Skill skill in mastery.AssociatedSkills){
-                _skills.TryAdd(skill, 0);
-                _skills[skill] += changeMultiplier;
-                if (_skills[skill] == 0)
-                    _skills.Remove(skill);
-            }
-
-            foreach (Skill skill in mastery.PenalizedSkills){
-                _skills.TryAdd(skill, 0);
-                _skills[skill] -= changeMultiplier;
-                if (_skills[skill] == 0)
-                    _skills.Remove(skill);
-            }
-        }
-
-        public bool HasMastery(Mastery mastery) => activeMasteries.Contains(mastery);
-
-        public bool TryAddMastery(Mastery mastery){
-            if (HasMastery(mastery)) return false;
-            activeMasteries.Add(mastery);
-            ApplyMasteryDelta(mastery, isAdding: true);
-            return true;
-        }
-
-        public bool TryRemoveMastery(Mastery mastery){
-            if (!HasMastery(mastery)) return false;
-            activeMasteries.Remove(mastery);
-            ApplyMasteryDelta(mastery, isAdding: false);
-            return true;
-        }
-
+        /// Increments current experience points.
         public void AddExperience(int amount) => experience.Value += amount;
-
-        public override void OnSaveState(Partition state){
-            base.OnSaveState(state);
-            state["unlocked_masteries"] = activeMasteries.Select(m => m.Id).ToList();
-        }
-
-        public override void OnLoadState(Partition state){
-            base.OnLoadState(state);
-
-            if (state.TryGetValue("unlocked_masteries", out object value)){
-                activeMasteries.Clear();
-                IEnumerable list = (IEnumerable)value;
-                foreach (object item in list)
-                    activeMasteries.Add(masteryDatabase.Get(item.ToString()));
-            }
-
-            RebuildAllSkills();
-        }
     }
 }

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a27b3a90df44697a757f1d94410ac0b, type: 3}
+  m_Name: AdrenalineAdd
+  m_EditorClassIdentifier: CRPG.Runtime::Data.Effects.Leaves.ApplyConditionEffect
+  id: 
+  condition: {fileID: 11400000, guid: eedff67d6478d8a40a524305444b667a, type: 2}

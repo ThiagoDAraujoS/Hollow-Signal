@@ -797,8 +797,36 @@ MonoBehaviour:
     value: 1
   experience:
     value: 0
-  masteryDatabase: {fileID: 11400000, guid: 332d65a6b358ac145b43511ab13cdc6c, type: 2}
-  activeMasteries: []
+  flesh:
+    key: flesh
+    current: 10
+    max: 10
+  composure:
+    key: composure
+    current: 10
+    max: 10
+  baseMoveSpeed: 1
+  crisisTurn:
+    key: crisis_turn
+    hasMoved: 0
+    hasActed: 0
+  database: {fileID: 0}
+  innateMasteries:
+    key: innate_masteries
+    database: {fileID: 0}
+    activeMasteries: []
+  equippedConditions:
+    key: equipped_conditions
+    database: {fileID: 0}
+    activeMasteries: []
+  chronicConditions:
+    key: chronic_conditions
+    database: {fileID: 0}
+    activeMasteries: []
+  temporaryConditions:
+    key: temporary_conditions
+    database: {fileID: 0}
+    activeMasteries: []
 --- !u!114 &730946000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1733,6 +1761,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaab6f36e4544f478151793a23a8377a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.Crisis.CrisisManager
+  roundDurationInSeconds: 60
+  effectDatabase: {fileID: 11400000, guid: 8ca00f63571ea224f90a6ec56a81b3d1, type: 2}
+  scheduler:
+    key: crisis_scheduler
+    heap: []
 --- !u!114 &1638821599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2450,8 +2483,36 @@ MonoBehaviour:
     value: 1
   experience:
     value: 0
-  masteryDatabase: {fileID: 11400000, guid: 332d65a6b358ac145b43511ab13cdc6c, type: 2}
-  activeMasteries: []
+  flesh:
+    key: flesh
+    current: 10
+    max: 10
+  composure:
+    key: composure
+    current: 10
+    max: 10
+  baseMoveSpeed: 1
+  crisisTurn:
+    key: crisis_turn
+    hasMoved: 0
+    hasActed: 0
+  database: {fileID: 0}
+  innateMasteries:
+    key: innate_masteries
+    database: {fileID: 0}
+    activeMasteries: []
+  equippedConditions:
+    key: equipped_conditions
+    database: {fileID: 0}
+    activeMasteries: []
+  chronicConditions:
+    key: chronic_conditions
+    database: {fileID: 0}
+    activeMasteries: []
+  temporaryConditions:
+    key: temporary_conditions
+    database: {fileID: 0}
+    activeMasteries: []
 --- !u!114 &1983001436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2737,11 +2798,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogUI
       objectReference: {fileID: 0}
-    - target: {fileID: 2634204679738336112, guid: 09a1729e264fd294b9e05ae7a974a1dd,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6150522471014346614, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2797,16 +2853,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 760634030}
-    - target: {fileID: 7450348133218905411, guid: 09a1729e264fd294b9e05ae7a974a1dd,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7645504264695560367, guid: 09a1729e264fd294b9e05ae7a974a1dd,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 9022004265975360796, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_Camera
