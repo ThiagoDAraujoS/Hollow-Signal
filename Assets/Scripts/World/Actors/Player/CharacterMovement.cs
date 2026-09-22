@@ -1,13 +1,13 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using World.Tactical;
 
 namespace World.Actors.Player{
-    /// Manages entity movement via Unity NavMeshAgent, updates Animator parameters
-    /// (InputForward for movement speed and InputSide for turning/rotation variation),
-    /// and handles interaction pathing with IUsable objects with smooth arrival alignment.
+    /// Manages entity movement via Unity NavMeshAgent, updates Animator parameters, and handles interaction.
     [RequireComponent(typeof(Animator))]
     public class CharacterMovement : MonoBehaviour{
+        private enum InteractionState { None, Moving, Aligning, Using }
+
         /// NavMeshAgent on the character used for pathfinding.
         private NavMeshAgent Agent => _character.nmAgent;
 
@@ -17,8 +17,20 @@ namespace World.Actors.Player{
         /// World transform of the character's physical body.
         private Transform Body => _character.body.transform;
 
-        /// Active coroutine handling navigation and execution of an IUsable interaction.
-        private Coroutine _interactionRoutine;
+        /// Active phase of pending interaction workflow.
+        private InteractionState _interactionState = InteractionState.None;
+
+        /// Pending interaction target when moving to use an object.
+        private IUsable _pendingTarget;
+
+        /// Pending user character sheet executing the interaction.
+        private CharacterSheet _pendingUserSheet;
+
+        /// Pending slot reserved while en route.
+        private AreaSlot _pendingSlot;
+
+        /// Target destination for the pending interaction.
+        private Vector3 _pendingDestination;
 
         /// Character root component reference.
         private Character _character;
@@ -29,11 +41,14 @@ namespace World.Actors.Player{
         /// Animator hash for angular turn blending parameter.
         private static readonly int INPUT_SIDE_PARAM = Animator.StringToHash("InputSide");
 
-        /// Distance tolerance added to stopping distance for arriving at interaction spots.
-        private const float ArrivalThreshold = 0.2f;
+        /// Animator hash for the interaction trigger parameter.
+        private static readonly int INTERACT_PARAM = Animator.StringToHash("Interact");
 
         /// Rotation angular speed in degrees per second when aligning to interaction facing.
-        private const float TurnSpeedDegPerSec = 720f;
+        private const float TurnSpeedDegPerSec = 360f;
+
+        /// Movement linear speed in meters per second when lerping to exact interaction spot.
+        private const float AlignSpeedMetersPerSec = 2.5f;
 
         /// Cached Y-axis body angle from the previous frame to calculate turning angular rate.
         private float _previousYRotation;
@@ -69,6 +84,8 @@ namespace World.Actors.Player{
 
             Animator.SetFloat(INPUT_FORWARD_PARAM, forward);
             Animator.SetFloat(INPUT_SIDE_PARAM,    _currentSide);
+
+            UpdateInteraction();
         }
 
         /// Halts pending interactions when component is disabled.
@@ -77,12 +94,14 @@ namespace World.Actors.Player{
         /// Commands the agent to navigate directly to a world destination.
         public void MoveTo(Vector3 destination){
             CancelInteraction();
+            _character.LeaveSlot();
             Agent.destination = destination;
         }
 
         /// Immediately stops the character and halts all navigation.
         public void Stop(){
             CancelInteraction();
+            _character.LeaveSlot();
             if (Agent.hasPath)
                 Agent.ResetPath();
         }
@@ -90,40 +109,125 @@ namespace World.Actors.Player{
         /// Warps the character and NavMeshAgent instantly to a position.
         public void WarpTo(Vector3 position){
             CancelInteraction();
+            _character.LeaveSlot();
             Agent.Warp(position);
         }
 
         /// Navigates the character to an IUsable object and triggers interaction upon arrival.
         public void MoveToAndUse(IUsable target, CharacterSheet userSheet){
             CancelInteraction();
-            _interactionRoutine = StartCoroutine(InteractRoutine(target, userSheet));
+            _character.LeaveSlot();
+
+            if (Agent.hasPath)
+                Agent.ResetPath();
+
+            _pendingTarget    = target;
+            _pendingUserSheet = userSheet;
+            _pendingSlot      = target as AreaSlot;
+            if (_pendingSlot == null && target is Component comp)
+                _pendingSlot = comp.GetComponent<AreaSlot>();
+
+            if (_pendingSlot != null)
+                _pendingSlot.Reserve(_character);
+
+            Vector3 destination = target.UsePosition;
+            if (NavMesh.SamplePosition(destination, out NavMeshHit navHit, 3f, NavMesh.AllAreas))
+                destination = navHit.position;
+
+            _pendingDestination = destination;
+            _interactionState   = InteractionState.Moving;
+            Agent.destination   = destination;
         }
 
-        /// Coroutine navigating to the interaction spot and rotating towards UseRotation before execution.
-        private IEnumerator InteractRoutine(IUsable target, CharacterSheet userSheet){
-            Agent.destination = target.UseSpot.position;
+        /// Handles navigation arrival, facing alignment, and interaction animation playback.
+        private void UpdateInteraction(){
+            if (_interactionState == InteractionState.None) return;
 
-            while (Agent.pathPending || Agent.remainingDistance > Agent.stoppingDistance + ArrivalThreshold)
-                yield return null;
+            if (_interactionState == InteractionState.Moving){
+                bool closeEnough  = Vector3.Distance(Body.position, _pendingDestination) <= Agent.stoppingDistance + 0.75f;
+                bool isStopped    = !Agent.pathPending && Agent.velocity.sqrMagnitude < 0.05f;
+                bool pathFinished = !Agent.pathPending && Agent.hasPath && Agent.remainingDistance <= Agent.stoppingDistance + 0.15f;
 
-            while (Quaternion.Angle(Body.rotation, target.UseRotation) > 1f){
-                Body.rotation = Quaternion.RotateTowards(
-                    Body.rotation,
-                    target.UseRotation,
-                    TurnSpeedDegPerSec * Time.deltaTime);
-                yield return null;
+                if (!closeEnough || (!isStopped && !pathFinished)) return;
+
+                if (Agent.hasPath)
+                    Agent.ResetPath();
+
+                Agent.updatePosition = false;
+                Agent.updateRotation = false;
+                _interactionState    = InteractionState.Aligning;
+                return;
             }
 
-            Body.rotation = target.UseRotation;
-            target.Use(userSheet);
-            _interactionRoutine = null;
+            if (_interactionState == InteractionState.Aligning){
+                Vector3 fwd = _pendingTarget.UseRotation * Vector3.forward;
+                fwd.y = 0f;
+                Quaternion targetRot = fwd.sqrMagnitude > 0.001f
+                    ? Quaternion.LookRotation(fwd.normalized, Vector3.up)
+                    : Quaternion.Euler(0f, _pendingTarget.UseRotation.eulerAngles.y, 0f);
+
+                bool angleAligned = Quaternion.Angle(Body.rotation, targetRot) <= 0.5f;
+                bool posAligned   = Vector3.Distance(Body.position, _pendingDestination) <= 0.02f;
+
+                if (!angleAligned || !posAligned){
+                    Body.rotation = Quaternion.RotateTowards(Body.rotation, targetRot, TurnSpeedDegPerSec * Time.deltaTime);
+                    Body.position = Vector3.MoveTowards(Body.position, _pendingDestination, AlignSpeedMetersPerSec * Time.deltaTime);
+                    return;
+                }
+
+                Body.position      = _pendingDestination;
+                Body.rotation      = targetRot;
+                Agent.Warp(_pendingDestination);
+                _previousYRotation = Body.eulerAngles.y;
+                _interactionState  = InteractionState.Using;
+                Animator.SetTrigger(INTERACT_PARAM);
+                return;
+            }
+
+            if (_interactionState == InteractionState.Using){
+                AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
+                if (stateInfo.IsName("Use") && stateInfo.normalizedTime >= 0.95f)
+                    TriggerAnimationUse();
+            }
         }
 
-        /// Stops any currently active interaction coroutine.
+        /// Executes the pending interaction when the animation triggers Use or completes.
+        public void TriggerAnimationUse(){
+            if (_interactionState != InteractionState.Using) return;
+
+            Agent.updatePosition = true;
+            Agent.updateRotation = true;
+            _interactionState    = InteractionState.None;
+
+            IUsable        target    = _pendingTarget;
+            CharacterSheet userSheet = _pendingUserSheet;
+            AreaSlot       slot      = _pendingSlot;
+
+            _pendingTarget    = null;
+            _pendingUserSheet = null;
+            _pendingSlot      = null;
+
+            if (slot != null){
+                slot.Claim(_character);
+                _character.CurrentSlot = slot;
+            }
+
+            target.Use(userSheet);
+        }
+
+        /// Cancels any active pending interaction and releases reserved slot.
         private void CancelInteraction(){
-            if (_interactionRoutine == null) return;
-            StopCoroutine(_interactionRoutine);
-            _interactionRoutine = null;
+            Agent.updatePosition = true;
+            Agent.updateRotation = true;
+            _interactionState    = InteractionState.None;
+
+            if (_pendingSlot != null){
+                _pendingSlot.Release();
+                _pendingSlot = null;
+            }
+
+            _pendingTarget    = null;
+            _pendingUserSheet = null;
         }
     }
 }

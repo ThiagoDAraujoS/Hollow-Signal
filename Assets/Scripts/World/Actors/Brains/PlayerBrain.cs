@@ -180,14 +180,14 @@ namespace World.Actors.Brains{
         private void InitializeBoundActions(){
             _boundActions.Add(new BoundAction(commandActionRef,       OnCommandStarted,       OnCommandCanceled));
             _boundActions.Add(new BoundAction(primarySelectActionRef, OnPrimarySelectStarted, OnPrimarySelectCanceled));
-            _boundActions.Add(new BoundAction(selectAllActionRef,     _ => _selection.SelectAll(activePartyMembers)));
-            _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => _selection.CycleLeader(activePartyMembers)));
-            _boundActions.Add(new BoundAction(deselectActionRef,      _ => _selection.Clear()));
-            _boundActions.Add(new BoundAction(stopActionRef,          _ => StopSelectedUnits()));
-            _boundActions.Add(new BoundAction(slot1ActionRef,         _ => SelectSlot(0)));
-            _boundActions.Add(new BoundAction(slot2ActionRef,         _ => SelectSlot(1)));
-            _boundActions.Add(new BoundAction(slot3ActionRef,         _ => SelectSlot(2)));
-            _boundActions.Add(new BoundAction(slot4ActionRef,         _ => SelectSlot(3)));
+            _boundActions.Add(new BoundAction(selectAllActionRef,     _ => { if (!_isDialogueActive) _selection.SelectAll(activePartyMembers); }));
+            _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => { if (!_isDialogueActive) _selection.CycleLeader(activePartyMembers); }));
+            _boundActions.Add(new BoundAction(deselectActionRef,      _ => { if (!_isDialogueActive) _selection.Clear(); }));
+            _boundActions.Add(new BoundAction(stopActionRef,          _ => { if (!_isDialogueActive) StopSelectedUnits(); }));
+            _boundActions.Add(new BoundAction(slot1ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(0); }));
+            _boundActions.Add(new BoundAction(slot2ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(1); }));
+            _boundActions.Add(new BoundAction(slot3ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(2); }));
+            _boundActions.Add(new BoundAction(slot4ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(3); }));
 
             if (scrollActionRef != null)
                 _boundActions.Add(new BoundAction(scrollActionRef, OnScrollPerformed));
@@ -223,12 +223,13 @@ namespace World.Actors.Brains{
             _gestureHandler.Reset();
         }
 
-        /// Resets gesture and command dispatchers when dialogue enters or exits.
+        /// Resets gesture and command dispatchers and halts units when dialogue enters or exits.
         private void HandleDialogueActiveChanged(bool isActive){
             _isDialogueActive = isActive;
             if (!isActive) return;
             _commandDispatcher.Reset();
             _gestureHandler.Reset();
+            StopSelectedUnits();
         }
 
         /// Updates pointer tracking, gesture recognition, and continuous movement dispatching.
@@ -329,7 +330,7 @@ namespace World.Actors.Brains{
             CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }
 
-        /// Selects active party member corresponding to slot index.\
+        /// Selects active party member corresponding to slot index.
         private void SelectSlot(int index){
             if (index < 0 || index >= activePartyMembers.Count) return;
             Character hero = activePartyMembers[index];

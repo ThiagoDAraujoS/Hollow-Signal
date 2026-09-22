@@ -1,21 +1,16 @@
 ﻿using UnityEngine;
 using World.Actors.Player;
 
-namespace World {
-    /// <summary>
+namespace World{
     /// Contract for interactive objects in the world that can be operated by a character.
-    /// </summary>
-    public interface IUsable {
-        /// <summary>
-        /// Dedicated transform (position and facing orientation) where the character stands to interact.
-        /// </summary>
-        Transform UseSpot { get; }
-        Quaternion UseRotation { get; }
+    public interface IUsable{
+        /// World position where the character stands to interact.
+        Vector3 UsePosition{ get; }
 
-        /// <summary>
+        /// World rotation the character aligns with upon arrival.
+        Quaternion UseRotation{ get; }
+
         /// Executes the primary interaction on this object.
-        /// </summary>
-        /// <param name="whosUsing">The CharacterSheet of the character performing the action.</param>
         void Use(CharacterSheet whosUsing);
     }
 }
