@@ -5,7 +5,6 @@ using Data;
 
 namespace Editor.Dialog.Parser{
     /// Reads and parses a .dialog source text file into a strongly-typed DialogScriptAst in memory.
-    /// Strictly adheres to the fail-fast protocol, throwing descriptive exceptions on any syntax violation.
     public static class DialogParser{
         private static readonly Regex MapRegex = new(
             @"^MAP:\s*([a-zA-Z0-9_]+)$",
@@ -192,6 +191,7 @@ namespace Editor.Dialog.Parser{
             return ast;
         }
 
+        /// Parses a strongly typed variable declaration into the script AST.
         private static void ParseVariable(DialogScriptAst ast, string line, int lineNumber, string scriptName){
             Match match = VarRegex.Match(line);
             if (!match.Success)
@@ -205,6 +205,7 @@ namespace Editor.Dialog.Parser{
             });
         }
 
+        /// Parses a choice line into a DialogChoiceDef AST node, extracting item gates and tactical tags.
         private static void ParseChoice(DialogKnotDef knot, string line, int lineNumber, string scriptName, ref int choiceCounter){
             Match match = ChoiceRegex.Match(line);
             if (!match.Success)
@@ -225,6 +226,25 @@ namespace Editor.Dialog.Parser{
                 rawText = ItemReqRegex.Replace(rawText, "").Trim();
             }
 
+            bool endsTurn = false;
+            bool consumesAction = false;
+            bool consumesMove = false;
+
+            if (rawText.Contains("<!!>")){
+                endsTurn = true;
+                rawText = rawText.Replace("<!!>", "").Trim();
+            }
+            else if (rawText.Contains("<!>")){
+                consumesAction = true;
+                rawText = rawText.Replace("<!>", "").Trim();
+            }
+
+            Match moveMatch = Regex.Match(rawText, @"<[mM]>");
+            if (moveMatch.Success){
+                consumesMove = true;
+                rawText = Regex.Replace(rawText, @"<[mM]>", "").Trim();
+            }
+
             string choiceId = $"{knot.knotId.ToUpperInvariant()}_C{choiceCounter++:D2}";
 
             knot.choices.Add(new DialogChoiceDef {
@@ -234,10 +254,14 @@ namespace Editor.Dialog.Parser{
                 text = rawText,
                 requiredItemId = requiredItem,
                 requiredItemAmount = itemAmount,
-                targetKnot = targetKnot
+                targetKnot = targetKnot,
+                consumesAction = consumesAction,
+                endsTurn = endsTurn,
+                consumesMove = consumesMove
             });
         }
 
+        /// Assigns outcome definition to the appropriate skill check branch.
         private static void AssignOutcome(DialogSkillCheckDef check, string type, DialogOutcomeDef outcome, int lineNumber, string scriptName){
             switch (type){
                 case "SUCCESS":
@@ -257,6 +281,7 @@ namespace Editor.Dialog.Parser{
             }
         }
 
+        /// Validates knot structure, uniqueness, and destination targets.
         private static void ValidateAst(DialogScriptAst ast){
             if (ast.knots.Count == 0)
                 throw new FormatException($"[{ast.scriptName}] Script does not define any knots. Must contain at least one '=== KNOT: KnotName ===' block.");
@@ -267,12 +292,10 @@ namespace Editor.Dialog.Parser{
                     throw new FormatException($"[{ast.scriptName}] Duplicate knot ID detected: '{knot.knotId}'. Knot names must be unique.");
             }
 
-            // Validate choice destinations
             foreach (DialogKnotDef knot in ast.knots){
-                foreach (DialogChoiceDef choice in knot.choices){
+                foreach (DialogChoiceDef choice in knot.choices)
                     if (choice.targetKnot != "END" && !definedKnotIds.Contains(choice.targetKnot))
                         throw new FormatException($"[{ast.scriptName}] Knot '{knot.knotId}' has choice targeting non-existent knot '{choice.targetKnot}'.");
-                }
 
                 if (knot.skillCheck != null){
                     ValidateOutcomeKnot(ast.scriptName, knot.knotId, "SUCCESS", knot.skillCheck.onSuccess, definedKnotIds);
@@ -281,12 +304,14 @@ namespace Editor.Dialog.Parser{
             }
         }
 
+        /// Validates that an outcome target knot exists in the script AST.
         private static void ValidateOutcomeKnot(string scriptName, string knotId, string outcomeName, DialogOutcomeDef outcome, HashSet<string> definedKnots){
             if (outcome == null) return;
             if (!string.IsNullOrEmpty(outcome.targetKnot) && outcome.targetKnot != "END" && !definedKnots.Contains(outcome.targetKnot))
                 throw new FormatException($"[{scriptName}] Knot '{knotId}' outcome '{outcomeName}' targets non-existent knot '{outcome.targetKnot}'.");
         }
 
+        /// Removes inline comment text and trims whitespace.
         private static string StripCommentsAndTrim(string line){
             int commentIndex = line.IndexOf("//", StringComparison.Ordinal);
             if (commentIndex >= 0)

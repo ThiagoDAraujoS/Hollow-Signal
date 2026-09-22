@@ -1,0 +1,67 @@
+﻿MAP: MaintenanceSector
+LOC_FILE: MaintenanceSector_exploration
+
+// 1. Exploration and Environment State Variables
+VAR local bool examined_telemetry = false
+VAR local bool manual_override_unlocked = false
+VAR local int generator_power = 0
+VAR map bool sector_lights_active = false
+VAR map bool sector_airlock_open = false
+
+// 2. Conversation Knots
+
+=== KNOT: Main ===
+CONSOLE [portrait: alert]: [STATION TELEMETRY OFFLINE] Derelict monitoring terminal idling on auxiliary reserve. Primary routing relays disconnected.
+* {!examined_telemetry} [Examine maintenance telemetry and circuit status] -> ReadTelemetry
++ [<M> Scavenge surrounding debris for copper wiring (item: ScrapMetal x1)] -> ScavengeWiring
++ {!manual_override_unlocked} [<!> Force the rusted manual override lever] -> ForceLever
++ {generator_power < 2} [Insert spare capacitor into power bus (item: Capacitor x1)] -> InsertCapacitor
++ {manual_override_unlocked == true && generator_power >= 1} [Calibrate power distribution grid] -> GridCalibration
+* {manual_override_unlocked == true && generator_power >= 2} [<!!> Engage airlock decompression sequence] -> DecompressAirlock
++ [Step away from the console] -> END
+
+=== KNOT: ReadTelemetry ===
+CONSOLE: Relays 4 through 9 unresponsive. Capacitor bank discharged. Manual override mechanism jammed by structural rust.
+~ SET examined_telemetry = true
++ [Return to main terminal interface] -> Main
+
+=== KNOT: ScavengeWiring ===
+~ SkillCheck(Scavenge, 11)
+- SUCCESS ->
+    CONSOLE: Salvaged intact grounding cables and usable copper conduit from the collapsed bulkhead.
+    ~ SET generator_power = 1
+    -> Main
+- FAILURE ->
+    CONSOLE: Nothing found but corroded lead shielding and burnt silicone.
+    -> Main
+
+=== KNOT: ForceLever ===
+~ SkillCheck(LiftHeavyObjects, 12)
+- SUCCESS ->
+    CONSOLE: Hydraulic seal breaks free with a loud metallic groan. Manual bypass engaged.
+    ~ SET manual_override_unlocked = true
+    -> Main
+- FAILURE ->
+    CONSOLE: Lever refuses to budge. Mechanism remains seized tight against the casing.
+    -> Main
+
+=== KNOT: InsertCapacitor ===
+CONSOLE: Capacitor slotted into auxiliary bus. Voltage indicators flicker amber as primary conduit energizes.
+~ SET generator_power = 2
+~ SET sector_lights_active = true
++ [Return to main terminal interface] -> Main
+
+=== KNOT: GridCalibration ===
+~ SkillCheck(Tinker, 10)
+- SUCCESS ->
+    CONSOLE: Grid harmonics stabilized. Auxiliary bus humming at nominal capacity.
+    ~ SET generator_power = 3
+    -> Main
+- FAILURE ->
+    CONSOLE: Power surge trips the breaker. Frequency fluctuates wildly before resetting.
+    -> Main
+
+=== KNOT: DecompressAirlock ===
+CONSOLE: Emergency klaxon blares. Pneumatic latches disengage as pressure equalizes across the quarantine corridor.
+~ SET sector_airlock_open = true
++ [Disconnect from terminal] -> END

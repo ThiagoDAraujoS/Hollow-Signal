@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Narrative.Localization{
     /// Central manager organizing localized strings into isolated, named file tables (file -> key -> text).
+    [DisallowMultipleComponent]
     public class LocalizationManager : MonoBehaviour{
         public static event Action OnLanguageChanged;
 
@@ -22,6 +23,7 @@ namespace Narrative.Localization{
         
         [SerializeField] private List<string> permanentLocalizationTables = new();
 
+        /// Initializes singleton instance.
         private void Awake(){
             if (_instance == null)
                 _instance = this;
@@ -29,13 +31,14 @@ namespace Narrative.Localization{
                 Destroy(gameObject);
         }
 
+        /// Cleans up singleton instance on destroy.
         private void OnDestroy(){
             if (_instance == this)
                 _instance = null;
         }
 
         /// Loads persistent core localization files configured in the inspector asynchronously into memory.
-        public static async Task LoadBaseStringsAsync(string language) {
+        public static async Task LoadBaseStringsAsync(string language){
             _instance._currentLanguage = language;
             await Task.WhenAll(_instance.permanentLocalizationTables.Select(LoadTableAsync));
             OnLanguageChanged?.Invoke();
@@ -74,7 +77,8 @@ namespace Narrative.Localization{
 
         /// Sets a new active language and reloads all currently resident tables asynchronously.
         public static async Task SetLanguageAsync(string language){
-            if (_instance._currentLanguage == language) return;
+            if (_instance._currentLanguage == language)
+                return;
 
             _instance._currentLanguage = language;
 
@@ -94,8 +98,10 @@ namespace Narrative.Localization{
 
         /// Retrieves a localized string scoped directly to a specific file table, falling back to any loaded table.
         public static string Get(string tableName, string key, params object[] args){
-            if (string.IsNullOrEmpty(key)) return string.Empty;
-            if (_instance == null) return key;
+            if (string.IsNullOrEmpty(key))
+                return string.Empty;
+            if (_instance == null)
+                return key;
 
             if (!string.IsNullOrEmpty(tableName) && _instance._tables.TryGetValue(tableName, out Dictionary<string, string> tableDict) && tableDict.TryGetValue(key, out string val))
                 return args is { Length: > 0 } ? string.Format(val, args) : val;
@@ -107,16 +113,17 @@ namespace Narrative.Localization{
             return key;
         }
 
+        /// Parses localization file lines asynchronously into the target table dictionary.
         private static async Task ParseFileToDictionaryAsync(string path, Dictionary<string, string> targetDict){
             using StreamReader reader = new(path);
             while (await reader.ReadLineAsync() is { } line){
                 line = line.Trim();
-
                 if (string.IsNullOrEmpty(line) || line.StartsWith("#") || line.StartsWith("//"))
                     continue;
 
                 int splitIdx = line.IndexOf('=');
-                if (splitIdx == -1) continue;
+                if (splitIdx == -1)
+                    continue;
 
                 string key = line[..splitIdx].Trim();
                 string val = line[(splitIdx + 1)..].Trim();

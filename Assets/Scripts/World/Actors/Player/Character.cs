@@ -1,5 +1,6 @@
 ﻿using Core.Managers;
 using Core.State;
+using Narrative.Dialog;
 using UnityEngine;
 using UnityEngine.AI;
 using World.Actors.Brains;
@@ -8,11 +9,13 @@ using World.Tactical;
 namespace World.Actors.Player{
     [RequireComponent(typeof(UniqueId))]
     [RequireComponent(typeof(CharacterMovement))]
+    [RequireComponent(typeof(CharacterDialogueSession))]
     public class Character : MonoBehaviour, ISelectable{
-        [HideInInspector] public CharacterMovement movement;
-        [HideInInspector] public CharacterSheet    sheet;
-        [HideInInspector] public NavMeshAgent      nmAgent;
-        [HideInInspector] public Animator          animator;
+        [HideInInspector] public CharacterMovement       movement;
+        [HideInInspector] public CharacterSheet          sheet;
+        [HideInInspector] public CharacterDialogueSession dialogueSession;
+        [HideInInspector] public NavMeshAgent            nmAgent;
+        [HideInInspector] public Animator                animator;
 
         [Header("Selection & Visuals")] public Transform selectionCircle;
 
@@ -25,11 +28,12 @@ namespace World.Actors.Player{
 
         /// Caches required component references across awake and edit-time calls.
         public void EnsureInitialized(){
-            _uniqueId ??= GetComponent<UniqueId>();
-            movement  ??= GetComponent<CharacterMovement>();
-            sheet     ??= GetComponent<CharacterSheet>();
-            nmAgent   ??= GetComponentInChildren<NavMeshAgent>(true);
-            animator  ??= GetComponentInChildren<Animator>(true);
+            _uniqueId       ??= GetComponent<UniqueId>();
+            movement        ??= GetComponent<CharacterMovement>();
+            sheet           ??= GetComponent<CharacterSheet>();
+            dialogueSession ??= GetComponent<CharacterDialogueSession>();
+            nmAgent         ??= GetComponentInChildren<NavMeshAgent>(true);
+            animator        ??= GetComponentInChildren<Animator>(true);
         }
 
         /// Caches references and disables default standalone movement.

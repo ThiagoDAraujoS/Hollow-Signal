@@ -10,6 +10,7 @@ namespace Core.Crisis{
         [SerializeField] private string key = "crisis_turn";
         [SerializeField] private bool hasMoved;
         [SerializeField] private bool hasActed;
+        [SerializeField] private bool canSprint = true;
 
         public event Action OnTurnReset;
         public event Action OnMoved;
@@ -19,7 +20,8 @@ namespace Core.Crisis{
         public string Key => key;
         public bool HasMoved => hasMoved;
         public bool HasActed => hasActed;
-        public bool CanMove => !hasMoved || !hasActed;
+        public bool CanSprint => canSprint && !IsTurnCompleted;
+        public bool CanMove => !hasMoved || (!hasActed && canSprint);
         public bool CanAct => !hasActed;
         public bool IsTurnCompleted => hasMoved && hasActed;
 
@@ -29,6 +31,7 @@ namespace Core.Crisis{
         public void ResetTurn(){
             hasMoved = false;
             hasActed = false;
+            canSprint = true;
             OnTurnReset?.Invoke();
         }
 
@@ -43,13 +46,35 @@ namespace Core.Crisis{
                 OnTurnCompleted?.Invoke();
         }
 
-        /// Consumes the single major action for the turn.
+        /// Consumes standard move and burns double-move/sprint opportunity for the rest of the round (<M> dialogue choices).
+        public void ConsumeMoveAndBurnSprint(){
+            hasMoved = true;
+            canSprint = false;
+            OnMoved?.Invoke();
+            if (IsTurnCompleted)
+                OnTurnCompleted?.Invoke();
+        }
+
+        /// Consumes the single major action for the turn (<!> dialogue choices).
         public void ConsumeAction(){
             hasActed = true;
             OnActed?.Invoke();
             if (IsTurnCompleted)
                 OnTurnCompleted?.Invoke();
         }
+
+        /// Concludes character's turn budget for this round, consuming action, movement, and sprint ability (<!!> dialogue choices).
+        public void EndTurn(){
+            hasMoved = true;
+            hasActed = true;
+            canSprint = false;
+            OnMoved?.Invoke();
+            OnActed?.Invoke();
+            OnTurnCompleted?.Invoke();
+        }
+
+        /// Disallows sprinting / double-move for this turn.
+        public void BurnSprint() => canSprint = false;
 
         // TODO: SPRINT & MULTI-HERO DIALOGUE INTEGRATION
         // When a player attempts to move twice AND act (or act then move twice):
@@ -72,6 +97,7 @@ namespace Core.Crisis{
         public void ApplySprintFailure(){
             hasMoved = true;
             hasActed = true;
+            canSprint = false;
             OnActed?.Invoke();
             OnTurnCompleted?.Invoke();
         }
@@ -80,12 +106,16 @@ namespace Core.Crisis{
         public void RefundAction() => hasActed = false;
 
         /// Restores movement if a move command was canceled.
-        public void RefundMove() => hasMoved = false;
+        public void RefundMove(){
+            hasMoved = false;
+            canSprint = true;
+        }
 
         /// Serializes current turn state into the Blackboard partition.
         public void Save(Dictionary<string, object> state){
             state[$"{key}_moved"] = hasMoved;
             state[$"{key}_acted"] = hasActed;
+            state[$"{key}_sprint"] = canSprint;
         }
 
         /// Restores turn state from the Blackboard partition.
@@ -94,6 +124,8 @@ namespace Core.Crisis{
                 hasMoved = Convert.ToBoolean(rawMoved);
             if (state.TryGetValue($"{key}_acted", out object rawActed))
                 hasActed = Convert.ToBoolean(rawActed);
+            if (state.TryGetValue($"{key}_sprint", out object rawSprint))
+                canSprint = Convert.ToBoolean(rawSprint);
         }
     }
 }

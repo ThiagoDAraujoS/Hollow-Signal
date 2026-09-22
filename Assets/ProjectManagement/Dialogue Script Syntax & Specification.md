@@ -37,7 +37,7 @@ graph TD
 A `.dialog` file consists of three sequential parts:
 1. **Header Declarations**: Declares the associated `MAP:`, target `LOC_FILE:`, and `VAR` scopes.
 2. **Knots (Conversation States)**: Modular text blocks containing dialogue lines and actions.
-3. **Choices & Diverts**: Player options, condition gates, item requirements, and destination targets.
+3. **Choices & Diverts**: Player options, condition gates, item requirements, tactical resource modifiers, and destination targets.
 
 ---
 
@@ -131,7 +131,37 @@ Syntax:
 
 ---
 
-### 3.7 In-line Commands (`~`)
+### 3.7 Tactical Crisis Turn Modifiers (`<!>`, `<!!>`, `<M>`)
+In Hollow Signal, dialogue can occur seamlessly during **Crisis Mode (turn-based tactical combat)**. Choices can declare tactical budget costs directly in the bracketed option text:
+
+| Tag | Tactical Resource Cost | Crisis Presentation & Hover Tooltip |
+| :--- | :--- | :--- |
+| `<!>` | **Consumes Major Action** | Rendered in **Bold Orange** (`DialogueColorTheme.ActionCostColor`). Tooltip: *"Consumes Major Action"* |
+| `<!!>` | **Ends Character Turn** (consumes Action, Move, and Dash) | Rendered in **Bold Red** (`DialogueColorTheme.EndTurnCostColor`). Tooltip: *"Ends Turn (Consumes Action, Move, and Dash)"* |
+| `<M>` | **Consumes Move & Burns Sprint** | Rendered in **Bold Blue** (`DialogueColorTheme.MoveCostColor`). Tooltip: *"Consumes Movement (Dash / Double Move disabled)"* |
+
+#### Tactical Integration Rules:
+1. **Symbol Stripping**: Raw modifier tags (`<!>`, `<!!>`, `<M>`) are parsed by the compiler/UI and **never** appear in the visible choice text.
+2. **Crisis Availability & Budget Gating**:
+   - If a character has already acted (`turn.HasActed == true`), `<!>` and `<!!>` choices are **disabled** (grayed out with `DialogueColorTheme.DisabledChoiceColor`, unclickable, with a tooltip explaining unavailable action).
+   - If a character has already moved (`turn.HasMoved == true`), `<M>` choices are **disabled** (grayed out and unclickable).
+3. **Dash / Sprint Lockout (`<M>`)**:
+   - Marking a choice `<M>` is agnostic of the double-move dash mechanic: picking it burns **both** the movement and the ability to roll an athletics sprint test for a second move this round (`canSprint = false`).
+4. **Real-Time Exploration Mode**:
+   - When outside Crisis mode (`CrisisManager.Instance.IsCrisis == false`), all choices are freely selectable, styled in normal weight and default colors, without special tactical badges or cost restrictions.
+5. **Color Compendium**:
+   - All visual colors and styling are configured in [`DialogueColorTheme.cs`](file:///C:/Users/Thiago/Desktop/Personal%20Projects/Horror%20Room/Hollow%20Signal/Hollow%20Signal/Assets/Scripts/UI/Dialog/DialogueColorTheme.cs).
+
+Syntax:
+```text
+* [<!> Brute force the jammed manual bypass] -> ForceOpenNode
+* [<!!> Lock down the bulkhead doors and seal the sector] -> LockdownNode
++ [<M> Scavenge the nearby control panel for wiring] -> ScavengeNode
+```
+
+---
+
+### 3.8 In-line Commands (`~`)
 Commands execute side effects or mutations:
 ```text
 ~ SET is_unlocked = true
@@ -140,7 +170,7 @@ Commands execute side effects or mutations:
 
 ---
 
-### 3.8 Skill Check Resolution Blocks
+### 3.9 Skill Check Resolution Blocks
 When a knot represents a skill check roll, it specifies the test and branches based on the outcome:
 
 Syntax:
@@ -179,8 +209,9 @@ VAR global bool G_QuarantineActive = false
 
 === KNOT: Main ===
 TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power required.
-* {!is_terminal_hacked} [Bypass terminal security (item: Keycard_Blue x1)] -> HackNode
-+ {generator_power == true} [Access patient logs] -> LogsNode
+* {!is_terminal_hacked} [<!> Bypass terminal security (item: Keycard_Blue x1)] -> HackNode
++ {generator_power == true} [<M> Access patient logs and telemetry] -> LogsNode
+* [<!!> Initiate emergency containment lockdown] -> LockdownNode
 + [Step away] -> END
 
 === KNOT: HackNode ===
@@ -196,22 +227,8 @@ TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power 
 === KNOT: LogsNode ===
 TERMINAL: Dr. Vance report: Subject 07 escaped quarantine.
 + [Return to main menu] -> Main
+
+=== KNOT: LockdownNode ===
+TERMINAL: Bulkheads sealed. Turn concluded.
+-> END
 ```
-
----
-
-## 5. Generated Artifacts Reference
-
-When the compiler processes `MedicalTerminal.dialog`, it produces:
-
-1. **`MedicalTerminalDialogue.cs`** (`Assets/Scripts/Generated/Dialogues/`):
-   - Strongly-typed `TrackedBehaviour` containing `is_terminal_hacked`.
-   - Binds `Map.generator_power.Value` to `MedicalBayVariables.cs`.
-   - Binds `Session.G_QuarantineActive.Value` to `SessionDialogVariables.cs`.
-
-2. **`MedicalBayVariables.cs`** (`Assets/Scripts/Generated/Maps/`):
-   - Automatically synchronizes `generator_power` into the map state without overwriting existing code.
-
-3. **`medicalbay_terminals_en.txt`** (`Assets/StreamingAssets/Localization/`):
-   - Batched plain text file containing all terminals for `MedicalBay`.
-   - Keys prefixed with `DLG_MEDICALTERMINAL_...` to guarantee uniqueness.

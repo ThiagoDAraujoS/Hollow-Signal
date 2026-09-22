@@ -4,29 +4,65 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace UI.Dialog{
-    /// Handles mouse hover underline feedback and click interactions for dialogue choice options.
+    /// Handles mouse hover underline feedback, tooltips, and click interactions for dialogue choice options.
     [RequireComponent(typeof(TextMeshProUGUI))]
     public class DialogueOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
         [SerializeField] private TextMeshProUGUI textMesh;
-        private Action _onClick;
 
-        private void Awake() => textMesh = textMesh != null ? textMesh : GetComponent<TextMeshProUGUI>();
+        private Action                  _onClick;
+        private Action<Vector2, string> _onHoverEnter;
+        private Action                  _onHoverExit;
+        private string                  _tooltipText;
+        private bool                    _isInteractable = true;
 
-        private void OnDisable() => textMesh.fontStyle &= ~FontStyles.Underline;
+        public bool IsInteractable => _isInteractable;
 
-        /// Sets the formatted option label and binds its selection callback.
-        public void Initialize(string text, Action onClick){
-            textMesh.text = text;
-            _onClick = onClick;
+        /// Caches reference to the TextMeshProUGUI component.
+        private void Awake() => textMesh = GetComponent<TextMeshProUGUI>();
+
+        /// Removes underline style and dismisses active tooltip when disabled.
+        private void OnDisable(){
+            textMesh.fontStyle &= ~FontStyles.Underline;
+            _onHoverExit?.Invoke();
         }
 
-        /// Adds underline formatting while pointer hovers over the option.
-        public void OnPointerEnter(PointerEventData eventData) => textMesh.fontStyle |= FontStyles.Underline;
+        /// Sets the formatted option label, interactivity, optional hover tooltip, and binds callbacks.
+        public void Initialize(
+            string text,
+            Action onClick,
+            bool isInteractable = true,
+            string tooltipText = null,
+            Action<Vector2, string> onHoverEnter = null,
+            Action onHoverExit = null){
+            textMesh.text = text;
+            _onClick = onClick;
+            _isInteractable = isInteractable;
+            _tooltipText = tooltipText;
+            _onHoverEnter = onHoverEnter;
+            _onHoverExit = onHoverExit;
+        }
 
-        /// Removes underline formatting when pointer leaves the option.
-        public void OnPointerExit(PointerEventData eventData) => textMesh.fontStyle &= ~FontStyles.Underline;
+        /// Adds underline formatting if interactable and dispatches tooltip event on hover.
+        public void OnPointerEnter(PointerEventData eventData){
+            if (_isInteractable)
+                textMesh.fontStyle |= FontStyles.Underline;
+
+            if (!string.IsNullOrEmpty(_tooltipText))
+                _onHoverEnter?.Invoke(eventData.position, _tooltipText);
+        }
+
+        /// Removes underline formatting and clears tooltip on pointer exit.
+        public void OnPointerExit(PointerEventData eventData){
+            textMesh.fontStyle &= ~FontStyles.Underline;
+            _onHoverExit?.Invoke();
+        }
 
         /// Invokes the registered choice callback when clicked.
-        public void OnPointerClick(PointerEventData eventData) => _onClick?.Invoke();
+        public void OnPointerClick(PointerEventData eventData){
+            if (!_isInteractable)
+                return;
+            _onHoverExit?.Invoke();
+            _onClick();
+        }
     }
 }

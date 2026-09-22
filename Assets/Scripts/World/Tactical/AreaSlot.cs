@@ -1,4 +1,5 @@
-﻿using Core.State;
+﻿using Core.Attributes;
+using Core.State;
 using UnityEngine;
 using UnityEngine.AI;
 using World.Actors.Player;
@@ -14,7 +15,8 @@ namespace World.Tactical{
         [SerializeField] protected string slotDisplayName;
 
         [Header("Attached Interactable (Optional)")]
-        [SerializeField] protected MonoBehaviour linkedInteractable;
+        [SerializeField, RequireInterface(typeof(IUsable))]
+        protected MonoBehaviour linkedInteractable;
 
         [Header("Visual Indicator (Optional)")]
         [SerializeField] protected GameObject visualRing;
@@ -25,8 +27,8 @@ namespace World.Tactical{
         public SpatialPose AnchorPose      => anchorPose;
         public string      SlotDisplayName => slotDisplayName;
         public bool        IsAvailable     => Occupant == null && ReservedBy == null;
-
-        public Vector3    Position => anchorPose.GetWorldPosition(transform);
+        public IUsable     LinkedUsable    => (IUsable)linkedInteractable;
+        public Vector3     Position        => anchorPose.GetWorldPosition(transform);
 
         /// Evaluates world rotation locked strictly to world UP (Y-axis yaw only).
         public Quaternion Rotation{
@@ -39,20 +41,6 @@ namespace World.Tactical{
             }
         }
 
-        /// Resolves linked interactable component, falling back to any sibling IUsable on this GameObject.
-        public IUsable LinkedUsable{
-            get{
-                if (linkedInteractable is IUsable usable)
-                    return usable;
-
-                foreach (IUsable comp in GetComponents<IUsable>())
-                    if (!ReferenceEquals(comp, this))
-                        return comp;
-
-                return null;
-            }
-        }
-
         /// Snaps anchor pose to NavMesh at start.
         protected virtual void Start() => SnapToNavMesh();
 
@@ -62,31 +50,38 @@ namespace World.Tactical{
                 SetAnchorPoseFromWorld(hit.position, Rotation);
         }
 
-        /// Sets default anchor pose 1 unit in front and facing inward on reset.
-        private void Reset() => anchorPose = SpatialPose.Default;
+        /// Sets default anchor pose and auto-links sibling IUsable on reset.
+        private void Reset(){
+            anchorPose = SpatialPose.Default;
+            foreach (IUsable comp in GetComponents<IUsable>())
+                if (!ReferenceEquals(comp, this))
+                    linkedInteractable = (MonoBehaviour)comp;
+        }
 
         /// Sets anchor pose coordinates from world position and rotation.
         public void SetAnchorPoseFromWorld(Vector3 worldPos, Quaternion worldRot) =>
             anchorPose.SetFromWorld(transform, worldPos, worldRot);
 
-        /// Reserves this slot for an approaching character.
-        public virtual void Reserve(Character character) => ReservedBy = character;
+        /// Reserves this slot for an approaching character if available.
+        public virtual void Reserve(Character character){
+            if (!IsAvailable && Occupant != character && ReservedBy != character) return;
+            ReservedBy = character;
+        }
 
         /// Claims this slot when the character arrives.
         public virtual void Claim(Character character){
-            Occupant = character;
+            Occupant   = character;
             ReservedBy = null;
         }
 
         /// Releases any reservation or occupancy on this slot.
         public virtual void Release(){
-            Occupant = null;
+            Occupant   = null;
             ReservedBy = null;
         }
 
         /// Toggles the visual ring indicator for this slot if assigned.
         public virtual void SetVisualActive(bool active){
-            // Paradigm exception: visualRing is an optional visual indicator that level designers may leave unassigned.
             if (visualRing != null)
                 visualRing.SetActive(active);
         }

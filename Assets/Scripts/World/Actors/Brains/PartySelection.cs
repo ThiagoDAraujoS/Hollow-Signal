@@ -20,6 +20,20 @@ namespace World.Actors.Brains{
         /// Adds a unit to the current selection without wiping previous members.
         public void AddUnitSelect(Character selectedUnit) => Append(selectedUnit);
 
+        /// Sets the designated lead character among selected units, or selects it if not selected.
+        public void SetLead(Character character){
+            if (character == null) return;
+            if (Selected.Contains(character)){
+                if (Lead != character){
+                    Lead = character;
+                    OnSelectionChanged?.Invoke();
+                }
+            }
+            else{
+                SingleUnitSelect(character);
+            }
+        }
+
         /// Toggles a unit's selection state between selected and unselected.
         public void ToggleAddSelection(Character selectedUnit){
             if (selectedUnit == null) return;

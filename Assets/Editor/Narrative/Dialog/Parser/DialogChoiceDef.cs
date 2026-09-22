@@ -21,5 +21,14 @@
 
         /// Name of the target knot this choice transitions into.
         public string targetKnot;
+
+        /// True if this choice consumes the player's major action (<!>).
+        public bool consumesAction;
+
+        /// True if this choice immediately concludes the player's turn (<!!>).
+        public bool endsTurn;
+
+        /// True if this choice consumes movement and burns sprint/dash (<M>).
+        public bool consumesMove;
     }
 }

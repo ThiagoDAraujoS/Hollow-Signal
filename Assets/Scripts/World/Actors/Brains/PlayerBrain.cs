@@ -17,6 +17,10 @@ namespace World.Actors.Brains{
         [Header("Party Roster")] [Tooltip("Canonical list of active party members in roster order.")] [SerializeField]
         private List<Character> activePartyMembers = new();
 
+        [Header("Dialogue Screens (Roster Slots 1-4)")]
+        [SerializeField] private DialogueController[] dialogueScreens = new DialogueController[4];
+        [SerializeField] private GameObject           sharedDialogueBackground;
+
         [Header("Mouse Action References")] [Tooltip("Command / Action: Left Click by default.")] [FormerlySerializedAs("inspectActionRef")] [SerializeField]
         private InputActionReference commandActionRef;
 
@@ -67,6 +71,7 @@ namespace World.Actors.Brains{
         private Vector2 _currentScreenPos;
         private bool    _isDialogueActive;
 
+        public static PlayerBrain        Instance           => _instance;
         public static PartySelection     Selection          => _instance._selection;
         public static Character          Lead               => _instance._selection.Lead;
         public static HashSet<Character> SelectedCharacters => _instance._selection.Selected;
@@ -124,13 +129,22 @@ namespace World.Actors.Brains{
 
             InitializeBoundActions();
             _selection.OnSelectionChanged += UpdateSelectionCircles;
+            _selection.OnSelectionChanged += UpdateDialogueScreens;
+            SyncDialogueScreens();
         }
 
         /// Cleans up selection event listeners and singleton instance reference.
         private void OnDestroy(){
             if (_instance != this) return;
             _selection.OnSelectionChanged -= UpdateSelectionCircles;
+            _selection.OnSelectionChanged -= UpdateDialogueScreens;
             _instance                     =  null;
+        }
+
+        /// Synchronizes screens and hides dialogue background on session start.
+        private void Start(){
+            SyncDialogueScreens();
+            UpdateDialogueScreens();
         }
 
         /// Sets the active world camera for command dispatching and unit selection.
@@ -143,15 +157,22 @@ namespace World.Actors.Brains{
 
         /// Appends character to active party roster if not already present.
         public static void AddPartyMember(Character character){
-            if (!_instance.activePartyMembers.Contains(character))
-                _instance.activePartyMembers.Add(character);
+            if (_instance.activePartyMembers.Contains(character)) return;
+            _instance.activePartyMembers.Add(character);
+            _instance.SyncDialogueScreens();
         }
 
         /// Removes character from active party roster.
-        public static void RemovePartyMember(Character character) => _instance.activePartyMembers.Remove(character);
+        public static void RemovePartyMember(Character character){
+            _instance.activePartyMembers.Remove(character);
+            _instance.SyncDialogueScreens();
+        }
 
         /// Clears all characters from active party roster.
-        public static void ClearPartyMembers() => _instance.activePartyMembers.Clear();
+        public static void ClearPartyMembers(){
+            _instance.activePartyMembers.Clear();
+            _instance.SyncDialogueScreens();
+        }
 
         /// Checks if a character is currently in the active party roster.
         public static bool IsPartyMember(Character character) => _instance.activePartyMembers.Contains(character);
@@ -180,14 +201,21 @@ namespace World.Actors.Brains{
         private void InitializeBoundActions(){
             _boundActions.Add(new BoundAction(commandActionRef,       OnCommandStarted,       OnCommandCanceled));
             _boundActions.Add(new BoundAction(primarySelectActionRef, OnPrimarySelectStarted, OnPrimarySelectCanceled));
-            _boundActions.Add(new BoundAction(selectAllActionRef,     _ => { if (!_isDialogueActive) _selection.SelectAll(activePartyMembers); }));
-            _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => { if (!_isDialogueActive) _selection.CycleLeader(activePartyMembers); }));
-            _boundActions.Add(new BoundAction(deselectActionRef,      _ => { if (!_isDialogueActive) _selection.Clear(); }));
-            _boundActions.Add(new BoundAction(stopActionRef,          _ => { if (!_isDialogueActive) StopSelectedUnits(); }));
-            _boundActions.Add(new BoundAction(slot1ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(0); }));
-            _boundActions.Add(new BoundAction(slot2ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(1); }));
-            _boundActions.Add(new BoundAction(slot3ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(2); }));
-            _boundActions.Add(new BoundAction(slot4ActionRef,         _ => { if (!_isDialogueActive) SelectSlot(3); }));
+            _boundActions.Add(new BoundAction(selectAllActionRef,     _ => _selection.SelectAll(activePartyMembers)));
+            _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => {
+                _selection.CycleLeader(activePartyMembers);
+                if (_selection.Lead != null)
+                    CameraAnchor.Track(_selection.Lead.BodyTransform);
+            }));
+            _boundActions.Add(new BoundAction(deselectActionRef,      _ => {
+                bool leadInDialogue = Lead != null && Lead.dialogueSession != null && Lead.dialogueSession.HasActiveDialogue;
+                if (!leadInDialogue) _selection.Clear();
+            }));
+            _boundActions.Add(new BoundAction(stopActionRef,          _ => StopSelectedUnits()));
+            _boundActions.Add(new BoundAction(slot1ActionRef,         _ => SelectSlot(0)));
+            _boundActions.Add(new BoundAction(slot2ActionRef,         _ => SelectSlot(1)));
+            _boundActions.Add(new BoundAction(slot3ActionRef,         _ => SelectSlot(2)));
+            _boundActions.Add(new BoundAction(slot4ActionRef,         _ => SelectSlot(3)));
 
             if (scrollActionRef != null)
                 _boundActions.Add(new BoundAction(scrollActionRef, OnScrollPerformed));
@@ -207,6 +235,7 @@ namespace World.Actors.Brains{
             modifierAppendActionRef.action.Enable();
             DialogueController.OnDialogueActiveChanged += HandleDialogueActiveChanged;
             UpdateSelectionCircles();
+            UpdateDialogueScreens();
         }
 
         /// Disables bound input actions and unregisters dialogue listeners.
@@ -223,9 +252,59 @@ namespace World.Actors.Brains{
             _gestureHandler.Reset();
         }
 
+        /// Synchronizes screen index and controller references across active party members.
+        public void SyncDialogueScreens(){
+            if (dialogueScreens == null || dialogueScreens.Length == 0)
+                dialogueScreens = new DialogueController[4];
+
+            if (dialogueScreens[0] == null){
+                DialogueController[] controllers = FindObjectsByType<DialogueController>(FindObjectsInactive.Include);
+                for (int i = 0; i < controllers.Length && i < dialogueScreens.Length; i++)
+                    dialogueScreens[i] = controllers[i];
+            }
+
+            if (sharedDialogueBackground == null && dialogueScreens.Length > 0 && dialogueScreens[0] != null && dialogueScreens[0].DialogRoot != null)
+                sharedDialogueBackground = dialogueScreens[0].DialogRoot;
+
+            for (int i = 0; i < activePartyMembers.Count; i++){
+                DialogueController controller = i < dialogueScreens.Length ? dialogueScreens[i] : null;
+                if (activePartyMembers[i] != null && activePartyMembers[i].dialogueSession != null)
+                    activePartyMembers[i].dialogueSession.BindScreen(i, controller);
+            }
+        }
+
+        /// Synchronizes visibility of dialogue screens and shared background with the selected lead hero.
+        public void UpdateDialogueScreens(){
+            Character lead = Lead;
+            bool hasActiveDialogue = lead != null && lead.dialogueSession != null && lead.dialogueSession.HasActiveDialogue;
+
+            if (sharedDialogueBackground != null)
+                sharedDialogueBackground.SetActive(hasActiveDialogue);
+
+            for (int i = 0; i < dialogueScreens.Length; i++){
+                if (dialogueScreens[i] == null) continue;
+                bool shouldShow = hasActiveDialogue && (lead.dialogueSession.ScreenIndex == i || lead.dialogueSession.Controller == dialogueScreens[i]);
+                dialogueScreens[i].SetVisible(shouldShow);
+            }
+
+            foreach (Character member in activePartyMembers){
+                if (member == null || member.dialogueSession == null || member.dialogueSession.Controller == null) continue;
+                if (member != lead)
+                    member.dialogueSession.Controller.SetVisible(false);
+            }
+
+            if (!hasActiveDialogue){
+                if (sharedDialogueBackground != null)
+                    sharedDialogueBackground.SetActive(false);
+                else if (dialogueScreens.Length > 0 && dialogueScreens[0] != null && dialogueScreens[0].DialogRoot != null)
+                    dialogueScreens[0].DialogRoot.SetActive(false);
+            }
+        }
+
         /// Resets gesture and command dispatchers and halts units when dialogue enters or exits.
         private void HandleDialogueActiveChanged(bool isActive){
             _isDialogueActive = isActive;
+            UpdateDialogueScreens();
             if (!isActive) return;
             _commandDispatcher.Reset();
             _gestureHandler.Reset();
@@ -234,10 +313,11 @@ namespace World.Actors.Brains{
 
         /// Updates pointer tracking, gesture recognition, and continuous movement dispatching.
         private void Update(){
-            if (_isDialogueActive) return;
-
             _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.Update(_currentScreenPos);
+
+            bool leadInDialogue = Lead != null && Lead.dialogueSession != null && Lead.dialogueSession.HasActiveDialogue;
+            if (leadInDialogue) return;
 
             if (!_commandDispatcher.IsCommandHeld || !SelectionScanner.IsPointerInsideViewport(_currentScreenPos)) return;
             _commandDispatcher.UpdateContinuous(_currentScreenPos, Lead, _selection.Selected);
@@ -255,18 +335,26 @@ namespace World.Actors.Brains{
 
         /// Selects a hero or dispatches direct command at pointer position.
         private void OnCommandStarted(InputAction.CallbackContext context){
-            if (_isDialogueActive) return;
-
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(mousePos) || IsPointerOverUI(mousePos)) return;
 
-            if (_selection.Count == 0){
-                Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, mousePos, characterLayer);
-                if (hitCharacter != null){
-                    _selection.SingleUnitSelect(hitCharacter);
-                    return;
+            Character hitCharacter = SelectionScanner.RaycastCharacter(mainCamera, mousePos, characterLayer);
+            if (hitCharacter != null && activePartyMembers.Contains(hitCharacter)){
+                if (IsAppendPressed)
+                    _selection.AddUnitSelect(hitCharacter);
+                else{
+                    if (_selection.Contains(hitCharacter) && _selection.Count > 1)
+                        _selection.SetLead(hitCharacter);
+                    else
+                        _selection.SingleUnitSelect(hitCharacter);
+
+                    CameraAnchor.Track(hitCharacter.BodyTransform);
                 }
+                return;
             }
+
+            bool leadInDialogue = Lead != null && Lead.dialogueSession != null && Lead.dialogueSession.HasActiveDialogue;
+            if (leadInDialogue) return;
 
             _commandDispatcher.OnCommandStarted();
             _commandDispatcher.ExecuteDirectCommand(mousePos, Lead, _selection.Selected);
@@ -278,8 +366,6 @@ namespace World.Actors.Brains{
 
         /// Starts selection gesture handling on primary select press.
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
-            if (_isDialogueActive) return;
-
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos) || IsPointerOverUI(startPos)) return;
 
@@ -288,8 +374,6 @@ namespace World.Actors.Brains{
 
         /// Concludes selection gesture handling on primary select release.
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
-            if (_isDialogueActive) return;
-
             Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.OnPressCanceled(releasePos, IsAppendPressed);
         }
@@ -331,14 +415,18 @@ namespace World.Actors.Brains{
         }
 
         /// Selects active party member corresponding to slot index.
-        private void SelectSlot(int index){
+        public void SelectSlot(int index){
             if (index < 0 || index >= activePartyMembers.Count) return;
             Character hero = activePartyMembers[index];
 
             if (IsAppendPressed)
                 _selection.AddUnitSelect(hero);
             else{
-                _selection.SingleUnitSelect(hero);
+                if (_selection.Contains(hero) && _selection.Count > 1)
+                    _selection.SetLead(hero);
+                else
+                    _selection.SingleUnitSelect(hero);
+
                 CameraAnchor.Track(hero.BodyTransform);
             }
         }

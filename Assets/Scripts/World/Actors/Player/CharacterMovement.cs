@@ -1,3 +1,4 @@
+using Narrative.Dialog;
 using UnityEngine;
 using UnityEngine.AI;
 using World.Tactical;
@@ -115,6 +116,13 @@ namespace World.Actors.Player{
 
         /// Navigates the character to an IUsable object and triggers interaction upon arrival.
         public void MoveToAndUse(IUsable target, CharacterSheet userSheet){
+            if (target is DialogueBehaviour db && db.IsInUse && db.CurrentUser != _character) return;
+            AreaSlot slot = target as AreaSlot ?? (target is Component comp ? comp.GetComponent<AreaSlot>() : null);
+            if (slot != null){
+                if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
+                if (slot.LinkedUsable is DialogueBehaviour slotDb && slotDb.IsInUse && slotDb.CurrentUser != _character) return;
+            }
+
             CancelInteraction();
             _character.LeaveSlot();
 
@@ -123,9 +131,7 @@ namespace World.Actors.Player{
 
             _pendingTarget    = target;
             _pendingUserSheet = userSheet;
-            _pendingSlot      = target as AreaSlot;
-            if (_pendingSlot == null && target is Component comp)
-                _pendingSlot = comp.GetComponent<AreaSlot>();
+            _pendingSlot      = slot;
 
             if (_pendingSlot != null)
                 _pendingSlot.Reserve(_character);
@@ -206,6 +212,9 @@ namespace World.Actors.Player{
             _pendingTarget    = null;
             _pendingUserSheet = null;
             _pendingSlot      = null;
+
+            if (target is DialogueBehaviour db && db.IsInUse && db.CurrentUser != _character) return;
+            if (slot != null && !slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
 
             if (slot != null){
                 slot.Claim(_character);

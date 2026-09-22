@@ -17,24 +17,24 @@
         [Header(Ridge and Cavity Detection)]
         [Toggle(_ENABLE_RIDGE_CAVITY)] _EnableRidgeCavity ("Enable Ridge & Cavity", Float) = 1.0
         _CavityStrength    ("Cavity (Crevice) Darkness", Range(0.0, 5.0)) = 1.5
-        _CavityPower       ("Cavity Exponent (Pinch)", Range(0.5, 4.0)) = 1.2
-        _CavityRadius      ("Crevice Sample Radius (Pixels)", Range(0.5, 5.0)) = 1.5
+        _CavityPower       ("Cavity Exponent (Pinch)", Range(0.5, 4.0)) = 1.44
+        _CavityRadius      ("Crevice Sample Radius (Pixels)", Range(0.5, 5.0)) = 1.31
         [HDR] _CavityTint  ("Cavity Shadow Tint", Color) = (0.15, 0.15, 0.18, 1.0)
-        _RidgeStrength     ("Ridge (Peak) Highlight", Range(0.0, 3.0)) = 0.8
-        _RidgePower        ("Ridge Exponent", Range(0.5, 4.0)) = 2.0
+        _RidgeStrength     ("Ridge (Peak) Highlight", Range(0.0, 3.0)) = 0.77
+        _RidgePower        ("Ridge Exponent", Range(0.5, 4.0)) = 2.08
         [HDR] _RidgeTint   ("Ridge Highlight Tint", Color) = (1.25, 1.25, 1.25, 1.0)
-        _CurvatureBias     ("Curvature Sensitivity", Range(0.1, 5.0)) = 1.0
+        _CurvatureBias     ("Curvature Sensitivity", Range(0.1, 5.0)) = 2.27
 
         [Header(Interactive Highlight (Hover Target))]
         _HighlightAmount       ("Highlight Amount", Range(0.0, 1.0)) = 0.0
-        [HDR] _HighlightEdgeColor ("Dramatic Edge Color", Color) = (0.2, 0.85, 1.0, 1.0)
-        [HDR] _HighlightRimColor  ("Silhouette Rim Color", Color) = (1.0, 0.65, 0.2, 1.0)
-        _HighlightEdgeStrength ("Edge Sharpness Multiplier", Range(0.0, 8.0)) = 3.5
-        _HighlightEdgePower    ("Edge Exponent", Range(0.5, 6.0)) = 2.5
-        _HighlightRimStrength  ("Rim Glow Strength", Range(0.0, 5.0)) = 1.8
-        _HighlightRimPower     ("Rim Falloff Exponent", Range(0.5, 6.0)) = 3.0
+        [HDR] _HighlightEdgeColor ("Dramatic Edge Color", Color) = (5.278, 0.916, 0.0, 1.0)
+        [HDR] _HighlightRimColor  ("Silhouette Rim Color", Color) = (1.0, 0.174, 0.0, 1.0)
+        _HighlightEdgeStrength ("Edge Sharpness Multiplier", Range(0.0, 8.0)) = 3.0
+        _HighlightEdgePower    ("Edge Exponent", Range(0.5, 6.0)) = 3.13
+        _HighlightRimStrength  ("Rim Glow Strength", Range(0.0, 5.0)) = 0.34
+        _HighlightRimPower     ("Rim Falloff Exponent", Range(0.5, 6.0)) = 2.25
         _HighlightPulseSpeed   ("Pulse Speed (0 = Static)", Float) = 2.5
-        _HighlightPulseDepth   ("Pulse Depth (0 to 1)", Range(0.0, 1.0)) = 0.35
+        _HighlightPulseDepth   ("Pulse Depth (0 to 1)", Range(0.0, 1.0)) = 0.27
 
         [Header(World Height Gradient)]
         [Toggle(_ENABLE_HEIGHT_GRADIENT)] _EnableHeightGrad ("Enable Height Gradient", Float) = 0.0

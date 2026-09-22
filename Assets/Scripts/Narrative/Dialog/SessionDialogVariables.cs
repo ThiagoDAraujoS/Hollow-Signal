@@ -10,13 +10,10 @@ namespace Narrative.Dialog{
         /// Active session singleton instance accessible globally.
         public static SessionDialogVariables Instance { get; private set; }
 
-        private void Awake(){
-            Instance = this;
-        }
+        /// Registers active session instance on wake.
+        private void Awake() => Instance = this;
 
-        private void OnDestroy(){
-            if (Instance == this)
-                Instance = null;
-        }
+        /// Unregisters active session instance on destruction.
+        private void OnDestroy() => Instance = Instance == this ? null : Instance;
     }
 }

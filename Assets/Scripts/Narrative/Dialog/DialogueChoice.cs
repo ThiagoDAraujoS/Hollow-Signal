@@ -26,5 +26,14 @@ namespace Narrative.Dialog{
 
         /// Optional side effect callback invoked when the player confirms this choice.
         public Action onSelect;
+
+        /// When selected during a tactical Crisis, consumes the acting character's major action (<!> tag).
+        public bool consumesAction;
+
+        /// When selected during a tactical Crisis, concludes character's turn budget, consuming action, movement, and sprint (<!!> tag).
+        public bool endsTurn;
+
+        /// When selected during a tactical Crisis, consumes movement and burns double-move/sprint opportunity (<M> tag).
+        public bool consumesMove;
     }
 }

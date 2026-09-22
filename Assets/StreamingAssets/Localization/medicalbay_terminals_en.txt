@@ -1,6 +1,7 @@
 ﻿# --- Auto-Generated Dialogue Localization Keys ---
 # Target: medicalbay_terminals_en
-# Generated on: 2026-09-07 22:45:22
+# Batched scripts: 1
+# Generated on: 2026-09-21 22:15:47
 
 # >>> [Script: MedicalTerminal.dialog] <<<
 # [Knot: Main]
@@ -16,4 +17,5 @@ DLG_MEDICALTERMINAL_HACKNODE_FAILURE_00 = "Access denied. Alarm triggered."
 # [Knot: LogsNode]
 DLG_MEDICALTERMINAL_LOGSNODE_PROMPT_00 = "Dr. Vance report: Subject 07 escaped quarantine."
 DLG_MEDICALTERMINAL_LOGSNODE_CHOICE_00 = "Return to main menu"
+
 

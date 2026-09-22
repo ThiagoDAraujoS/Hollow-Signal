@@ -6,12 +6,10 @@ using Editor.Dialog.Parser;
 
 namespace Editor.Dialog.Emitter{
     /// Generates strongly-typed C# classes inheriting from DialogueBehaviour for parsed DialogScriptAst trees.
-    /// Strictly avoids string evaluation at runtime by emitting native C# delegates and compiled lambdas.
     public static class DialogCodeEmitter{
         private const string DefaultGeneratedScriptsFolder = "Assets/Scripts/Generated/Dialogues";
 
-        /// Emits the C# class for the given AST.
-        /// Returns the path of the written file.
+        /// Emits the C# class for the given AST and returns the path of the written file.
         public static string Emit(DialogScriptAst ast, string targetDirectory = null){
             string folder = string.IsNullOrEmpty(targetDirectory) ? DefaultGeneratedScriptsFolder : targetDirectory;
             if (!Directory.Exists(folder))
@@ -33,9 +31,10 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine("using System;");
             sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("using Core;");
-            sb.AppendLine("using Core.Dialog;");
+            sb.AppendLine("using Core.State;");
             sb.AppendLine("using Data;");
             sb.AppendLine("using Generated.Maps;");
+            sb.AppendLine("using Narrative.Dialog;");
             sb.AppendLine("using UnityEngine;");
             sb.AppendLine();
             sb.AppendLine("namespace Generated.Dialogues{");
@@ -43,13 +42,11 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine("    [DisallowMultipleComponent]");
             sb.AppendLine($"    public class {className} : DialogueBehaviour{{");
 
-            // Localization Table Identifier override
             string resolvedLocTable = !string.IsNullOrEmpty(ast.locFileName) ? ast.locFileName : (!string.IsNullOrEmpty(ast.mapName) ? ast.mapName : ast.scriptName);
             sb.AppendLine($"        /// Bound localization table containing strings for this dialogue.");
-            sb.AppendLine($"        public override string LocTableName => \"{resolvedLocTable}\";");
+            sb.AppendLine($"        protected override string LocTableName => \"{resolvedLocTable}\";");
             sb.AppendLine();
 
-            // 1. Local Tracked<T> Variables
             bool hasLocalVars = false;
             foreach (DialogVarDef varDef in ast.variables){
                 if (varDef.scope == "local"){
@@ -66,13 +63,11 @@ namespace Editor.Dialog.Emitter{
             if (hasLocalVars)
                 sb.AppendLine();
 
-            // 2. Strongly-typed or concrete Map Proxy accessor helper
             string mapCastType = !string.IsNullOrEmpty(ast.mapName) ? $"{SanitizeIdentifier(ast.mapName)}Variables" : "MapDialogVariables";
             sb.AppendLine($"        private static {mapCastType} Map => ({mapCastType})MapDialogVariables.Instance;");
             sb.AppendLine($"        private static SessionDialogVariables Session => SessionDialogVariables.Instance;");
             sb.AppendLine();
 
-            // 3. GetNode Dispatcher
             sb.AppendLine("        /// Resolves knot by ID and builds the corresponding DialogueNode.");
             sb.AppendLine("        public override DialogueNode GetNode(string knotId) => knotId switch {");
             foreach (DialogKnotDef knot in ast.knots){
@@ -83,10 +78,8 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine("        };");
             sb.AppendLine();
 
-            // 4. Knot Builder Methods
-            foreach (DialogKnotDef knot in ast.knots){
+            foreach (DialogKnotDef knot in ast.knots)
                 EmitKnotMethod(sb, knot, fileSlug, ast);
-            }
 
             sb.AppendLine("    }");
             sb.AppendLine("}");
@@ -95,6 +88,7 @@ namespace Editor.Dialog.Emitter{
             return fullPath;
         }
 
+        /// Emits builder method for an individual dialogue knot.
         private static void EmitKnotMethod(StringBuilder sb, DialogKnotDef knot, string fileSlug, DialogScriptAst ast){
             string knotSlug = SanitizeKeySlug(knot.knotId);
             string methodName = $"BuildNode_{SanitizeIdentifier(knot.knotId)}";
@@ -105,11 +99,9 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine($"                speakerId = \"{EscapeString(knot.speakerId)}\",");
             sb.AppendLine($"                portraitMood = \"{EscapeString(knot.portraitMood)}\",");
 
-            if (!string.IsNullOrEmpty(knot.promptText)){
+            if (!string.IsNullOrEmpty(knot.promptText))
                 sb.AppendLine($"                textKey = \"DLG_{fileSlug}_{knotSlug}_PROMPT_00\",");
-            }
 
-            // OnEnter commands
             if (knot.inLineCommands.Count > 0){
                 sb.AppendLine("                onEnter = () => {");
                 foreach (string cmd in knot.inLineCommands){
@@ -119,7 +111,6 @@ namespace Editor.Dialog.Emitter{
                 sb.AppendLine("                },");
             }
 
-            // Skill Check
             if (knot.skillCheck != null){
                 sb.AppendLine("                skillCheck = new DialogueSkillCheck{");
                 sb.AppendLine($"                    skill = Skill.{knot.skillCheck.skill},");
@@ -133,7 +124,6 @@ namespace Editor.Dialog.Emitter{
                 sb.AppendLine("                },");
             }
 
-            // Choices
             if (knot.choices.Count > 0){
                 sb.AppendLine("                choices = new List<DialogueChoice>{");
                 for (int i = 0; i < knot.choices.Count; i++){
@@ -143,17 +133,21 @@ namespace Editor.Dialog.Emitter{
                     sb.AppendLine($"                        textKey = \"DLG_{fileSlug}_{knotSlug}_CHOICE_{i:D2}\",");
                     sb.AppendLine($"                        isOneShot = {(choice.isOneShot ? "true" : "false")},");
 
-                    // Visibility Lambda
+                    if (choice.consumesAction)
+                        sb.AppendLine("                        consumesAction = true,");
+                    if (choice.endsTurn)
+                        sb.AppendLine("                        endsTurn = true,");
+                    if (choice.consumesMove)
+                        sb.AppendLine("                        consumesMove = true,");
+
                     string visibilityExpr = BuildVisibilityExpression(choice, ast);
                     sb.AppendLine($"                        isVisible = () => {visibilityExpr},");
 
-                    // Required Item Gating
                     if (!string.IsNullOrEmpty(choice.requiredItemId)){
                         sb.AppendLine($"                        requiredItemId = \"{choice.requiredItemId}\",");
                         sb.AppendLine($"                        requiredItemAmount = {choice.requiredItemAmount},");
                     }
 
-                    // Target Knot
                     string target = choice.targetKnot == "END" ? "DialogueNode.End" : $"\"{choice.targetKnot}\"";
                     sb.AppendLine($"                        targetKnot = {target}");
                     sb.AppendLine("                    },");
@@ -166,8 +160,10 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine();
         }
 
+        /// Emits an outcome branch for a skill check knot.
         private static void EmitOutcome(StringBuilder sb, string propertyName, DialogOutcomeDef outcome, string fileSlug, string knotSlug, string outcomeType, DialogScriptAst ast){
-            if (outcome == null) return;
+            if (outcome == null)
+                return;
 
             sb.AppendLine($"                    {propertyName} = new DialogueOutcome{{");
             sb.AppendLine($"                        speakerId = \"{EscapeString(outcome.speakerId)}\",");
@@ -183,12 +179,12 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine("                    },");
         }
 
+        /// Generates the C# lambda boolean expression governing choice visibility.
         private static string BuildVisibilityExpression(DialogChoiceDef choice, DialogScriptAst ast){
             StringBuilder expr = new();
 
-            if (choice.isOneShot){
+            if (choice.isOneShot)
                 expr.Append($"!IsChoiceConsumed(\"{choice.choiceId}\")");
-            }
 
             if (!string.IsNullOrEmpty(choice.condition)){
                 string translatedCondition = TranslateCondition(choice.condition, ast);
@@ -197,12 +193,10 @@ namespace Editor.Dialog.Emitter{
                 expr.Append($"({translatedCondition})");
             }
 
-            if (expr.Length == 0)
-                return "true";
-
-            return expr.ToString();
+            return expr.Length == 0 ? "true" : expr.ToString();
         }
 
+        /// Translates AST variable identifiers to C# Blackboard proxy accessors.
         private static string TranslateCondition(string rawCondition, DialogScriptAst ast){
             string result = rawCondition;
             foreach (DialogVarDef varDef in ast.variables){
@@ -218,6 +212,7 @@ namespace Editor.Dialog.Emitter{
             return result;
         }
 
+        /// Translates AST commands into direct C# assignments and invocations.
         private static string TranslateCommand(string rawCmd, DialogScriptAst ast){
             if (!rawCmd.StartsWith("SET ", StringComparison.OrdinalIgnoreCase))
                 return $"{rawCmd}();";
@@ -243,6 +238,7 @@ namespace Editor.Dialog.Emitter{
             return $"{assignment};";
         }
 
+        /// Maps DSL primitive type strings to C# types.
         private static string NormalizeType(string typeName) => typeName switch{
             "bool" => "bool",
             "int" => "int",
@@ -251,6 +247,7 @@ namespace Editor.Dialog.Emitter{
             _ => typeName
         };
 
+        /// Formats initial variable values into C# literal syntax.
         private static string FormatDefaultValue(string typeName, string rawDefault){
             if (string.IsNullOrEmpty(rawDefault))
                 return typeName == "string" ? "\"\"" : "default";
@@ -261,19 +258,13 @@ namespace Editor.Dialog.Emitter{
             return rawDefault;
         }
 
-        private static string SanitizeIdentifier(string raw){
-            if (string.IsNullOrEmpty(raw)) return "Script";
-            return raw.Replace(" ", "_").Replace("-", "_");
-        }
+        /// Sanitizes raw string into a valid C# identifier.
+        private static string SanitizeIdentifier(string raw) => string.IsNullOrEmpty(raw) ? "Script" : raw.Replace(" ", "_").Replace("-", "_");
 
-        private static string SanitizeKeySlug(string raw){
-            if (string.IsNullOrEmpty(raw)) return "KEY";
-            return raw.ToUpperInvariant().Replace(" ", "_").Replace("-", "_");
-        }
+        /// Formats raw text into an uppercase snake_case localization key slug.
+        private static string SanitizeKeySlug(string raw) => string.IsNullOrEmpty(raw) ? "KEY" : raw.ToUpperInvariant().Replace(" ", "_").Replace("-", "_");
 
-        private static string EscapeString(string raw){
-            if (string.IsNullOrEmpty(raw)) return string.Empty;
-            return raw.Replace("\"", "\\\"");
-        }
+        /// Escapes quote characters for emission in string literals.
+        private static string EscapeString(string raw) => string.IsNullOrEmpty(raw) ? string.Empty : raw.Replace("\"", "\\\"");
     }
 }

@@ -3,89 +3,70 @@
 ## 1. System Vision & The Baldur's Gate 3 Paradigm
 
 In Hollow Signal, dialogue is not a global modal that freezes the game world. In both real-time exploration and **Crisis Mode (Turn-Based Tactical Combat)**, heroes act with individual agency:
-- **Hero 1** can initiate a dialogue with a jammed door during their turn, pick a turn-consuming brute force action (`<T>`), and end their turn.
-- While Hero 1's action is underway, **Hero 2** can move across the room and interrogate a hostile NPC or kick a villain.
-- When the turn order cycles back to Hero 1, Hero 1's dialogue coroutine resumes, displays the dice roll and outcome quip, and allows Hero 1 to continue acting.
+- **Hero 1** can initiate a dialogue with a jammed door during their turn, pick a turn-consuming brute force action (`<!>`), and continue moving or end their turn (`<!!>`).
+- While Hero 1's action is underway, the player can click **Hero 2**:
+  - The camera smoothly tracks / refocuses onto Hero 2.
+  - Hero 1's dialogue window is cleanly hidden (`SetVisible(false)`), breaking out of the conversation view without resetting or destroying Hero 1's conversation progress.
+  - Hero 2 can move across the room, kick a villain, or inspect a terminal.
+  - When the player selects back to Hero 1, the camera smoothly refocuses on Hero 1 and reopens Hero 1's dialogue window, restoring the exact knot and options where they left off.
 
 ---
 
-## 2. Window Architecture: Dedicated Window per Hero (Option A)
+## 2. Window Architecture: Dedicated Window per Hero
 
-Instead of a single window that clears and overwrites text when swapping heroes, the system allocates **one dedicated `PRE_DialogUI` instance per party member**.
+Instead of a single window that clears and overwrites text when swapping heroes, the system allocates **one dedicated `DialogueController` screen per party member** (managed by `PlayerBrain`).
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                     DialogueManager                      │
-│   • Listens to PlayerBrain.Selection.OnSelectionChanged  │
-│   • Enforces: EXACTLY ONE window visible at any time     │
-│   • Handles window switching on hero select / cycle      │
-└────────────┬─────────────────────────────┬───────────────┘
-             │                             │
-    Binds Hero 1                  Binds Hero 2
-             │                             │
-             ▼                             ▼
-┌─────────────────────────┐   ┌─────────────────────────┐
-│     DialogueRunner      │   │     DialogueRunner      │
-│  (Coroutine on Hero 1)  │   │  (Coroutine on Hero 2)  │
-│                         │   │                         │
-│ • State: Waiting Turn   │   │ • State: Active Choice  │
-│ • Owns Window Instance 1│   │ • Owns Window Instance 2│
-│ • Separate Transcript   │   │ • Separate Transcript   │
-│ • Separate Scroll State │   │ • Separate Scroll State │
-└─────────────────────────┘   └─────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                        PlayerBrain                         │
+│   • Listens to Selection.OnSelectionChanged                │
+│   • Calls UpdateDialogueScreens() on hero swap             │
+│   • Enforces: EXACTLY ONE window visible at any time       │
+└────────────────────────────┬───────────────────────────────┘
+                             │
+            ┌────────────────┴────────────────┐
+            ▼                                 ▼
+┌─────────────────────────┐       ┌─────────────────────────┐
+│CharacterDialogueSession │       │CharacterDialogueSession │
+│       (on Hero 1)       │       │       (on Hero 2)       │
+│                         │       │                         │
+│ • State: In Dialogue    │       │ • State: Idle / Active  │
+│ • Owns Window Screen 0  │       │ • Owns Window Screen 1  │
+│ • Separate Transcript   │       │ • Separate Transcript   │
+│ • Preserved Knot State  │       │ • Preserved Knot State  │
+└─────────────────────────┘       └─────────────────────────┘
 ```
 
-### Why Dedicated Windows?
-1. **Zero State Rebuilding**: Switching between heroes is an instantaneous visibility toggle (`Show()` / `Hide()`). The UI does not need to serialize, parse, and rebuild rich-text layouts every time the player clicks between party portraits.
+### Why Dedicated Windows & Session Tracking?
+1. **Zero State Rebuilding**: Switching between heroes is an instantaneous visibility toggle (`SetVisible(true/false)`). The UI does not need to serialize, parse, and rebuild rich-text layouts every time the player clicks between party portraits.
 2. **Preserved Scroll Positions**: If Hero 1 scrolled up into the transcript to review an ancient inscription, switching to Hero 2 and back leaves Hero 1's scroll bar exactly where they left it.
 3. **Clean Separation**: Transcript histories never interleave. Hero 1's lockpicking log remains purely on Hero 1's screen.
+4. **Camera Synchronization**: When swapping lead selection, `CameraAnchor.Track(Lead.BodyTransform)` frames the active character, and `UpdateDialogueScreens()` displays only the active leader's conversation window if they have one ongoing.
 
 ---
 
-## 3. Coroutine-Based Dialogue Runners
+## 3. Tactical Turn Economy Integration (`<!>`, `<!!>`, `<M>`)
 
-Dialogue execution operates via asynchronous Unity Coroutines. A coroutine acts as a native state machine that pauses execution at choice gates and turn barriers.
+During tactical Crisis mode, dialogue options consume the character's turn budget:
 
-### Turn-Yielding Lifecycle:
-```csharp
-IEnumerator RunDialogue(Character hero, DialogueNode startNode)
-{
-    DialogueNode current = startNode;
+| Tag | Meaning | Resource Consumption | Styling in Crisis | Hover Tooltip |
+| :--- | :--- | :--- | :--- | :--- |
+| `<!>` | **Major Action** | `turn.ConsumeAction()` | **Bold Orange** (`#E67E22`) | *"Consumes Major Action"* |
+| `<!!>` | **End Turn** | `turn.EndTurn()` (Action, Move, Sprint) | **Bold Red** (`#E74C3C`) | *"Ends Turn (Consumes Action, Move, and Dash)"* |
+| `<M>` | **Movement & Burn Sprint** | `turn.ConsumeMoveAndBurnSprint()` | **Bold Blue** (`#2980B9`) | *"Consumes Movement (Dash / Double Move disabled)"* |
+| *(Any)* | **Resource Depleted** | Unclickable / Disabled | **Muted Gray** (`#7F8C8D`) | *"Unavailable: [Reason]"* |
 
-    while (current != null && current.knotId != DialogueNode.End)
-    {
-        // 1. Log prompt to this hero's transcript
-        window.AppendPrompt(current.speakerId, current.textKey);
-
-        // 2. Yield until the player clicks a choice
-        DialogueChoice selectedChoice = null;
-        yield return window.WaitForChoice(current.choices, choice => selectedChoice = choice);
-
-        // 3. Turn-Ending Action (<T>): Yield until next hero turn!
-        if (selectedChoice.EndsTurn)
-        {
-            window.Hide();
-            TurnManager.ConsumeAction(hero);
-
-            // Coroutine PAUSES HERE. Other heroes execute their turns freely.
-            yield return TurnManager.WaitForTurn(hero);
-
-            window.Show();
-        }
-
-        // 4. Resolve Problem Archetype (if applicable)
-        if (selectedChoice.HasArchetypeCheck)
-        {
-            yield return window.DisplayResolution(hero, selectedChoice.Archetype);
-        }
-
-        // 5. Transition to next knot
-        current = currentDialogue.GetNode(selectedChoice.targetKnot);
-    }
-
-    window.Hide();
-}
-```
+### Turn Economy Rules:
+1. **Tags Stripped**: Tags (`<!>`, `<!!>`, `<M>`) are parsed by the compiler and dialogue controller, and are never rendered into the visible button label.
+2. **Gated Availability**:
+   - If `turn.HasActed == true`, `<!>` and `<!!>` choices are grayed out, unclickable, and display a tooltip explaining that the major action was already spent.
+   - If `turn.HasMoved == true`, `<M>` choices are grayed out and unclickable.
+3. **Double-Move Dash Lockout (`<M>`)**:
+   - Choices tagged `<M>` are agnostic of the double-move dash mechanic: choosing them consumes the move AND burns `canSprint = false`, barring the character from rolling an athletics sprint test for a second move that turn.
+4. **Exploration Mode Agnostic**:
+   - Outside Crisis mode, all choices are freely selectable, styled in regular font weight and default text colors, with zero cost tags or tooltips.
+5. **Color Palette Compendium**:
+   - All colors and styling rules are centralized in [`DialogueColorTheme.cs`](file:///C:/Users/Thiago/Desktop/Personal%20Projects/Horror%20Room/Hollow%20Signal/Hollow%20Signal/Assets/Scripts/UI/Dialog/DialogueColorTheme.cs) for designer tuning.
 
 ---
 
@@ -95,21 +76,13 @@ To decouple dialogue writers from UI artists, semantic tokens are written direct
 
 | Token | Meaning | Inspector-Configured Style |
 | :--- | :--- | :--- |
-| `<T>` | Consumes turn / Ends turn | Colored with `turnCostColor` (e.g. Iron Gall Crimson `#7D1609`) |
-| `[Brute Force]` | Physical Approach Tag | Colored with `approachColor` (e.g. Burnished Ochre `#854205`) |
-| `(Rusted Mechanism)` | Target Archetype Hint | Subdued graphite/italic formatting |
+| `<!>` | Major Action Cost | Orange Bold badge/styling (`DialogueColorTheme.ActionCostColor`) |
+| `<!!>` | End Turn Cost | Red Bold badge/styling (`DialogueColorTheme.EndTurnCostColor`) |
+| `<M>` | Move Cost (Burns Sprint) | Blue Bold badge/styling (`DialogueColorTheme.MoveCostColor`) |
+| `(item: ID xCount)` | Inventory Item Requirement | Consumed upon choice confirmation |
+| `{expression}` | C# State Visibility Gate | Evaluated dynamically |
 
-- Writers write clean plaintext: `<T> [Brute Force] Break the door latch.`
-- `DialogueOptionUI` parses the tokens and formats the TextMeshPro text at runtime.
-- Designers tweak color palettes directly on the prefab without re-baking dialogue assets.
-
----
-
-## 5. Window Animation State Transitions
-
-Dialogue windows must not snap abruptly on/off:
-- Window root objects contain an `Animator` controller.
-- The `DialogueWindow` component communicates via state parameters:
-  - `animator.SetBool("IsOpen", true)` triggers the slide-in transition.
-  - `animator.SetBool("IsOpen", false)` triggers the slide-out transition.
-- Coroutines yield on animation triggers before disabling interaction.
+- Writers write clean syntax: `* [<!> Brute force the bulkhead latch] -> ForceNode`
+- `DialogueParser` extracts tags into AST flags and cleans visible localization text.
+- `DialogueOptionUI` dynamically displays hover tooltips and underline interactions.
+- Designers tweak color palettes directly in `DialogueColorTheme.cs` without re-baking dialogue assets.

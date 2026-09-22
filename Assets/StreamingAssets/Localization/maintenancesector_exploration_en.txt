@@ -1,0 +1,41 @@
+﻿# --- Auto-Generated Dialogue Localization Keys ---
+# Target: maintenancesector_exploration_en
+# Batched scripts: 1
+# Generated on: 2026-09-21 22:17:47
+
+# >>> [Script: ExplorationConsole.dialog] <<<
+# [Knot: Main]
+DLG_EXPLORATIONCONSOLE_MAIN_PROMPT_00 = "[STATION TELEMETRY OFFLINE] Derelict monitoring terminal idling on auxiliary reserve. Primary routing relays disconnected."
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_00 = "Examine maintenance telemetry and circuit status"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_01 = "Scavenge surrounding debris for copper wiring"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_02 = "Force the rusted manual override lever"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_03 = "Insert spare capacitor into power bus"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_04 = "Calibrate power distribution grid"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_05 = "Engage airlock decompression sequence"
+DLG_EXPLORATIONCONSOLE_MAIN_CHOICE_06 = "Step away from the console"
+
+# [Knot: ReadTelemetry]
+DLG_EXPLORATIONCONSOLE_READTELEMETRY_PROMPT_00 = "Relays 4 through 9 unresponsive. Capacitor bank discharged. Manual override mechanism jammed by structural rust."
+DLG_EXPLORATIONCONSOLE_READTELEMETRY_CHOICE_00 = "Return to main terminal interface"
+
+# [Knot: ScavengeWiring]
+DLG_EXPLORATIONCONSOLE_SCAVENGEWIRING_SUCCESS_00 = "Salvaged intact grounding cables and usable copper conduit from the collapsed bulkhead."
+DLG_EXPLORATIONCONSOLE_SCAVENGEWIRING_FAILURE_00 = "Nothing found but corroded lead shielding and burnt silicone."
+
+# [Knot: ForceLever]
+DLG_EXPLORATIONCONSOLE_FORCELEVER_SUCCESS_00 = "Hydraulic seal breaks free with a loud metallic groan. Manual bypass engaged."
+DLG_EXPLORATIONCONSOLE_FORCELEVER_FAILURE_00 = "Lever refuses to budge. Mechanism remains seized tight against the casing."
+
+# [Knot: InsertCapacitor]
+DLG_EXPLORATIONCONSOLE_INSERTCAPACITOR_PROMPT_00 = "Capacitor slotted into auxiliary bus. Voltage indicators flicker amber as primary conduit energizes."
+DLG_EXPLORATIONCONSOLE_INSERTCAPACITOR_CHOICE_00 = "Return to main terminal interface"
+
+# [Knot: GridCalibration]
+DLG_EXPLORATIONCONSOLE_GRIDCALIBRATION_SUCCESS_00 = "Grid harmonics stabilized. Auxiliary bus humming at nominal capacity."
+DLG_EXPLORATIONCONSOLE_GRIDCALIBRATION_FAILURE_00 = "Power surge trips the breaker. Frequency fluctuates wildly before resetting."
+
+# [Knot: DecompressAirlock]
+DLG_EXPLORATIONCONSOLE_DECOMPRESSAIRLOCK_PROMPT_00 = "Emergency klaxon blares. Pneumatic latches disengage as pressure equalizes across the quarantine corridor."
+DLG_EXPLORATIONCONSOLE_DECOMPRESSAIRLOCK_CHOICE_00 = "Disconnect from terminal"
+
+

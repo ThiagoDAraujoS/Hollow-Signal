@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KB3D_DPK_MetalDarkCorrugated
-  m_Shader: {fileID: 4800000, guid: b7f9e7c74f7947de8a3115e888035f8f, type: 3}
+  m_Shader: {fileID: 4800000, guid: b2b3c4c4452b4ace80f009d1ff951def, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -129,6 +129,13 @@ Material:
     - _HeightGradMaxY: 15
     - _HeightGradMinY: 0
     - _HeightGradStrength: 1.11
+    - _HighlightAmount: 0
+    - _HighlightEdgePower: 2.5
+    - _HighlightEdgeStrength: 3.5
+    - _HighlightPulseDepth: 0.35
+    - _HighlightPulseSpeed: 2.5
+    - _HighlightRimPower: 3
+    - _HighlightRimStrength: 1.8
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionContrast: 1
@@ -161,6 +168,8 @@ Material:
     - _Color: {r: 0.9063317, g: 0.9063317, b: 0.9063317, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HeightGradColor: {r: 0.20776968, g: 0.20776966, b: 0.2735849, a: 1}
+    - _HighlightEdgeColor: {r: 0.2, g: 0.85, b: 1, a: 1}
+    - _HighlightRimColor: {r: 1, g: 0.65, b: 0.2, a: 1}
     - _OcclusionTint: {r: 0.2, g: 0.22, b: 0.25, a: 1}
     - _RidgeTint: {r: 5, g: 5, b: 5, a: 1}
     - _RimColor: {r: 2.1523743, g: 2.1480994, b: 2.1422215, a: 1}

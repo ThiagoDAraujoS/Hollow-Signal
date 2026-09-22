@@ -6,10 +6,8 @@ namespace World.Tactical{
     public sealed class ExplorationSlot : AreaSlot, IUsable{
         [Header("Exploration Interaction")]
         [SerializeField] private string interactionPrompt = "Interact";
-        [SerializeField] private bool autoTriggerOnArrival = true;
 
         public string InteractionPrompt => interactionPrompt;
-        public bool AutoTriggerOnArrival => autoTriggerOnArrival;
 
         public Vector3    UsePosition => Position;
         public Quaternion UseRotation => Rotation;

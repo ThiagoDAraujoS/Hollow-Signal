@@ -10,13 +10,10 @@ namespace Narrative.Dialog{
         /// Active map singleton instance accessible across the current level.
         public static MapDialogVariables Instance { get; private set; }
 
-        protected virtual void Awake(){
-            Instance = this;
-        }
+        /// Registers active map instance on wake.
+        protected virtual void Awake() => Instance = this;
 
-        protected virtual void OnDestroy(){
-            if (Instance == this)
-                Instance = null;
-        }
+        /// Unregisters active map instance on destruction.
+        protected virtual void OnDestroy() => Instance = Instance == this ? null : Instance;
     }
 }

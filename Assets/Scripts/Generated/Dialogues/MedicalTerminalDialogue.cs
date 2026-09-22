@@ -18,6 +18,9 @@ namespace Generated.Dialogues{
     /// Auto-generated dialogue state machine.
     [DisallowMultipleComponent]
     public class MedicalTerminalDialogue : DialogueBehaviour{
+        /// Bound localization table containing strings for this dialogue.
+        protected override string LocTableName => "MedicalBay_terminals";
+
         [Header("Tracked Variables (Local Instance)")]
         public Tracked<bool> is_terminal_hacked = new("is_terminal_hacked", false);
 

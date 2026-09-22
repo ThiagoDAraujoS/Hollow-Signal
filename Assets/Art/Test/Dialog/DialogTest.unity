@@ -474,110 +474,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646d8f7a302485148a327d4f5b13f449, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Cameras.RegisterBaseCamera
---- !u!1 &158738690
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 158738692}
-  - component: {fileID: 158738694}
-  - component: {fileID: 158738693}
-  - component: {fileID: 158738691}
-  - component: {fileID: 158738695}
-  - component: {fileID: 158738696}
-  m_Layer: 0
-  m_Name: MapManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &158738691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 921e310cf12202b48ba21745a534dbce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::MapManager
-  defaultSpawnPoint: {fileID: 1593743976}
---- !u!4 &158738692
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1593743976}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &158738693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e08dedcb2719c2c47af05e1fb7f35506, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.BlackboardClient
-  fileName: TestMap
---- !u!114 &158738694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bbb95474db9d29408db9f5bf6a12baa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.UniqueId
-  uniqueId: 981dd0da-55cc-4d36-84b7-e2585df65f4e
---- !u!114 &158738695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b68880d5ee794d909b8a84538c4c67ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Core.Localization.LocalizationScope
-  tableNames:
-  - medicalbay_terminals
---- !u!114 &158738696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158738690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be188c8731253f34bb234c0a8f0e5da2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Generated.Maps.MedicalBayVariables
-  generator_power:
-    value: 0
 --- !u!1001 &168685750
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1696,7 +1592,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1 &1593743975
+--- !u!1 &1619191058
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1704,28 +1600,103 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1593743976}
+  - component: {fileID: 1619191064}
+  - component: {fileID: 1619191063}
+  - component: {fileID: 1619191062}
+  - component: {fileID: 1619191061}
+  - component: {fileID: 1619191060}
+  - component: {fileID: 1619191059}
   m_Layer: 0
-  m_Name: DefaultSpawnPoint
+  m_Name: MapManager
   m_TagString: Untagged
-  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1593743976
+--- !u!114 &1619191059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b68880d5ee794d909b8a84538c4c67ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Narrative.Localization.LocalizationScope
+  tableNames:
+  - MaintenanceSector_exploration
+--- !u!114 &1619191060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921e310cf12202b48ba21745a534dbce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.Managers.MapManager
+  defaultSpawnPoint: {fileID: 1726128428}
+--- !u!114 &1619191061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7deb0444cdd1d41b8ff6722574cca4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Generated.Maps.MaintenanceSectorVariables
+  sector_lights_active:
+    value: 0
+  sector_airlock_open:
+    value: 0
+--- !u!114 &1619191062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e08dedcb2719c2c47af05e1fb7f35506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.State.BlackboardClient
+  fileName: 
+--- !u!114 &1619191063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bbb95474db9d29408db9f5bf6a12baa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Core.State.UniqueId
+  uniqueId: c64698f7-8070-42ec-a2a6-78516d419d50
+--- !u!4 &1619191064
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1593743975}
+  m_GameObject: {fileID: 1619191058}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.71, y: 0, z: 7.08}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 158738692}
+  m_Children:
+  - {fileID: 1726128428}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1716184377 stripped
 GameObject:
@@ -1820,6 +1791,37 @@ Transform:
   - {fileID: 14015862}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1726128427
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1726128428}
+  m_Layer: 0
+  m_Name: Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1726128428
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726128427}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -23.53, y: 0, z: -7.85}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1619191064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1737710138
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,13 +1833,13 @@ GameObject:
   - component: {fileID: 1737710139}
   - component: {fileID: 1737710145}
   - component: {fileID: 1737710144}
-  - component: {fileID: 1737710143}
+  - component: {fileID: 1737710148}
+  - component: {fileID: 1737710149}
   - component: {fileID: 1737710142}
   - component: {fileID: 1737710141}
-  - component: {fileID: 1737710148}
+  - component: {fileID: 1737710143}
   - component: {fileID: 1737710147}
-  - component: {fileID: 1737710146}
-  - component: {fileID: 1737710149}
+  - component: {fileID: 1737710150}
   m_Layer: 10
   m_Name: FBX_BUILDING_RESIDENTIAL_ApartmentsFront_Gear.005
   m_TagString: Untagged
@@ -1872,7 +1874,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e08dedcb2719c2c47af05e1fb7f35506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.State.BlackboardClient
-  fileName: 
+  fileName: DiagTest
 --- !u!114 &1737710142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1898,8 +1900,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7eb6902a71b848d6b4114f822f1d8d80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::World.Interactables.InteractableHighlight
-  targetRenderers: []
-  linkedSlot: {fileID: 0}
+  targetRenderers:
+  - {fileID: 1737710144}
+  linkedSlot: {fileID: 1737710147}
   fadeDuration: 0.15
 --- !u!23 &1737710144
 MeshRenderer:
@@ -1959,21 +1962,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1737710138}
   m_Mesh: {fileID: -853610261435531793, guid: 2fe78dac7e102424c81d354ffe0fe96e, type: 3}
---- !u!114 &1737710146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1737710138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcb35b56efaf486eb257011946f8e819, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::Test.ExplorationSlotTester
-  slot: {fileID: 1737710147}
-  interactionCount: 0
-  lastInteractedBy: 
 --- !u!114 &1737710147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1987,13 +1975,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::World.Tactical.ExplorationSlot
   anchorPose:
-    localPosition: {x: 2.4537086, y: 0.4803658, z: 0.80915004}
+    localPosition: {x: 2.6200519, y: 0.77676785, z: 0.80915004}
     localEulerAngles: {x: 1.2479913, y: 270, z: 90}
   slotDisplayName: test
-  linkedInteractable: {fileID: 0}
+  linkedInteractable: {fileID: 1737710150}
   visualRing: {fileID: 0}
   interactionPrompt: Interact
-  autoTriggerOnArrival: 1
 --- !u!64 &1737710148
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2032,6 +2019,27 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: -0.14600001, y: 0.74600005, z: -0.142}
   m_TimeToStationary: 0.5
+--- !u!114 &1737710150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737710138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbad2d36eda455540afabb2c6f53b7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::Generated.Dialogues.ExplorationConsoleDialogue
+  startingKnot: Main
+  consumedChoices:
+    value: []
+  examined_telemetry:
+    value: 0
+  manual_override_unlocked:
+    value: 0
+  generator_power:
+    value: 0
 --- !u!1 &1813472058 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9750cc24f2bbe76498991ba86aa1a030,
@@ -14935,6 +14943,6 @@ SceneRoots:
   - {fileID: 593542165}
   - {fileID: 932446195}
   - {fileID: 2324061}
-  - {fileID: 158738692}
+  - {fileID: 1619191064}
   - {fileID: 1072542367}
   - {fileID: 1302544443}

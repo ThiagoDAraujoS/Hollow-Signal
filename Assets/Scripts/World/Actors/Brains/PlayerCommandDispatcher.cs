@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Narrative.Dialog;
 using UnityEngine;
 using World.Actors.Player;
+using World.Tactical;
 
 namespace World.Actors.Brains{
     /// Handles player movement and interaction command execution, routing, and continuous steering.
@@ -15,8 +17,8 @@ namespace World.Actors.Brains{
         public bool IsCommandHeld{ get; private set; }
 
         public PlayerCommandDispatcher(Camera camera, LayerMask groundLayer, float continuousRepathInterval = 0.08f){
-            _camera                    = camera;
-            _groundLayer               = groundLayer;
+            _camera                   = camera;
+            _groundLayer              = groundLayer;
             _continuousRepathInterval = continuousRepathInterval;
         }
 
@@ -40,8 +42,14 @@ namespace World.Actors.Brains{
             IUsable usable = hit.collider.GetComponentInParent<IUsable>();
             if (usable != null){
                 IsCommandHeld = false;
-                if (lead != null)
+                if (lead != null){
+                    if (usable is DialogueBehaviour db && db.IsInUse && db.CurrentUser != lead) return;
+                    if (usable is AreaSlot slot){
+                        if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
+                        if (slot.LinkedUsable is DialogueBehaviour slotDb && slotDb.IsInUse && slotDb.CurrentUser != lead) return;
+                    }
                     lead.movement.MoveToAndUse(usable, lead.sheet);
+                }
                 return;
             }
 
@@ -63,8 +71,17 @@ namespace World.Actors.Brains{
         public static void MoveSelectedTo(Vector3 destinationPoint, Character lead, IReadOnlyCollection<Character> selectedUnits){
             if (selectedUnits.Count == 0) return;
 
+            List<Character> movableUnits = new(selectedUnits.Count);
+            foreach (Character unit in selectedUnits){
+                if (unit == null) continue;
+                if (unit.dialogueSession != null && unit.dialogueSession.HasActiveDialogue) continue;
+                movableUnits.Add(unit);
+            }
+
+            if (movableUnits.Count == 0) return;
+
             Dictionary<Character, Vector3> destinations =
-                FormationCalculator.CalculateFormationPositions(destinationPoint, lead, selectedUnits);
+                FormationCalculator.CalculateFormationPositions(destinationPoint, lead, movableUnits);
 
             foreach ((Character unit, Vector3 destination) in destinations)
                 unit.movement.MoveTo(destination);

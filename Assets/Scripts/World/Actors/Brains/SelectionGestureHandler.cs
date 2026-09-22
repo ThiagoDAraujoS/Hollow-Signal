@@ -95,7 +95,8 @@ namespace World.Actors.Brains{
             else if (!_contextMenuFired){
                 Character hitCharacter = SelectionScanner.RaycastCharacter(_camera, releasePos, _characterLayer);
                 if (hitCharacter == null){
-                    if (!isShiftPressed)
+                    bool leadInDialogue = _selection.Lead != null && _selection.Lead.dialogueSession != null && _selection.Lead.dialogueSession.HasActiveDialogue;
+                    if (!isShiftPressed && !leadInDialogue)
                         _selection.Clear();
                     return;
                 }
@@ -103,17 +104,14 @@ namespace World.Actors.Brains{
                 if (isShiftPressed)
                     _selection.AddUnitSelect(hitCharacter);
                 else{
-                    _selection.SingleUnitSelect(hitCharacter);
+                    if (_selection.Contains(hitCharacter) && _selection.Count > 1)
+                        _selection.SetLead(hitCharacter);
+                    else
+                        _selection.SingleUnitSelect(hitCharacter);
 
-                    if (_lastClickedCharacter == hitCharacter && Time.unscaledTime - _lastClickTime <= DoubleClickWindow){
-                        CameraAnchor.Track(hitCharacter.BodyTransform);
-                        _lastClickedCharacter = null;
-                        _lastClickTime        = 0f;
-                    }
-                    else{
-                        _lastClickedCharacter = hitCharacter;
-                        _lastClickTime        = Time.unscaledTime;
-                    }
+                    CameraAnchor.Track(hitCharacter.BodyTransform);
+                    _lastClickedCharacter = hitCharacter;
+                    _lastClickTime        = Time.unscaledTime;
                 }
             }
         }
@@ -130,7 +128,7 @@ namespace World.Actors.Brains{
             SelectionScanner.DrawScreenRectBorder(guiRect, 2f, _boxBorderColor);
         }
 
-        /// Resets active drag and hold flags.
+        /// Resets active drag and hold state when input is canceled.
         public void Reset(){
             _isPressed        = false;
             IsDragging        = false;
