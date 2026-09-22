@@ -733,6 +733,7 @@ GameObject:
   - component: {fileID: 730945999}
   - component: {fileID: 730945998}
   - component: {fileID: 730946003}
+  - component: {fileID: 730946004}
   m_Layer: 9
   m_Name: Brute
   m_TagString: Untagged
@@ -883,6 +884,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24a887167e0532547a473a93b9064c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Actors.Player.CharacterMovement
+--- !u!114 &730946004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730945996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f5173d605d473b9db2d8262dbca49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Actors.Player.CharacterAnimationEvents
 --- !u!1 &738562030
 GameObject:
   m_ObjectHideFlags: 0
@@ -2407,6 +2420,7 @@ GameObject:
   - component: {fileID: 1983001435}
   - component: {fileID: 1983001434}
   - component: {fileID: 1983001433}
+  - component: {fileID: 1983001439}
   m_Layer: 9
   m_Name: Thief
   m_TagString: Untagged
@@ -2557,6 +2571,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.UniqueId
   uniqueId: eda2a7af-4490-42d9-acca-ec54d72920de
+--- !u!114 &1983001439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1983001431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f5173d605d473b9db2d8262dbca49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Actors.Player.CharacterAnimationEvents
 --- !u!1 &2020796624
 GameObject:
   m_ObjectHideFlags: 0
