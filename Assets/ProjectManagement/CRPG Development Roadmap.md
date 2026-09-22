@@ -20,7 +20,7 @@
 - [x] **Player Brain & Unit Selection:** Single-click, double-click, drag-box marquee, and Shift-append squad selection.
 - [x] **Squad Formations:** `FormationCalculator` tactical wedge distribution, arrival facing alignment, and stop command.
 - [x] **Boot Scene & Sleep-Spawn Coordinator:** 5-step boot loop, GameSessionManager waking and placing heroes on map load.
-- [x] **Dialogue Compiler Pipeline:** CSV-to-AST parser and code generator emitting compiled C# dialogue state machines (`MedicalTerminalDialogue.cs`).
+- [x] **Dialogue Compiler Pipeline:** CSV-to-AST parser and code generator emitting compiled C# dialogue state machines (`ExplorationConsoleDialogue.cs`).
 - [x] **Dialogue Graph Runtime:** Core node traversal, branching choice evaluation, one-shot choice consumption, and knot navigation.
 
 ---
@@ -78,21 +78,36 @@
 ## Phase 4: Black Box Resolution & Narrative Runtime
 > **Design Goal:** Seamlessly connect physical world obstacles to the player's deduced choices, hidden skill evaluation, and narrative payoff.
 
-### 4.1 World Interaction & Dialogue Pausing
-- [ ] **World Input Pausing:**
-  - When `DialogueController.OnDialogueActiveChanged(true)` triggers, disable player movement raycasting and camera pan input.
-  - Re-enable world controls seamlessly when dialogue terminates.
-- [ ] **Click-to-Start Dialogue & IUsable Handshake:**
-  - Walk up to interactable object/NPC, align to `UseSpot` and `UseRotation`, then launch dialogue.
+### 4.1 World Interaction & Dialogue Architecture
+- [x] **World Input Pausing:**
+  - Input actions and movement commands paused during active dialogue.
+  - Active dialogue stops interacting characters and resets command dispatchers.
+  - Re-enables world controls cleanly upon dialogue exit.
+- [x] **Click-to-Start Dialogue & IUsable Handshake:**
+  - Walk up to interactable object/NPC, align to `UseSpot` and `UseRotation`, reserve and claim slot (`AreaSlot`), then launch dialogue.
+  - Prevents party members from double-occupying active slots or interrupting in-use dialogues.
+- [x] **Multi-Hero Dialogue Synchronization:**
+  - Asynchronous per-character dialogue sessions (`CharacterDialogueSession`).
+  - Active party leader owns current screen slot; cycling or selecting characters dynamically swaps active dialogue UI.
+  - Automatic shared background (`SPR_DialogMenu`) lifecycle management ensuring clean deactivation on dialogue exit.
 
-### 4.2 Black Box Skill Check Engine
-- [ ] **Resolution Pipeline:**
-  - When a dialogue choice requires an action/check:
+### 4.2 Tactical Dialogue Costs & Crisis Integration
+- [x] **Tag Parsing (`<!>`, `<!!>`, `<M>`):** Strips syntactic tags from choice strings and maps them to tactical flags (`consumesAction`, `endsTurn`, `consumesMove`).
+- [x] **Crisis Turn Economy Integration:** Evaluates hero's `CrisisTurn` during crisis mode to deduct action/move points upon selection or end turn.
+- [x] **Resource Availability & Choice Locking:**
+  - Exploration mode: all choices freely selectable with standard colors.
+  - Crisis mode: unaffordable choices are grayed out and non-interactable with explanatory tooltips.
+  - Distinct tactical color themes for Actions, Move, and End-Turn choices.
+
+### 4.3 Black Box Skill Check Engine
+- [ ] **Skill Check Resolution Pipeline:**
+  - Hook `DialogueSkillCheck` evaluation into `DialogueController.GoToKnot`:
     1. Query acting hero's `CharacterSheet` for highest applicable skill bonus.
     2. Trace the contributing `Mastery` (or equipment) granting that bonus.
     3. Roll `d20 + TotalBonus vs Target DC`.
     4. Support Advantage / Disadvantage (2d20 pick high/low).
     5. Prompt player for Resource Burn (Grit/Reroll) upon failure.
+    6. Transition to `successKnot` or `failureKnot`.
 - [ ] **Mastery Reveal & Flavor Quip Display:**
   - Format transcript output with dieselpunk styling:
     - Action Header: `[ACTION: BRUTE FORCE]`
@@ -100,7 +115,9 @@
     - Method Quip: Narrative text explaining how their specific background solved the obstacle.
     - Roll Breakdown: `[PASSED] // Roll: 12 + 3 = 15 vs DC 13`.
 
-### 4.3 Dialogue UI Presentation Polish
+### 4.4 Dialogue UI Presentation Polish
+- [x] **Choice Tooltip Display:** Dynamic screen-space hover tooltips displaying tactical turn costs and lockout reasons.
+- [ ] **Dialogue Scroll Unrolling Animation:** Play the scroll unrolling / opening animation when entering dialogue and roll-up animation on exit instead of instant popping.
 - [ ] **Typewriter Text Effect:** Smooth text animation with click-to-skip.
 - [ ] **Hotkeys:** Keyboard number keys (`1`, `2`, `3`...) to trigger choices.
 - [ ] **Dialogue Test Room (`DialogTest.unity`):** End-to-end verification of dialogue, branching, skill rolls, and mastery reveals.

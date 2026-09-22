@@ -101,8 +101,8 @@ namespace Core.Managers{
             await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
-        /// Transitions between two map zones: unloads old map, purges its blackboard partitions and localization,
-        /// loads new dependencies concurrently, and activates the new map.
+        /// Transitions between two map zones: unloads old map, purges its blackboard partitions,
+        /// loads new dependencies, and activates the new map.
         public async Task TransitionToMapAsync(string newMapName){
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
@@ -115,10 +115,6 @@ namespace Core.Managers{
                 foreach (string file in oldDeps)
                     SaveSystem.ReleaseFile(file);
 
-                List<string> oldLocTables = dependencyDatabase.GetSceneLocalizationTables(ActiveMapScene);
-                foreach (string table in oldLocTables)
-                    LocalizationManager.UnloadTable(table);
-
                 GC.Collect();
                 await Resources.UnloadUnusedAssets();
             }
@@ -129,15 +125,11 @@ namespace Core.Managers{
             if (loadOp != null){
                 loadOp.allowSceneActivation = false;
 
-                // 3. Concurrently read and parse incoming save data and localization tables
-                List<string> newDeps      = dependencyDatabase.GetSceneDependencies(newMapName);
-                List<string> newLocTables = dependencyDatabase.GetSceneLocalizationTables(newMapName);
+                // 3. Read and parse incoming save data
+                List<string> newDeps = dependencyDatabase.GetSceneDependencies(newMapName);
+                await SaveSystem.LoadFiles(newDeps);
 
-                Task saveTask = SaveSystem.LoadFiles(newDeps);
-                Task locTask  = Task.WhenAll(newLocTables.Select(LocalizationManager.LoadTableAsync));
-                await Task.WhenAll(saveTask, locTask);
-
-                // 4. Blackboard and localization are ready! Allow map to activate and wake up entities
+                // 4. Blackboard is ready! Allow map to activate and wake up entities
                 loadOp.allowSceneActivation = true;
                 await loadOp;
             }
