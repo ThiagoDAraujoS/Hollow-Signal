@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4646171646855158184
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -7,12 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MAT_MetalBare
+  m_Name: MAT_Dice
   m_Shader: {fileID: 4800000, guid: b7f9e7c74f7947de8a3115e888035f8f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ENABLE_RIDGE_CAVITY
+  - _ENABLE_SHADOW_SHARPNESS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -26,7 +40,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: f27ea79817e1c10499aab73e0a2b596c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6de104cd1c4d3f14bb421b97dcfd881a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -90,13 +104,13 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
-    - _CavityPower: 2.04
-    - _CavityRadius: 1.78
-    - _CavityStrength: 2.16
+    - _CavityPower: 0.66
+    - _CavityRadius: 2.77
+    - _CavityStrength: 3.64
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _CurvatureBias: 1.22
+    - _CurvatureBias: 0.97
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -105,14 +119,14 @@ Material:
     - _DstBlendAlpha: 0
     - _EnableHeightGrad: 0
     - _EnableRidgeCavity: 1
-    - _EnableShadowSharpness: 0
+    - _EnableShadowSharpness: 1
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightGradMaxY: 15
-    - _HeightGradMinY: 0
-    - _HeightGradStrength: 0.5
+    - _HeightGradMaxY: 14.5
+    - _HeightGradMinY: 0.12
+    - _HeightGradStrength: 0.18
     - _Metallic: 0
     - _OcclusionContrast: 1
     - _OcclusionPower: 1
@@ -120,11 +134,11 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _RidgePower: 1.54
-    - _RidgeStrength: 0.94
-    - _Saturation: 1.3
-    - _ShadowSoftness: 2.97
-    - _ShadowThreshold: 0.86
+    - _RidgePower: 2.33
+    - _RidgeStrength: 0.79
+    - _Saturation: 0.66
+    - _ShadowSoftness: 0.27
+    - _ShadowThreshold: 0.83
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -135,26 +149,13 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1.1006558, g: 1.0801578, b: 0.83587533, a: 1}
-    - _CavityTint: {r: 0.6892191, g: 0.6892191, b: 0.8270629, a: 1}
+    - _BaseColor: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
+    - _CavityTint: {r: 0.15, g: 0.15, b: 0.18, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HeightGradColor: {r: 0.4, g: 0.4, b: 0.45, a: 1}
+    - _HeightGradColor: {r: 0.2, g: 0.2, b: 0.225, a: 1}
     - _OcclusionTint: {r: 0.2, g: 0.22, b: 0.25, a: 1}
-    - _RidgeTint: {r: 2.5, g: 2.5, b: 2.5, a: 1}
+    - _RidgeTint: {r: 19.999996, g: 19.999996, b: 19.999996, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &5187080719489939926
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
-  version: 10

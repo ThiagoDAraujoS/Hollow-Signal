@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3822242088565832075
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7918498538883712692}
+  - component: {fileID: 8925717707050247463}
+  m_Layer: 12
+  m_Name: Tosser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7918498538883712692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3822242088565832075}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.24153419, y: 0.051373843, z: -0.4782805, w: 0.8427751}
+  m_LocalPosition: {x: -0.36, y: 0.45, z: 1.11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -20.976, y: 19.888, z: -62.868}
+--- !u!114 &8925717707050247463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3822242088565832075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70532c1c63594b9b85071c700fd96b32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::UI.Dice.DiceLauncher
+  dice:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  launchOrigin: {fileID: 7918498538883712692}
+  diceSpacing: 0.5
+  randomizeInitialOrientation: 1
+  localLaunchDirection: {x: 0, y: 0.67, z: 1}
+  launchForce: 12.82
+  forceVariance: 4.97
+  spreadAngle: 45
+  minTorque: 10.15
+  maxTorque: 18.2
+  enableKeyTrigger: 1
+  rollKey: 1
+  onRoll:
+    m_PersistentCalls:
+      m_Calls: []
