@@ -4,15 +4,14 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace UI.Dice{
-    /// Launches physical dice from a specific origin with directional impulse and random torque.
+    /// Launches physical dice from three explicit spawn transform slots with directional impulse and random torque.
     [DisallowMultipleComponent]
     public class DiceLauncher : MonoBehaviour{
         [Header("Dice References")]
         [SerializeField] private List<Rigidbody> dice = new();
 
-        [Header("Spawn & Launch Position")]
-        [SerializeField] private Transform launchOrigin;
-        [SerializeField] private float diceSpacing = 0.25f;
+        [Header("Spawn Slots (3 Transforms)")]
+        [SerializeField] private Transform[] spawnSlots = new Transform[3];
         [SerializeField] private bool randomizeInitialOrientation = true;
 
         [Header("Launch Force & Trajectory")]
@@ -45,21 +44,34 @@ namespace UI.Dice{
                 RollDice();
         }
 
-        /// Resets dice positions to origin and applies launching impulse and tumble torque.
+        /// Resolves the world spawn position for a die at the given index.
+        public Vector3 GetSpawnPosition(int index) =>
+            index < spawnSlots.Length && spawnSlots[index] != null
+                ? spawnSlots[index].position
+                : transform.position;
+
+        /// Measures the die bounding box extent along one axis.
+        private float GetDiceCubeSize(){
+            if (dice.Count > 0 && dice[0] != null){
+                Collider col = dice[0].GetComponentInChildren<Collider>();
+                if (col != null)
+                    return col.bounds.size.x;
+                Renderer rend = dice[0].GetComponentInChildren<Renderer>();
+                if (rend != null)
+                    return rend.bounds.size.x;
+            }
+            return 0.2f;
+        }
+
+        /// Teleports dice to their designated spawn transform positions and applies launch impulse and torque.
         [ContextMenu("Roll Dice")]
         public void RollDice(){
-            Transform origin = launchOrigin != null ? launchOrigin : transform;
-            Vector3 baseDir = origin.TransformDirection(localLaunchDirection.normalized);
-
+            Vector3 baseDir = transform.TransformDirection(localLaunchDirection.normalized);
             int count = dice.Count;
-            float totalWidth = (count - 1) * diceSpacing;
-            float startX = -totalWidth * 0.5f;
 
             for (int i = 0; i < count; i++){
                 Rigidbody rb = dice[i];
-
-                Vector3 localOffset = new(startX + (i * diceSpacing), 0f, 0f);
-                rb.transform.position = origin.TransformPoint(localOffset);
+                rb.transform.position = GetSpawnPosition(i);
 
                 if (randomizeInitialOrientation)
                     rb.transform.rotation = Random.rotation;
@@ -84,16 +96,26 @@ namespace UI.Dice{
             onRoll?.Invoke();
         }
 
-        /// Visualizes launch trajectory and origin gizmos in the scene view.
+        /// Visualizes spawn bounding box cubes and trajectory toss rays in the scene view.
         private void OnDrawGizmosSelected(){
-            Transform origin = launchOrigin != null ? launchOrigin : transform;
-            Gizmos.color = Color.cyan;
+            float cubeSize = GetDiceCubeSize();
+            Vector3 cubeDimensions = new(cubeSize, cubeSize, cubeSize);
+            Vector3 baseDir = transform.TransformDirection(localLaunchDirection.normalized);
+            float rayLength = launchForce * 0.2f;
 
-            Vector3 baseDir = origin.TransformDirection(localLaunchDirection.normalized);
-            Gizmos.DrawRay(origin.position, baseDir * (launchForce * 0.2f));
+            for (int i = 0; i < spawnSlots.Length; i++){
+                Vector3 spawnPos = GetSpawnPosition(i);
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(origin.position, 0.05f);
+                Gizmos.color = new Color(0f, 0.8f, 1f, 0.25f);
+                Gizmos.DrawCube(spawnPos, cubeDimensions);
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireCube(spawnPos, cubeDimensions);
+
+                Gizmos.color = Color.yellow;
+                Vector3 endPos = spawnPos + baseDir * rayLength;
+                Gizmos.DrawLine(spawnPos, endPos);
+                Gizmos.DrawSphere(endPos, cubeSize * 0.15f);
+            }
         }
     }
 }

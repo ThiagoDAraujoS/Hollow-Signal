@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Core.Crisis;
 using Core.State;
 using Data;
@@ -25,6 +26,8 @@ namespace World.Actors.Player{
         [SerializeField] private MasteryCollection chronicConditions = new("chronic_conditions");
         [SerializeField] private MasteryCollection temporaryConditions = new("temporary_conditions");
 
+        private readonly Dictionary<ActionType, int> _perkCounts = new();
+
         public int Level => level;
         public int Experience => experience;
         public VitalityPool Flesh => flesh;
@@ -45,6 +48,24 @@ namespace World.Actors.Player{
             chronicConditions.SetDatabase(database);
             temporaryConditions.SetDatabase(database);
             RebuildAllSkills();
+        }
+
+        /// Returns true if at least one active source grants this perk.
+        public bool HasPerk(ActionType perk) =>
+            _perkCounts.TryGetValue(perk, out int count) && count > 0;
+
+        /// Increments the reference count for an active tool perk.
+        public void GrantPerk(ActionType perk) =>
+            _perkCounts[perk] = _perkCounts.GetValueOrDefault(perk, 0) + 1;
+
+        /// Decrements the reference count for a tool perk.
+        public void RevokePerk(ActionType perk){
+            if (!_perkCounts.TryGetValue(perk, out int count))
+                return;
+            if (count <= 1)
+                _perkCounts.Remove(perk);
+            else
+                _perkCounts[perk] = count - 1;
         }
 
         /// Returns the bounded effective skill bonus clamped between 0 and 4 across all active buckets.

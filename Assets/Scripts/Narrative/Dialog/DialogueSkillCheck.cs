@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Data;
 
 namespace Narrative.Dialog{
     /// Outcome branch of a skill test executed within a dialogue knot.
+    [Serializable]
     public class DialogueOutcome{
         /// Identifier of the speaker delivering this outcome line.
         public string speakerId;
@@ -19,22 +21,53 @@ namespace Narrative.Dialog{
 
     /// Represents a die skill check evaluation required by a dialogue knot.
     public class DialogueSkillCheck{
-        /// Skill tested by this challenge.
+        /// Legacy direct skill definition for backwards compatibility with generated scripts.
         public Skill skill = Skill.None;
 
-        /// Target difficulty check rating needed to pass.
+        /// Action style / perk category required for this check.
+        public ActionType actionType = ActionType.None;
+
+        /// Tri-state perk requirement visibility gating for this check.
+        public PerkRequirementMode perkRequirement = PerkRequirementMode.None;
+
+        /// Target Difficulty Class (Cypher DC = difficulty * 3).
         public int targetDc;
 
-        /// Outcome branch taken when the roll meets or exceeds targetDc.
+        /// Specific skills that can contribute to this check, evaluated with max(). If empty, defaults to actionType.
+        public List<Skill> applicableSkills = new();
+
+        /// Optional overrides for action success quips on this specific knot.
+        public List<string> successQuips = new();
+
+        /// Optional overrides for action failure quips on this specific knot.
+        public List<string> failureQuips = new();
+
+        /// Branch executed when check succeeds.
         public DialogueOutcome onSuccess;
 
-        /// Outcome branch taken when the roll fails to meet targetDc.
+        /// Branch executed when check fails.
         public DialogueOutcome onFailure;
 
-        /// Optional outcome branch taken on a critical success roll.
+        /// Branch executed on critical success (natural 20). Falls back to onSuccess if null.
         public DialogueOutcome onCriticalSuccess;
 
-        /// Optional outcome branch taken on a critical failure roll.
+        /// Branch executed on critical failure (natural 1). Falls back to onFailure if null.
         public DialogueOutcome onCriticalFailure;
+
+        /// Synthesizes an ActionStyle instance from this knot check configuration.
+        public ActionStyle GetEffectiveActionStyle(){
+            List<Skill> skills = new(applicableSkills);
+            if (skills.Count == 0 && skill != Skill.None)
+                skills.Add(skill);
+
+            return new(){
+                actionType = actionType,
+                perkRequirement = perkRequirement,
+                targetDc = targetDc,
+                applicableSkills = skills,
+                successQuips = successQuips,
+                failureQuips = failureQuips
+            };
+        }
     }
 }

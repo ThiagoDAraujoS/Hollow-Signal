@@ -4,20 +4,10 @@ using System.Text.RegularExpressions;
 using Data;
 
 namespace Editor.Dialog.Parser{
-    /// Reads and parses a .dialog source text file into a strongly-typed DialogScriptAst in memory.
+    /// High-performance recursive descent parser compiling raw .dialog script files into DialogScriptAst.
     public static class DialogParser{
-        private static readonly Regex MapRegex = new(
-            @"^MAP:\s*([a-zA-Z0-9_]+)$",
-            RegexOptions.Compiled
-        );
-
-        private static readonly Regex LocFileRegex = new(
-            @"^LOC_FILE:\s*([a-zA-Z0-9_]+)$",
-            RegexOptions.Compiled
-        );
-
         private static readonly Regex VarRegex = new(
-            @"^VAR\s+(local|map|global)\s+(bool|int|float|string)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$",
+            @"^VAR\s+(local|map|global)\s+(bool|int|float|string)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\\s*(.+)$",
             RegexOptions.Compiled
         );
 
@@ -46,6 +36,11 @@ namespace Editor.Dialog.Parser{
             RegexOptions.Compiled
         );
 
+        private static readonly Regex ProblemRegex = new(
+            @"^~\s*Problem\s*\(\s*([a-zA-Z0-9_]+)\s*[:,\s]\s*([0-9]+)\s*\)$",
+            RegexOptions.Compiled
+        );
+
         private static readonly Regex OutcomeHeaderRegex = new(
             @"^-\s*(SUCCESS|FAILURE|CRITICAL_SUCCESS|CRITICAL_FAILURE)\s*->\s*$",
             RegexOptions.Compiled
@@ -68,35 +63,18 @@ namespace Editor.Dialog.Parser{
 
                 // 1. Map Header (MAP: MapName)
                 if (line.StartsWith("MAP:", StringComparison.OrdinalIgnoreCase)){
-                    if (currentKnot != null)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] MAP declaration must appear at the top of the file: '{line}'");
-
-                    Match mapMatch = MapRegex.Match(line);
-                    if (!mapMatch.Success)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] Malformed MAP declaration: '{line}'. Expected syntax: MAP: <MapName>");
-
-                    ast.mapName = mapMatch.Groups[1].Value.Trim();
+                    ast.mapName = line.Substring(4).Trim();
                     continue;
                 }
 
-                // 2. Localization Target File Header (LOC_FILE: LocFileName)
-                if (line.StartsWith("LOC_FILE:", StringComparison.OrdinalIgnoreCase)){
-                    if (currentKnot != null)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] LOC_FILE declaration must appear at the top of the file: '{line}'");
-
-                    Match locFileMatch = LocFileRegex.Match(line);
-                    if (!locFileMatch.Success)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] Malformed LOC_FILE declaration: '{line}'. Expected syntax: LOC_FILE: <FileName>");
-
-                    ast.locFileName = locFileMatch.Groups[1].Value.Trim();
+                // 2. Default Speaker Header (DEFAULT_SPEAKER: SpeakerId)
+                if (line.StartsWith("DEFAULT_SPEAKER:", StringComparison.OrdinalIgnoreCase)){
+                    ast.defaultSpeaker = line.Substring(16).Trim();
                     continue;
                 }
 
-                // 3. Variable Declarations (VAR)
+                // 3. Variable Declaration (VAR <scope> <type> <name> = <val>)
                 if (line.StartsWith("VAR ", StringComparison.Ordinal)){
-                    if (currentKnot != null)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] Variable declarations must appear at the top of the file before any knots: '{line}'");
-
                     ParseVariable(ast, line, lineNumber, scriptName);
                     continue;
                 }
@@ -118,12 +96,15 @@ namespace Editor.Dialog.Parser{
                 // 5. Outcome Branch Header (- SUCCESS -> etc.)
                 Match outcomeHeaderMatch = OutcomeHeaderRegex.Match(line);
                 if (outcomeHeaderMatch.Success){
-                    if (currentKnot.skillCheck == null)
-                        throw new FormatException($"[{scriptName}:{lineNumber}] Outcome branch defined without preceding ~ SkillCheck: '{line}'");
+                    if (currentKnot.skillCheck == null && currentKnot.problem == null)
+                        throw new FormatException($"[{scriptName}:{lineNumber}] Outcome branch defined without preceding ~ SkillCheck or ~ Problem: '{line}'");
 
                     string outcomeType = outcomeHeaderMatch.Groups[1].Value;
                     currentOutcome = new DialogOutcomeDef();
-                    AssignOutcome(currentKnot.skillCheck, outcomeType, currentOutcome, lineNumber, scriptName);
+                    if (currentKnot.problem != null)
+                        AssignProblemOutcome(currentKnot.problem, outcomeType, currentOutcome, lineNumber, scriptName);
+                    else
+                        AssignOutcome(currentKnot.skillCheck, outcomeType, currentOutcome, lineNumber, scriptName);
                     continue;
                 }
 
@@ -148,7 +129,19 @@ namespace Editor.Dialog.Parser{
                     }
                 }
 
-                // 7. Skill Check Declaration (~ SkillCheck(SkillName, DC))
+                // 7. Problem Declaration (~ Problem(Door: 5))
+                Match problemMatch = ProblemRegex.Match(line);
+                if (problemMatch.Success){
+                    string archetypeId = problemMatch.Groups[1].Value;
+                    int level = int.Parse(problemMatch.Groups[2].Value);
+                    currentKnot.problem = new DialogProblemDef{
+                        archetypeId = archetypeId,
+                        baseLevel = level
+                    };
+                    continue;
+                }
+
+                // 8. Skill Check Declaration (~ SkillCheck(SkillName, DC))
                 Match skillMatch = SkillCheckRegex.Match(line);
                 if (skillMatch.Success){
                     string skillName = skillMatch.Groups[1].Value;
@@ -163,13 +156,13 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 8. Choices (* or +)
+                // 9. Choices (* or +)
                 if (line.StartsWith("*", StringComparison.Ordinal) || line.StartsWith("+", StringComparison.Ordinal)){
                     ParseChoice(currentKnot, line, lineNumber, scriptName, ref choiceCounter);
                     continue;
                 }
 
-                // 9. Spoken Prompt Lines (SPEAKER: Prompt)
+                // 10. Spoken Prompt Lines (SPEAKER: Prompt)
                 Match speakerMatch = SpeakerRegex.Match(line);
                 if (speakerMatch.Success){
                     currentKnot.speakerId = speakerMatch.Groups[1].Value;
@@ -178,7 +171,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 10. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
+                // 11. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
                 if (line.StartsWith("~", StringComparison.Ordinal)){
                     currentKnot.inLineCommands.Add(line.Substring(1).Trim());
                     continue;
@@ -281,6 +274,20 @@ namespace Editor.Dialog.Parser{
             }
         }
 
+        /// Assigns outcome definition to the appropriate problem outcome branch.
+        private static void AssignProblemOutcome(DialogProblemDef problem, string type, DialogOutcomeDef outcome, int lineNumber, string scriptName){
+            switch (type){
+                case "SUCCESS":
+                    problem.onSuccess = outcome;
+                    break;
+                case "FAILURE":
+                    problem.onFailure = outcome;
+                    break;
+                default:
+                    throw new FormatException($"[{scriptName}:{lineNumber}] Unknown problem outcome branch '{type}'. Expected SUCCESS or FAILURE.");
+            }
+        }
+
         /// Validates knot structure, uniqueness, and destination targets.
         private static void ValidateAst(DialogScriptAst ast){
             if (ast.knots.Count == 0)
@@ -300,6 +307,11 @@ namespace Editor.Dialog.Parser{
                 if (knot.skillCheck != null){
                     ValidateOutcomeKnot(ast.scriptName, knot.knotId, "SUCCESS", knot.skillCheck.onSuccess, definedKnotIds);
                     ValidateOutcomeKnot(ast.scriptName, knot.knotId, "FAILURE", knot.skillCheck.onFailure, definedKnotIds);
+                }
+
+                if (knot.problem != null){
+                    ValidateOutcomeKnot(ast.scriptName, knot.knotId, "SUCCESS", knot.problem.onSuccess, definedKnotIds);
+                    ValidateOutcomeKnot(ast.scriptName, knot.knotId, "FAILURE", knot.problem.onFailure, definedKnotIds);
                 }
             }
         }

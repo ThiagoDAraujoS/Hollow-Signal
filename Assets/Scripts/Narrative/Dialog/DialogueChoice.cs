@@ -1,4 +1,5 @@
 ﻿using System;
+using Data;
 
 namespace Narrative.Dialog{
     /// Represents a player choice option within a dialogue node.
@@ -20,6 +21,12 @@ namespace Narrative.Dialog{
 
         /// Quantity of the required item needed to select this choice.
         public int requiredItemAmount;
+
+        /// Optional perk capability required to select this choice.
+        public ActionType requiredPerk = ActionType.None;
+
+        /// Visibility gating mode applied when the required perk is missing.
+        public PerkRequirementMode perkRequirement = PerkRequirementMode.None;
 
         /// Name of the destination knot to transition to when selected.
         public string targetKnot;

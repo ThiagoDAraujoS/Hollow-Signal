@@ -27,5 +27,8 @@ namespace Narrative.Dialog{
 
         /// Optional skill challenge evaluated when entering this knot.
         public DialogueSkillCheck skillCheck;
+
+        /// Optional archetype problem challenge resolved dynamically within this knot.
+        public DialogueProblem problem;
     }
 }

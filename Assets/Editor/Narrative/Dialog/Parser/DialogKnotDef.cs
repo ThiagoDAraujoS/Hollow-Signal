@@ -21,6 +21,9 @@ namespace Editor.Dialog.Parser{
         /// Optional skill challenge evaluated when entering this knot.
         public DialogSkillCheckDef skillCheck;
 
+        /// Optional archetype problem challenge resolved dynamically within this knot.
+        public DialogProblemDef problem;
+
         /// In-line commands or mutations executed upon entering this knot.
         public List<string> inLineCommands = new();
     }

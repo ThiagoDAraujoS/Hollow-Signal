@@ -13,6 +13,9 @@ namespace Editor.Dialog.Parser{
         /// Multiple dialogues can share the same locFileName and will be batched into the same .txt file.
         public string locFileName;
 
+        /// Optional default speaker declared in header.
+        public string defaultSpeaker;
+
         /// Collection of all variable declarations found in the script header.
         public List<DialogVarDef> variables = new();
 

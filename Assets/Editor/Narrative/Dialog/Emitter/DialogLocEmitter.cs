@@ -160,6 +160,12 @@ namespace Editor.Dialog.Emitter{
                     AppendOutcomeLine(sb, ref hasHeader, knot.knotId, fileSlug, knotSlug, "CRITICAL_FAILURE", knot.skillCheck.onCriticalFailure);
                 }
 
+                // 4. Problem Outcomes
+                if (knot.problem != null){
+                    AppendOutcomeLine(sb, ref hasHeader, knot.knotId, fileSlug, knotSlug, "SUCCESS", knot.problem.onSuccess);
+                    AppendOutcomeLine(sb, ref hasHeader, knot.knotId, fileSlug, knotSlug, "FAILURE", knot.problem.onFailure);
+                }
+
                 if (hasHeader)
                     sb.AppendLine();
             }
@@ -178,14 +184,19 @@ namespace Editor.Dialog.Emitter{
             hasHeader = true;
         }
 
-        private static string EscapeString(string raw){
-            if (string.IsNullOrEmpty(raw)) return string.Empty;
-            return raw.Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
+        private static string SanitizeKeySlug(string name){
+            if (string.IsNullOrEmpty(name)) return "EMPTY";
+            StringBuilder sb = new();
+            foreach (char c in name){
+                if (char.IsLetterOrDigit(c))
+                    sb.Append(char.ToUpperInvariant(c));
+                else if (c == '_')
+                    sb.Append('_');
+            }
+            return sb.Length == 0 ? "UNKNOWN" : sb.ToString();
         }
 
-        private static string SanitizeKeySlug(string raw){
-            if (string.IsNullOrEmpty(raw)) return "KEY";
-            return raw.ToUpperInvariant().Replace(" ", "_").Replace("-", "_");
-        }
+        private static string EscapeString(string str) =>
+            str.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");
     }
 }

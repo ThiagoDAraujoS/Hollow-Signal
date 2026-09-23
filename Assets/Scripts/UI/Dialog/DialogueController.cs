@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Core.Crisis;
+using Data;
 using Narrative.Dialog;
+using Narrative.Skills;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using World.Actors.Player;
 
 namespace UI.Dialog{
     /// Controls dialogue window presentation, transcript logging, choice selection, and tactical turn resource costs.
@@ -34,8 +37,13 @@ namespace UI.Dialog{
         private RectTransform   _tooltipRect;
         private TextMeshProUGUI _tooltipText;
 
+        public static DialogueController Instance{ get; private set; }
+
         public GameObject DialogRoot => dialogRoot;
         public bool       IsOpen     => gameObject.activeSelf && (dialogRoot == null || dialogRoot.activeInHierarchy);
+
+        /// Assigns singleton instance.
+        private void Awake() => Instance = this;
 
         /// Dismisses active tooltip on disable.
         private void OnDisable() => HideTooltip();
@@ -63,7 +71,11 @@ namespace UI.Dialog{
 
             SetVisible(true);
             OnDialogueActiveChanged?.Invoke(true);
+
             ClearTranscript();
+            ClearOptions();
+            HideTooltip();
+
             GoToKnot(startingKnot);
         }
 
@@ -98,7 +110,186 @@ namespace UI.Dialog{
             _currentNode.onEnter?.Invoke();
 
             DisplayPrompt(_currentNode);
-            DisplayChoices(_currentNode);
+
+            if (_currentNode.problem != null)
+                DisplayProblemChoices(_currentNode.problem);
+            else if (_currentNode.skillCheck != null)
+                ExecuteSkillCheck(_currentNode.skillCheck);
+            else
+                DisplayChoices(_currentNode);
+        }
+
+        /// Appends an arbitrary formatted rich-text entry directly into the transcript log.
+        public void AddTranscriptEntry(string formattedText){
+            GameObject entry = Instantiate(transcriptPrefab, transcriptContent);
+            entry.GetComponent<TextMeshProUGUI>().text = formattedText;
+            Canvas.ForceUpdateCanvases();
+            transcriptScrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        /// Evaluates knot skill challenge and displays transcript before advancing dialogue.
+        private void ExecuteSkillCheck(DialogueSkillCheck skillCheck){
+            ClearOptions();
+            HideTooltip();
+
+            ActionStyle style = skillCheck.GetEffectiveActionStyle();
+            CharacterSheet actor = _characterSession.Character.sheet;
+
+            if (!style.CanAttempt(actor)){
+                AddTranscriptEntry($"<b><color={DialogueColorTheme.CheckFailedColor}>[CANNOT ATTEMPT: Requires {style.actionType} Perk]</color></b>");
+                DialogueOutcome failOutcome = skillCheck.onFailure;
+                if (failOutcome != null){
+                    failOutcome.onExecute?.Invoke();
+                    if (!string.IsNullOrEmpty(failOutcome.textKey)){
+                        string text = _currentDialogue.GetLocalizedString(failOutcome.textKey);
+                        if (string.IsNullOrEmpty(text))
+                            text = failOutcome.textKey;
+
+                        string formatted = string.IsNullOrEmpty(failOutcome.speakerId)
+                            ? text
+                            : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{failOutcome.speakerId}]</color></b>\n{text}";
+
+                        AddTranscriptEntry(formatted);
+                    }
+
+                    if (!string.IsNullOrEmpty(failOutcome.targetKnot))
+                        GoToKnot(failOutcome.targetKnot);
+                }
+                return;
+            }
+
+            SkillEvaluator.Evaluate(actor, style, result => {
+                string transcript = SkillCheckTranscriptFormatter.Format(result);
+                AddTranscriptEntry(transcript);
+
+                DialogueOutcome outcome = result.passed ? skillCheck.onSuccess : skillCheck.onFailure;
+                if (outcome != null){
+                    outcome.onExecute?.Invoke();
+                    if (!string.IsNullOrEmpty(outcome.textKey)){
+                        string text = _currentDialogue.GetLocalizedString(outcome.textKey);
+                        if (string.IsNullOrEmpty(text))
+                            text = outcome.textKey;
+
+                        string formatted = string.IsNullOrEmpty(outcome.speakerId)
+                            ? text
+                            : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{outcome.speakerId}]</color></b>\n{text}";
+
+                        AddTranscriptEntry(formatted);
+                    }
+
+                    if (!string.IsNullOrEmpty(outcome.targetKnot))
+                        GoToKnot(outcome.targetKnot);
+                }
+            });
+        }
+
+        /// Displays dynamically resolved problem choices generated from a ProblemArchetype blueprint.
+        private void DisplayProblemChoices(DialogueProblem problem){
+            ClearOptions();
+            HideTooltip();
+
+            ProblemArchetype archetype = ProblemArchetypeDatabase.Instance != null
+                ? ProblemArchetypeDatabase.Instance.Get(problem.archetypeId)
+                : null;
+
+            if (archetype == null || archetype.Actions.Count == 0){
+                AddTranscriptEntry($"<b><color={DialogueColorTheme.CheckFailedColor}>[UNRESOLVED PROBLEM: Archetype '{problem.archetypeId}' not found]</color></b>");
+                DialogueOutcome failOutcome = problem.onFailure;
+                if (failOutcome != null && !string.IsNullOrEmpty(failOutcome.targetKnot))
+                    GoToKnot(failOutcome.targetKnot);
+                return;
+            }
+
+            int index = 1;
+            CharacterSheet actor = _characterSession.Character.sheet;
+
+            foreach (ProblemActionEntry entry in archetype.Actions){
+                ActionDefinition actionDef = ActionDatabase.Instance != null
+                    ? ActionDatabase.Instance.Get(entry.actionType)
+                    : new ActionDefinition{ actionType = entry.actionType, displayName = entry.actionType.ToString() };
+
+                int effectiveLevel = Mathf.Max(1, problem.baseLevel + entry.levelOffset);
+                int targetDc = effectiveLevel * 3;
+
+                bool lacksPerk = actionDef.perkRequirement != PerkRequirementMode.None && !actor.HasPerk(entry.actionType);
+
+                if (lacksPerk && actionDef.perkRequirement == PerkRequirementMode.HiddenWhenLocked)
+                    continue;
+
+                DialogueOptionUI option = Instantiate(optionPrefab, optionsContent);
+                string approachName = !string.IsNullOrEmpty(actionDef.displayName) ? actionDef.displayName : entry.actionType.ToString();
+                string dcTag = $"<color={DialogueColorTheme.CheckRollDetailsColor}>[DC {targetDc}]</color>";
+
+                bool isInteractable = true;
+                string label;
+                string tooltipMsg = null;
+
+                if (lacksPerk && actionDef.perkRequirement == PerkRequirementMode.ShownWhenLocked){
+                    isInteractable = false;
+                    label = $"<b><color={DialogueColorTheme.DisabledChoiceColor}>[{index}]</color></b> <color={DialogueColorTheme.DisabledChoiceColor}>{approachName} {dcTag}</color>";
+                    tooltipMsg = $"Requires Perk: {entry.actionType}";
+                }
+                else{
+                    label = $"<b><color={DialogueColorTheme.ChoiceIndexColor}>[{index}]</color></b> <color={DialogueColorTheme.ChoiceDefaultTextColor}>{approachName}</color> {dcTag}";
+                }
+
+                ProblemActionEntry capturedEntry = entry;
+                ActionDefinition capturedDef = actionDef;
+                int capturedDc = targetDc;
+
+                option.Initialize(
+                    label,
+                    () => ExecuteProblemAction(problem, capturedEntry, capturedDef, capturedDc),
+                    isInteractable,
+                    tooltipMsg,
+                    ShowTooltip,
+                    HideTooltip
+                );
+                index++;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            optionsScrollRect.verticalNormalizedPosition = 1f;
+        }
+
+        /// Executes selected problem action style challenge and advances dialogue to success or failure knot.
+        private void ExecuteProblemAction(DialogueProblem problem, ProblemActionEntry entry, ActionDefinition actionDef, int targetDc){
+            ClearOptions();
+            HideTooltip();
+
+            ActionStyle style = new(){
+                actionType = entry.actionType,
+                perkRequirement = actionDef.perkRequirement,
+                targetDc = targetDc,
+                applicableSkills = actionDef.applicableSkills,
+                successQuips = actionDef.successQuips,
+                failureQuips = actionDef.failureQuips
+            };
+
+            CharacterSheet actor = _characterSession.Character.sheet;
+            SkillEvaluator.Evaluate(actor, style, result => {
+                string transcript = SkillCheckTranscriptFormatter.Format(result);
+                AddTranscriptEntry(transcript);
+
+                DialogueOutcome outcome = result.passed ? problem.onSuccess : problem.onFailure;
+                if (outcome != null){
+                    outcome.onExecute?.Invoke();
+                    if (!string.IsNullOrEmpty(outcome.textKey)){
+                        string text = _currentDialogue.GetLocalizedString(outcome.textKey);
+                        if (string.IsNullOrEmpty(text))
+                            text = outcome.textKey;
+
+                        string formatted = string.IsNullOrEmpty(outcome.speakerId)
+                            ? text
+                            : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{outcome.speakerId}]</color></b>\n{text}";
+
+                        AddTranscriptEntry(formatted);
+                    }
+
+                    if (!string.IsNullOrEmpty(outcome.targetKnot))
+                        GoToKnot(outcome.targetKnot);
+                }
+            });
         }
 
         /// Instantiates and formats a transcript message for the current node.
@@ -112,13 +303,9 @@ namespace UI.Dialog{
 
             string formatted = string.IsNullOrEmpty(node.speakerId)
                 ? text
-                : $"<b><color=#143447>[{node.speakerId}]</color></b>\n{text}";
+                : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{node.speakerId}]</color></b>\n{text}";
 
-            GameObject entry = Instantiate(transcriptPrefab, transcriptContent);
-            entry.GetComponent<TextMeshProUGUI>().text = formatted;
-
-            Canvas.ForceUpdateCanvases();
-            transcriptScrollRect.verticalNormalizedPosition = 0f;
+            AddTranscriptEntry(formatted);
         }
 
         /// Clears previous choices and populates active options with tactical crisis costs and availability.
@@ -132,6 +319,13 @@ namespace UI.Dialog{
 
             foreach (DialogueChoice choice in node.choices){
                 if (choice.isVisible != null && !choice.isVisible())
+                    continue;
+
+                bool lacksPerk = choice.perkRequirement != PerkRequirementMode.None
+                                 && choice.requiredPerk != ActionType.None
+                                 && !_characterSession.Character.sheet.HasPerk(choice.requiredPerk);
+
+                if (lacksPerk && choice.perkRequirement == PerkRequirementMode.HiddenWhenLocked)
                     continue;
 
                 DialogueOptionUI option = Instantiate(optionPrefab, optionsContent);
@@ -152,9 +346,14 @@ namespace UI.Dialog{
 
                 bool isInteractable = true;
                 string label;
-                string tooltipText = null;
+                string tooltipMsg = null;
 
-                if (isCrisis && turn != null){
+                if (lacksPerk && choice.perkRequirement == PerkRequirementMode.ShownWhenLocked){
+                    isInteractable = false;
+                    label = $"<b><color={DialogueColorTheme.DisabledChoiceColor}>[{index}]</color></b> <color={DialogueColorTheme.DisabledChoiceColor}>{cleanText}</color>";
+                    tooltipMsg = $"Requires Perk: {choice.requiredPerk}";
+                }
+                else if (isCrisis && turn != null){
                     bool actionAvailable = !turn.HasActed;
                     bool moveAvailable = !turn.HasMoved;
 
@@ -169,11 +368,11 @@ namespace UI.Dialog{
                         label = $"<b><color={DialogueColorTheme.DisabledChoiceColor}>[{index}]</color></b> <color={DialogueColorTheme.DisabledChoiceColor}>{cleanText}</color>";
 
                         if (choiceEndsTurn)
-                            tooltipText = "Unavailable: Action already used (Ends Turn)";
+                            tooltipMsg = "Unavailable: Action already used (Ends Turn)";
                         else if (choiceConsumesAction)
-                            tooltipText = "Unavailable: Action already used this turn";
+                            tooltipMsg = "Unavailable: Action already used this turn";
                         else if (choiceConsumesMove)
-                            tooltipText = "Unavailable: Movement already used this turn";
+                            tooltipMsg = "Unavailable: Movement already used this turn";
                     }
                     else{
                         isInteractable = true;
@@ -183,19 +382,19 @@ namespace UI.Dialog{
                         if (choiceEndsTurn){
                             costColor = DialogueColorTheme.EndTurnCostColor;
                             isResourceChoice = true;
-                            tooltipText = "Ends Turn (Consumes Action, Move, and Dash)";
+                            tooltipMsg = "Ends Turn (Consumes Action, Move, and Dash)";
                         }
                         else if (choiceConsumesAction){
                             costColor = DialogueColorTheme.ActionCostColor;
                             isResourceChoice = true;
-                            tooltipText = choiceConsumesMove
+                            tooltipMsg = choiceConsumesMove
                                 ? "Consumes Action & Move (Dash Disabled)"
                                 : "Consumes Major Action";
                         }
                         else if (choiceConsumesMove){
                             costColor = DialogueColorTheme.MoveCostColor;
                             isResourceChoice = true;
-                            tooltipText = "Consumes Movement (Dash / Double Move disabled)";
+                            tooltipMsg = "Consumes Movement (Dash / Double Move disabled)";
                         }
 
                         string textFormatted = isResourceChoice
@@ -208,7 +407,7 @@ namespace UI.Dialog{
                 else{
                     isInteractable = true;
                     label = $"<b><color={DialogueColorTheme.ChoiceIndexColor}>[{index}]</color></b> <color={DialogueColorTheme.ChoiceDefaultTextColor}>{cleanText}</color>";
-                    tooltipText = null;
+                    tooltipMsg = null;
                 }
 
                 DialogueChoice capturedChoice = choice;
@@ -216,7 +415,7 @@ namespace UI.Dialog{
                     label,
                     () => SelectChoice(capturedChoice),
                     isInteractable,
-                    tooltipText,
+                    tooltipMsg,
                     ShowTooltip,
                     HideTooltip
                 );
@@ -234,39 +433,40 @@ namespace UI.Dialog{
 
             if (CrisisManager.Instance != null && CrisisManager.Instance.IsCrisis){
                 CrisisTurn turn = _characterSession.Character.sheet.CrisisTurn;
-                if (choice.endsTurn)
-                    turn.EndTurn();
-                else if (choice.consumesAction)
-                    turn.ConsumeAction();
+                if (turn != null){
+                    if (choice.endsTurn)
+                        turn.EndTurn();
+                    else if (choice.consumesAction)
+                        turn.ConsumeAction();
 
-                if (choice.consumesMove && !choice.endsTurn)
-                    turn.ConsumeMoveAndBurnSprint();
+                    if (choice.consumesMove && !choice.endsTurn)
+                        turn.ConsumeMoveAndBurnSprint();
+                }
             }
 
             choice.onSelect?.Invoke();
             GoToKnot(choice.targetKnot);
         }
 
-        /// Strips <!>, <!!>, <M> tags from dialogue choice text and updates corresponding tactical cost flags.
+        /// Extracts tactical gameplay tags (<!>, <!!>, <M>) from raw choice text.
         public static void ExtractTags(ref string text, ref bool consumesAction, ref bool endsTurn, ref bool consumesMove){
             if (string.IsNullOrEmpty(text))
                 return;
 
             if (text.Contains("<!!>")){
                 endsTurn = true;
-                text = text.Replace("<!!>", "");
+                text     = text.Replace("<!!>", "").Trim();
             }
             else if (text.Contains("<!>")){
                 consumesAction = true;
-                text = text.Replace("<!>", "");
+                text           = text.Replace("<!>", "").Trim();
             }
 
-            if (Regex.IsMatch(text, @"<[mM]>")){
+            Match moveMatch = Regex.Match(text, @"<[mM]>");
+            if (moveMatch.Success){
                 consumesMove = true;
-                text = Regex.Replace(text, @"<[mM]>", "");
+                text         = Regex.Replace(text, @"<[mM]>", "").Trim();
             }
-
-            text = text.Trim();
         }
 
         /// Displays hover tooltip near the cursor.
@@ -347,7 +547,7 @@ namespace UI.Dialog{
         }
 
         /// Removes all existing transcript entries from the transcript container.
-        public void ClearTranscript(){
+        private void ClearTranscript(){
             foreach (Transform child in transcriptContent)
                 Destroy(child.gameObject);
         }

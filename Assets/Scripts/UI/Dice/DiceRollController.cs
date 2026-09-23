@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace UI.Dice{
     public class DiceRollController : MonoBehaviour{
+        public static DiceRollController Instance{ get; private set; }
+        public static event Action<int[]> OnRollCompleted;
+
         [Header("Components")]
         [SerializeField] private DiceLauncher launcher;
         [SerializeField] private List<Die> dice = new();
@@ -24,6 +28,20 @@ namespace UI.Dice{
         public UnityEvent<int[]> onRollCompleted;
         public UnityEvent onRollReset;
 
+        private Action<int[]> _pendingCallback;
+
+        /// Assigns singleton instance.
+        private void Awake() => Instance = this;
+
+        /// Cleans up singleton instance on destroy.
+        private void OnDestroy(){
+            if (Instance == this)
+                Instance = null;
+        }
+
+        /// Static helper to trigger a roll sequence from anywhere with a callback.
+        public static void Roll(Action<int[]> callback = null) => Instance.ReleaseDice(callback);
+
         /// Evaluates whether all dice have dropped below motion thresholds.
         private bool AreAllDiceSettled(){
             foreach (Die die in dice)
@@ -34,7 +52,11 @@ namespace UI.Dice{
 
         /// Resets physics and visibility, then triggers launch and settling sequence.
         [ContextMenu("Release Dice")]
-        public void ReleaseDice(){
+        public void ReleaseDice() => ReleaseDice(null);
+
+        /// Launches dice with an optional completion callback.
+        public void ReleaseDice(Action<int[]> callback){
+            _pendingCallback = callback;
             StopAllCoroutines();
             foreach (Die die in dice){
                 die.gameObject.SetActive(true);
@@ -47,22 +69,20 @@ namespace UI.Dice{
 
         /// Waits for dice settling via WaitUntil, tallies results, showcases, and resets.
         private IEnumerator RollSequence(){
+            Transform camTransform = showcaseCamera.transform;
+
             yield return new WaitForSeconds(minRollDuration);
 
-            float settledTimer = 0f;
             float timeout = Time.time + settleTimeout;
-
             yield return new WaitUntil(() => {
                 if (AreAllDiceSettled())
-                    settledTimer += Time.deltaTime;
-                else
-                    settledTimer = 0f;
-
-                return settledTimer >= settleCheckDuration || Time.time >= timeout;
+                    return true;
+                return Time.time > timeout;
             });
 
+            yield return new WaitForSeconds(settleCheckDuration);
+
             int[] results = new int[dice.Count];
-            Transform camTransform = showcaseCamera.transform;
 
             for (int i = 0; i < dice.Count; i++){
                 Die die = dice[i];
@@ -75,14 +95,18 @@ namespace UI.Dice{
                 StartCoroutine(MoveToShowcase(die.transform, showcaseSlots[i].position, targetRot));
             }
 
-            onRollCompleted.Invoke(results);
+            onRollCompleted?.Invoke(results);
+            OnRollCompleted?.Invoke(results);
+
+            Action<int[]> callback = _pendingCallback;
+            _pendingCallback = null;
+            callback?.Invoke(results);
 
             yield return new WaitForSeconds(showcaseDisplayDuration);
-
             ResetDice();
         }
 
-        /// Interpolates die transform to showcase slot position and upright orientation.
+        /// Smoothly moves and rotates a die to its designated showcase slot.
         private IEnumerator MoveToShowcase(Transform target, Vector3 destPos, Quaternion destRot){
             while (Vector3.Distance(target.position, destPos) > 0.005f || Quaternion.Angle(target.rotation, destRot) > 0.5f){
                 target.position = Vector3.MoveTowards(target.position, destPos, showcaseMoveSpeed * Time.deltaTime);
@@ -100,7 +124,7 @@ namespace UI.Dice{
             foreach (Die die in dice)
                 die.gameObject.SetActive(false);
 
-            onRollReset.Invoke();
+            onRollReset?.Invoke();
         }
     }
 }
