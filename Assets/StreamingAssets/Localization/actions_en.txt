@@ -1,0 +1,45 @@
+﻿# --- Auto-Generated Action Localization Keys ---
+# Generated on: 2026-09-22 23:55:14
+
+NAME_ACTION_PRY = "Wedge and lever open"
+QUIP_SUCCESS_PRY_0 = "Leverage pops the fused seam loose with a sharp metallic report."
+QUIP_SUCCESS_PRY_1 = "You find the weak seam and heave until the metal yields."
+QUIP_FAILURE_PRY_0 = "The prybar slips with a shower of rust, failing to gain purchase on the seized seam."
+QUIP_FAILURE_PRY_1 = "You lack the leverage to shift the fused metal."
+
+NAME_ACTION_FORCE = "Force by raw muscle"
+QUIP_SUCCESS_FORCE_0 = "Straining your muscles to the limit, you physically heave the mechanism into motion."
+QUIP_SUCCESS_FORCE_1 = "Raw bodily momentum overcomes the dead weight."
+QUIP_FAILURE_FORCE_0 = "Your grip slips under the dead weight, leaving the obstruction completely unmoved."
+QUIP_FAILURE_FORCE_1 = "Your muscles burn and seize, unable to overcome the static friction."
+
+NAME_ACTION_TINKER = "Calibrate and disassemble"
+QUIP_SUCCESS_TINKER_0 = "With a few precise adjustments to the housing, you bypass the seized component."
+QUIP_SUCCESS_TINKER_1 = "You isolate the jammed pressure collar and ease it open."
+QUIP_FAILURE_TINKER_0 = "A delicate internal pin binds under tension, jamming the works tighter than before."
+QUIP_FAILURE_TINKER_1 = "You fail to balance the fine mechanical tolerances."
+
+NAME_ACTION_LOCKPICK = "Pick internal tumblers"
+QUIP_SUCCESS_LOCKPICK_0 = "The internal tumblers fall into alignment with a crisp, oily click."
+QUIP_SUCCESS_LOCKPICK_1 = "A delicate twist of the tension wire pops the latch free."
+QUIP_FAILURE_LOCKPICK_0 = "The pick binds against the corroded cylinder and refuses to turn."
+QUIP_FAILURE_LOCKPICK_1 = "The tension tool slips with an audible scratch."
+
+NAME_ACTION_SNEAK = "Infiltrate through blind spots"
+QUIP_SUCCESS_SNEAK_0 = "You slip through the shadows and cover without making a sound."
+QUIP_SUCCESS_SNEAK_1 = "You time your movement perfectly across the observer's blind angle."
+QUIP_FAILURE_SNEAK_0 = "A sudden scrape of loose metal gives away your position and draws watchful eyes."
+QUIP_FAILURE_SNEAK_1 = "An unexpected shift in lighting illuminates your silhouette."
+
+NAME_ACTION_DECIPHER = "Analyze runes or logs"
+QUIP_SUCCESS_DECIPHER_0 = "The convoluted symbols resolve into clear, readable meaning."
+QUIP_SUCCESS_DECIPHER_1 = "You deduce the underlying pattern and extract the hidden data."
+QUIP_FAILURE_DECIPHER_0 = "The text dissolves into a dizzying blur of nonsensical symbols and headache-inducing static."
+QUIP_FAILURE_DECIPHER_1 = "The protective cipher locks out the remaining information."
+
+NAME_ACTION_PARLEY = "Defuse through dialogue"
+QUIP_SUCCESS_PARLEY_0 = "You deliver your words with calm authority, completely disarming their suspicion."
+QUIP_SUCCESS_PARLEY_1 = "You feed them a plausible alibi that eases all immediate tension."
+QUIP_FAILURE_PARLEY_0 = "They catch the hesitation in your voice and refuse to take your story at face value."
+QUIP_FAILURE_PARLEY_1 = "Your bluff collapses under basic scrutiny."
+

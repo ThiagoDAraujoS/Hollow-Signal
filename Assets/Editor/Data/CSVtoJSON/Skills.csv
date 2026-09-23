@@ -1,93 +1,19 @@
-Arcane,Break Arcane Circuits
-Arcane,Overload Circuits
-Arcane,Detect Arcane Energy
-Arcane,Hack Circuits
-Arcane,Identify Arcane Purpose
-Arcane,Restore Power Nodes
-Arcane,Scry Documents
-Arcane,Scribe Arcane Circuits
-Arcane,Fix Arcane Circuits
-Artifacts,Analyze Artifacts
-Artifacts,Appraise Artifacts
-Artifacts,Endure Cognitive Strain
-Artifacts,Contain Artifacts
-Artifacts,Experiment With Artifacts
-Artifacts,Recall Artifact Lore
-Artifacts,Endure Physical Strain
-Artifacts,Commune With Artifacts
-Athletics,Balance
-Athletics,Climb
-Athletics,Endure Dehydration
-Athletics,Evade
-Athletics,Lift Heavy Objects
-Athletics,Grapple
-Athletics,Endure Hunger
-Athletics,Jump
-Athletics,React Quickly
-Athletics,Smash
-Athletics,Sprint
-Athletics,Endure Toxins
-Awareness,Sense Danger
-Awareness,Listen
-Awareness,Perceive
-Awareness,Spot
-Combat,Shatter Armor
-Combat,Shoot Guns
-Combat,Swing Hammers
-Combat,Fire Heavy Ordnance
-Combat,Disrupt Attacks
-Combat,Brawl
-Combat,Endure Psychic Attacks
-Combat,Swing Swords
-Combat,Plan Tactics
-Combat,Throw
-Combat,Exploit Weakness
-Crafting,Brew Alchemy
-Crafting,Forage Reagents
-Crafting,Tinker
-Culture,Parley Aristocrats
-Culture,Navigate Bureaucracy
-Culture,Parley Explorers
-Culture,Parley Guards
-Culture,Parley Underground
-Culture,Parley Outsiders
-Culture,Parley Clergy
-Culture,Mingle Streets
-Culture,Talk Tough
-Culture,Parley Wizards
-Infiltration,Hide
-Infiltration,Pick Locks
-Infiltration,Perform Sleight Of Hand
-Infiltration,Search
-Infiltration,Sneak
-Infiltration,Steal
-Mechanics,Operate Heavy Machinery
-Mechanics,Defuse Traps
-Mechanics,Fix Machinery
-Mechanics,Operate Machinery
-Mechanics,Sabotage Machinery
-Mechanics,Set Traps
-Mechanics,Drive Vehicles
-Mechanics,Fix Vehicles
-Religion,Channel Divinity
-Religion,Identify Heretics
-Religion,Sense Religious Danger
-Religion,Interpret Omens
-Religion,Preach Gospel
-Religion,Recall Religious History
-Religion,Debate Morality
-Religion,Perform Rituals
-Religion,Recall Religious Secrets
-Speech,Bargain
-Speech,Deceive
-Speech,Read Intentions
-Speech,Intimidate
-Speech,Command
-Speech,Perform
-Speech,Persuade
-Speech,Provoke
-Survival,Analyze Architecture
-Survival,Identify Beasts
-Survival,Find Paths
-Survival,Scavenge
-Survival,Track
+Skill Name,Discipline Domain,Core Focus & Application
+Lift Heavy Objects,Physical / Athletics,"Raw muscular mass, foot bracing, and brute structural leverage."
+Smash,Physical / Kinetic,"Impact force, striking welds, kinetic shock damage."
+Climb,Physical / Agility,"Traversing sheer pipe-work, suspension catwalks, and vertical shafts."
+Sense Danger,Physical / Awareness,"Reflexive awareness of industrial hazards, tripwires, and environmental traps."
+Fix Machinery,Craft / Engineering,"Diagnosing frozen joints, high-pressure steam pipes, and seized gears."
+Tinker,Craft / Precision,"Delicate calibration, fine handcraft, tool leverage, and component isolation."
+Operate Machinery,Craft / Engineering,"Understanding industrial flow-valves, gauges, diesel pumps, and consoles."
+Pick Locks,Subterfuge / Precision,"Tension wrench mechanics, tumbler manipulation, bypassing cylinder locks."
+Sneak,Subterfuge / Stealth,"Acoustic discipline, shadow blending, and patrol avoidance."
+Deceive,Social / Guile,"Vocal confidence, delivering fabricated alibis, misdirection."
+Read Intentions,Social / Perception,"Spotting micro-expressions, detecting deceit, anticipating reactions."
+Navigate Bureaucracy,Social / Protocol,"Citing regulations, exploiting red tape, inspecting documentation."
+Parley Guards,Social / Authority,"Enforcer psychology, de-escalating beat cops, military protocol."
+Parley Underground,Social / Streetwise,"Black-market cant, contraband marks, dealing with hidden exiles."
+Fix Arcane Circuits,Arcane / Technical,Re-soldering yellow-metal runic traces and grounding magical runoff.
+Detect Arcane Energy,Arcane / Perception,"Sensing inversion frequencies, reality-leak static, and divine resonance."
+Hack Circuits,Arcane / Technical,"Overclocking relays, shunting energy pathways, bypassing runic wards."
+Recall Artifact Lore,Arcane / Scholarly,"Pre-inversion precursor symbols, ancient mechanism languages, relic history."

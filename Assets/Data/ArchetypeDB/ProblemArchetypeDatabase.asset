@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbe1b87a719745af80979f3d75788369, type: 3}
+  m_Name: ProblemArchetypeDatabase
+  m_EditorClassIdentifier: CRPG.Runtime::Data.ProblemArchetypeDatabase
+  serializedArchetypes:
+  - archetypeId: SeizedValve
+    nameKey: NAME_ARCHETYPE_SEIZEDVALVE
+    descKey: DESC_ARCHETYPE_SEIZEDVALVE
+    actions:
+    - actionType: 1
+      levelOffset: 0
+    - actionType: 3
+      levelOffset: -1
+    - actionType: 2
+      levelOffset: 1
+  - archetypeId: SecurityGate
+    nameKey: NAME_ARCHETYPE_SECURITYGATE
+    descKey: DESC_ARCHETYPE_SECURITYGATE
+    actions:
+    - actionType: 5
+      levelOffset: 0
+    - actionType: 4
+      levelOffset: 0
+    - actionType: 1
+      levelOffset: 1
+  - archetypeId: ClassifiedRecord
+    nameKey: NAME_ARCHETYPE_CLASSIFIEDRECORD
+    descKey: DESC_ARCHETYPE_CLASSIFIEDRECORD
+    actions:
+    - actionType: 6
+      levelOffset: 0
+    - actionType: 3
+      levelOffset: -1
+    - actionType: 7
+      levelOffset: 1
+  - archetypeId: RunicFlicker
+    nameKey: NAME_ARCHETYPE_RUNICFLICKER
+    descKey: DESC_ARCHETYPE_RUNICFLICKER
+    actions:
+    - actionType: 3
+      levelOffset: 0
+    - actionType: 6
+      levelOffset: -1
+    - actionType: 2
+      levelOffset: 2
+  - archetypeId: SuspiciousSentry
+    nameKey: NAME_ARCHETYPE_SUSPICIOUSSENTRY
+    descKey: DESC_ARCHETYPE_SUSPICIOUSSENTRY
+    actions:
+    - actionType: 7
+      levelOffset: 0
+    - actionType: 5
+      levelOffset: -1
+    - actionType: 2
+      levelOffset: 1

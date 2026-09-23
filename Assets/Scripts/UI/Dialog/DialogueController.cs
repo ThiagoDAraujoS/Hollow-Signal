@@ -188,36 +188,22 @@ namespace UI.Dialog{
             ClearOptions();
             HideTooltip();
 
-            ProblemArchetype archetype = ProblemArchetypeDatabase.Instance != null
-                ? ProblemArchetypeDatabase.Instance.Get(problem.archetypeId)
-                : null;
-
-            if (archetype == null || archetype.Actions.Count == 0){
-                AddTranscriptEntry($"<b><color={DialogueColorTheme.CheckFailedColor}>[UNRESOLVED PROBLEM: Archetype '{problem.archetypeId}' not found]</color></b>");
-                DialogueOutcome failOutcome = problem.onFailure;
-                if (failOutcome != null && !string.IsNullOrEmpty(failOutcome.targetKnot))
-                    GoToKnot(failOutcome.targetKnot);
-                return;
-            }
-
+            ProblemArchetype archetype = ProblemArchetypeDatabase.Instance.Get(problem.archetypeId);
             int index = 1;
             CharacterSheet actor = _characterSession.Character.sheet;
 
             foreach (ProblemActionEntry entry in archetype.Actions){
-                ActionDefinition actionDef = ActionDatabase.Instance != null
-                    ? ActionDatabase.Instance.Get(entry.actionType)
-                    : new ActionDefinition{ actionType = entry.actionType, displayName = entry.actionType.ToString() };
+                ActionDefinition actionDef = ActionDatabase.Instance.Get(entry.actionType);
 
                 int effectiveLevel = Mathf.Max(1, problem.baseLevel + entry.levelOffset);
                 int targetDc = effectiveLevel * 3;
 
                 bool lacksPerk = actionDef.perkRequirement != PerkRequirementMode.None && !actor.HasPerk(entry.actionType);
-
                 if (lacksPerk && actionDef.perkRequirement == PerkRequirementMode.HiddenWhenLocked)
                     continue;
 
                 DialogueOptionUI option = Instantiate(optionPrefab, optionsContent);
-                string approachName = !string.IsNullOrEmpty(actionDef.displayName) ? actionDef.displayName : entry.actionType.ToString();
+                string approachName = actionDef.LocalizedName;
                 string dcTag = $"<color={DialogueColorTheme.CheckRollDetailsColor}>[DC {targetDc}]</color>";
 
                 bool isInteractable = true;
@@ -229,9 +215,8 @@ namespace UI.Dialog{
                     label = $"<b><color={DialogueColorTheme.DisabledChoiceColor}>[{index}]</color></b> <color={DialogueColorTheme.DisabledChoiceColor}>{approachName} {dcTag}</color>";
                     tooltipMsg = $"Requires Perk: {entry.actionType}";
                 }
-                else{
+                else
                     label = $"<b><color={DialogueColorTheme.ChoiceIndexColor}>[{index}]</color></b> <color={DialogueColorTheme.ChoiceDefaultTextColor}>{approachName}</color> {dcTag}";
-                }
 
                 ProblemActionEntry capturedEntry = entry;
                 ActionDefinition capturedDef = actionDef;
@@ -262,8 +247,8 @@ namespace UI.Dialog{
                 perkRequirement = actionDef.perkRequirement,
                 targetDc = targetDc,
                 applicableSkills = actionDef.applicableSkills,
-                successQuips = actionDef.successQuips,
-                failureQuips = actionDef.failureQuips
+                successQuipKeys = actionDef.successQuipKeys,
+                failureQuipKeys = actionDef.failureQuipKeys
             };
 
             CharacterSheet actor = _characterSession.Character.sheet;
@@ -272,34 +257,34 @@ namespace UI.Dialog{
                 AddTranscriptEntry(transcript);
 
                 DialogueOutcome outcome = result.passed ? problem.onSuccess : problem.onFailure;
-                if (outcome != null){
-                    outcome.onExecute?.Invoke();
-                    if (!string.IsNullOrEmpty(outcome.textKey)){
-                        string text = _currentDialogue.GetLocalizedString(outcome.textKey);
-                        if (string.IsNullOrEmpty(text))
-                            text = outcome.textKey;
+                if (outcome == null)
+                    return;
 
-                        string formatted = string.IsNullOrEmpty(outcome.speakerId)
-                            ? text
-                            : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{outcome.speakerId}]</color></b>\n{text}";
+                outcome.onExecute?.Invoke();
+                if (!string.IsNullOrEmpty(outcome.textKey)){
+                    string text = _currentDialogue.GetLocalizedString(outcome.textKey);
+                    string formatted = string.IsNullOrEmpty(outcome.speakerId)
+                        ? text
+                        : $"<b><color={DialogueColorTheme.SpeakerHeaderColor}>[{outcome.speakerId}]</color></b>\n{text}";
 
-                        AddTranscriptEntry(formatted);
-                    }
-
-                    if (!string.IsNullOrEmpty(outcome.targetKnot))
-                        GoToKnot(outcome.targetKnot);
+                    AddTranscriptEntry(formatted);
                 }
+
+                if (!string.IsNullOrEmpty(outcome.targetKnot))
+                    GoToKnot(outcome.targetKnot);
             });
         }
 
         /// Instantiates and formats a transcript message for the current node.
         private void DisplayPrompt(DialogueNode node){
-            if (string.IsNullOrEmpty(node.textKey))
-                return;
+            string text = !string.IsNullOrEmpty(node.textKey)
+                ? _currentDialogue.GetLocalizedString(node.textKey)
+                : node.problem != null
+                    ? ProblemArchetypeDatabase.Instance.Get(node.problem.archetypeId).LocalizedDescription
+                    : null;
 
-            string text = _currentDialogue.GetLocalizedString(node.textKey);
             if (string.IsNullOrEmpty(text))
-                text = node.textKey;
+                return;
 
             string formatted = string.IsNullOrEmpty(node.speakerId)
                 ? text

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Narrative.Localization;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Data{
     /// Specifies an allowed action approach and its difficulty level offset relative to base problem level.
@@ -17,46 +17,39 @@ namespace Data{
         public PerkRequirementMode perkRequirement = PerkRequirementMode.ShownWhenLocked;
         public int targetDc;
         public List<Skill> applicableSkills = new();
-
-        [TextArea(2, 3)]
-        public List<string> successQuips = new();
-
-        [TextArea(2, 3)]
-        public List<string> failureQuips = new();
+        public List<string> successQuipKeys = new();
+        public List<string> failureQuipKeys = new();
 
         /// Evaluates whether the acting character satisfies the tool perk requirement.
         public bool CanAttempt(World.Actors.Player.CharacterSheet sheet) =>
             perkRequirement == PerkRequirementMode.None || sheet.HasPerk(actionType);
 
-        /// Drafts a random success quip from the available list.
+        /// Drafts a random success quip from the available pool.
         public string GetRandomSuccessQuip() =>
-            successQuips.Count > 0 ? successQuips[Random.Range(0, successQuips.Count)] : string.Empty;
+            LocalizationManager.Get("actions", successQuipKeys[UnityEngine.Random.Range(0, successQuipKeys.Count)]);
 
-        /// Drafts a random failure quip from the available list.
+        /// Drafts a random failure quip from the available pool.
         public string GetRandomFailureQuip() =>
-            failureQuips.Count > 0 ? failureQuips[Random.Range(0, failureQuips.Count)] : string.Empty;
+            LocalizationManager.Get("actions", failureQuipKeys[UnityEngine.Random.Range(0, failureQuipKeys.Count)]);
     }
 
     /// Represents an obstacle archetype with a collection of allowed actions and difficulty offsets.
-    [CreateAssetMenu(fileName = "NewProblemArchetype", menuName = "CRPG/Problem Archetype")]
-    public class ProblemArchetype : ScriptableObject{
-        [SerializeField] private string archetypeId;
-        [TextArea(2, 4)]
-        [SerializeField] private string description;
-        [SerializeField] private List<ProblemActionEntry> actions = new();
-        [SerializeField] private List<ActionStyle> actionStyles = new();
+    [Serializable]
+    public class ProblemArchetype{
+        public string archetypeId;
+        public string nameKey;
+        public string descKey;
+        public List<ProblemActionEntry> actions = new();
 
         public string Id => archetypeId;
-        public string Description => description;
+        public string NameKey => nameKey;
+        public string DescKey => descKey;
         public IReadOnlyList<ProblemActionEntry> Actions => actions;
-        public IReadOnlyList<ActionStyle> ActionStyles => actionStyles;
 
-        /// Returns the action style matching the given action type.
-        public ActionStyle GetActionStyle(ActionType type){
-            foreach (ActionStyle style in actionStyles)
-                if (style.actionType == type)
-                    return style;
-            return null;
-        }
+        /// Retrieves localized display name.
+        public string LocalizedName => LocalizationManager.Get("archetypes", nameKey);
+
+        /// Retrieves localized description.
+        public string LocalizedDescription => LocalizationManager.Get("archetypes", descKey);
     }
 }

@@ -251,7 +251,7 @@ namespace Editor.Characters{
 
         [MenuItem("Tools/Characters/Link Standalone Avatars in Active Scene", false, 20)]
         public static void LinkAvatarsInActiveScene(){
-            var animators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
+            var animators = Object.FindObjectsByType<Animator>();
             if (animators == null || animators.Length == 0){
                 EditorUtility.DisplayDialog("No Animators", "No Animator components found in the active scene.", "OK");
                 return;

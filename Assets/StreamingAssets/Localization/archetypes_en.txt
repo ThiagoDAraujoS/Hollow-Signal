@@ -1,0 +1,18 @@
+﻿# --- Auto-Generated Problem Archetype Localization Keys ---
+# Generated on: 2026-09-22 23:55:28
+
+NAME_ARCHETYPE_SEIZEDVALVE = "Seized Valve"
+DESC_ARCHETYPE_SEIZEDVALVE = "An industrial shutoff wheel, pressure regulator, or fluid valve fused solid by corrosion, oxidation, or mineral deposits."
+
+NAME_ARCHETYPE_SECURITYGATE = "Security Gate"
+DESC_ARCHETYPE_SECURITYGATE = "A reinforced portcullis, barred pneumatic gate, or security checkpoint restricting physical access."
+
+NAME_ARCHETYPE_CLASSIFIEDRECORD = "Classified Record"
+DESC_ARCHETYPE_CLASSIFIEDRECORD = "An encrypted document, sealed manifest, coded ledger, or locked data cylinder."
+
+NAME_ARCHETYPE_RUNICFLICKER = "Runic Flicker"
+DESC_ARCHETYPE_RUNICFLICKER = "A damaged arcane circuit, etched golden trace, or conduit junction leaking unstable reality-warping energy."
+
+NAME_ARCHETYPE_SUSPICIOUSSENTRY = "Suspicious Sentry"
+DESC_ARCHETYPE_SUSPICIOUSSENTRY = "An armed guard, inspector, or watchful sentry challenging intruders and inspecting authorization."
+

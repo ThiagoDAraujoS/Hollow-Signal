@@ -1,14 +1,15 @@
-﻿namespace Data{
-    /// Action styles and tool capability perks for obstacle interaction.
-    public enum ActionType{
+﻿namespace Data
+{
+    /// Auto-generated ActionType enum mapping to the Actions spreadsheet database.
+    public enum ActionType
+    {
         None = 0,
-        Break = 1,
-        Pry = 2,
-        Lockpick = 3,
-        Hack = 4,
-        Tinker = 5,
-        CutTorch = 6,
-        Climb = 7,
-        Force = 8
+        Pry = 1,
+        Force = 2,
+        Tinker = 3,
+        Lockpick = 4,
+        Sneak = 5,
+        Decipher = 6,
+        Parley = 7,
     }
 }

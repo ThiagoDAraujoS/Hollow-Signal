@@ -40,7 +40,12 @@ namespace Narrative.Localization{
         /// Loads persistent core localization files configured in the inspector asynchronously into memory.
         public static async Task LoadBaseStringsAsync(string language){
             _instance._currentLanguage = language;
-            await Task.WhenAll(_instance.permanentLocalizationTables.Select(LoadTableAsync));
+            HashSet<string> tablesToLoad = new(_instance.permanentLocalizationTables, StringComparer.OrdinalIgnoreCase){
+                "masteries",
+                "actions",
+                "archetypes"
+            };
+            await Task.WhenAll(tablesToLoad.Select(LoadTableAsync));
             OnLanguageChanged?.Invoke();
         }
 
@@ -55,6 +60,9 @@ namespace Narrative.Localization{
             string filePath = Path.Combine(folder, fileName);
             if (!File.Exists(filePath))
                 filePath = Path.Combine(folder, "Scenes", fileName);
+
+            if (!File.Exists(filePath))
+                return;
 
             if (!_instance._tables.TryGetValue(tableName, out Dictionary<string, string> tableDict)){
                 tableDict = new Dictionary<string, string>(StringComparer.Ordinal);

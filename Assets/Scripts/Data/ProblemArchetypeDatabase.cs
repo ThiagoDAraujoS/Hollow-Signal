@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Data{
-    /// Global registry of all ProblemArchetypes, mapping archetype ID to its asset.
+    /// Global registry of all ProblemArchetypes, mapping archetype ID to its definition.
     [CreateAssetMenu(fileName = "ProblemArchetypeDatabase", menuName = "CRPG/Problem Archetype Database")]
     public class ProblemArchetypeDatabase : ScriptableObject{
         public static ProblemArchetypeDatabase Instance{ get; private set; }
@@ -22,12 +22,11 @@ namespace Data{
         public void BuildDictionaryCache(){
             _registry.Clear();
             foreach (ProblemArchetype archetype in serializedArchetypes)
-                if (archetype != null)
-                    _registry[archetype.Id] = archetype;
+                _registry[archetype.archetypeId] = archetype;
         }
 
-        /// Retrieves a ProblemArchetype asset by unique string ID.
-        public ProblemArchetype Get(string id) => _registry.GetValueOrDefault(id);
+        /// Retrieves a ProblemArchetype definition by unique string ID.
+        public ProblemArchetype Get(string id) => _registry[id];
 
 #if UNITY_EDITOR
         /// Synchronizes archetype list from external spreadsheets or importers.

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Data{
@@ -25,18 +24,8 @@ namespace Data{
                 _registry[action.actionType] = action;
         }
 
-        /// Retrieves an ActionDefinition by ActionType, falling back to default synthesized definition if missing.
-        public ActionDefinition Get(ActionType type){
-            if (_registry.TryGetValue(type, out ActionDefinition def))
-                return def;
-
-            return new ActionDefinition{
-                actionType = type,
-                displayName = type.ToString(),
-                perkRequirement = PerkRequirementMode.ShownWhenLocked,
-                applicableSkills = new(){ Skill.None }
-            };
-        }
+        /// Retrieves an ActionDefinition by ActionType.
+        public ActionDefinition Get(ActionType type) => _registry[type];
 
 #if UNITY_EDITOR
         /// Synchronizes action list from external spreadsheets or importers.

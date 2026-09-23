@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f12fb79d26a4572ad2db7935ca3f0a6, type: 3}
+  m_Name: ActionDatabase
+  m_EditorClassIdentifier: CRPG.Runtime::Data.ActionDatabase
+  serializedActions:
+  - actionType: 1
+    nameKey: NAME_ACTION_PRY
+    perkRequirement: 2
+    applicableSkills: 01000000050000000600000002000000
+    successQuipKeys:
+    - QUIP_SUCCESS_PRY_0
+    - QUIP_SUCCESS_PRY_1
+    failureQuipKeys:
+    - QUIP_FAILURE_PRY_0
+    - QUIP_FAILURE_PRY_1
+  - actionType: 2
+    nameKey: NAME_ACTION_FORCE
+    perkRequirement: 0
+    applicableSkills: 0100000002000000
+    successQuipKeys:
+    - QUIP_SUCCESS_FORCE_0
+    - QUIP_SUCCESS_FORCE_1
+    failureQuipKeys:
+    - QUIP_FAILURE_FORCE_0
+    - QUIP_FAILURE_FORCE_1
+  - actionType: 3
+    nameKey: NAME_ACTION_TINKER
+    perkRequirement: 1
+    applicableSkills: 060000000500000007000000
+    successQuipKeys:
+    - QUIP_SUCCESS_TINKER_0
+    - QUIP_SUCCESS_TINKER_1
+    failureQuipKeys:
+    - QUIP_FAILURE_TINKER_0
+    - QUIP_FAILURE_TINKER_1
+  - actionType: 4
+    nameKey: NAME_ACTION_LOCKPICK
+    perkRequirement: 1
+    applicableSkills: 0800000006000000
+    successQuipKeys:
+    - QUIP_SUCCESS_LOCKPICK_0
+    - QUIP_SUCCESS_LOCKPICK_1
+    failureQuipKeys:
+    - QUIP_FAILURE_LOCKPICK_0
+    - QUIP_FAILURE_LOCKPICK_1
+  - actionType: 5
+    nameKey: NAME_ACTION_SNEAK
+    perkRequirement: 0
+    applicableSkills: 090000000300000004000000
+    successQuipKeys:
+    - QUIP_SUCCESS_SNEAK_0
+    - QUIP_SUCCESS_SNEAK_1
+    failureQuipKeys:
+    - QUIP_FAILURE_SNEAK_0
+    - QUIP_FAILURE_SNEAK_1
+  - actionType: 6
+    nameKey: NAME_ACTION_DECIPHER
+    perkRequirement: 0
+    applicableSkills: 0c000000120000001100000010000000
+    successQuipKeys:
+    - QUIP_SUCCESS_DECIPHER_0
+    - QUIP_SUCCESS_DECIPHER_1
+    failureQuipKeys:
+    - QUIP_FAILURE_DECIPHER_0
+    - QUIP_FAILURE_DECIPHER_1
+  - actionType: 7
+    nameKey: NAME_ACTION_PARLEY
+    perkRequirement: 0
+    applicableSkills: 0a0000000c0000000d0000000b000000
+    successQuipKeys:
+    - QUIP_SUCCESS_PARLEY_0
+    - QUIP_SUCCESS_PARLEY_1
+    failureQuipKeys:
+    - QUIP_FAILURE_PARLEY_0
+    - QUIP_FAILURE_PARLEY_1

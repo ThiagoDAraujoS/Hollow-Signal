@@ -36,11 +36,11 @@ namespace Narrative.Dialog{
         /// Specific skills that can contribute to this check, evaluated with max(). If empty, defaults to actionType.
         public List<Skill> applicableSkills = new();
 
-        /// Optional overrides for action success quips on this specific knot.
-        public List<string> successQuips = new();
+        /// Optional overrides for action success quip keys on this specific knot.
+        public List<string> successQuipKeys = new();
 
-        /// Optional overrides for action failure quips on this specific knot.
-        public List<string> failureQuips = new();
+        /// Optional overrides for action failure quip keys on this specific knot.
+        public List<string> failureQuipKeys = new();
 
         /// Branch executed when check succeeds.
         public DialogueOutcome onSuccess;
@@ -56,17 +56,16 @@ namespace Narrative.Dialog{
 
         /// Synthesizes an ActionStyle instance from this knot check configuration.
         public ActionStyle GetEffectiveActionStyle(){
-            List<Skill> skills = new(applicableSkills);
-            if (skills.Count == 0 && skill != Skill.None)
-                skills.Add(skill);
+            ActionDefinition def = ActionDatabase.Instance.Get(actionType);
+            List<Skill> skills = applicableSkills.Count > 0 ? applicableSkills : def.applicableSkills;
 
             return new(){
                 actionType = actionType,
                 perkRequirement = perkRequirement,
                 targetDc = targetDc,
                 applicableSkills = skills,
-                successQuips = successQuips,
-                failureQuips = failureQuips
+                successQuipKeys = successQuipKeys.Count > 0 ? successQuipKeys : def.successQuipKeys,
+                failureQuipKeys = failureQuipKeys.Count > 0 ? failureQuipKeys : def.failureQuipKeys
             };
         }
     }
