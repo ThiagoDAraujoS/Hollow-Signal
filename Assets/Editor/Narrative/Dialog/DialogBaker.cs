@@ -41,22 +41,10 @@ namespace Editor.Dialog{
             }
         }
 
-        /// Scans the entire project for .dialog files and bakes all of them in batches.
-        /// Parses all files, groups localization strings by target file (LOC_FILE / MAP),
-        /// emits clean batched localization files, syncs map states, and emits all C# classes.
-        [MenuItem("Tools/CRPG/Bake All Dialogues")]
-        public static void BakeAllDialogues(){
-            string[] guids = AssetDatabase.FindAssets("", new[] { "Assets" });
-            List<string> dialogPaths = new();
-
-            foreach (string guid in guids){
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (path.EndsWith(".dialog", StringComparison.OrdinalIgnoreCase))
-                    dialogPaths.Add(path);
-            }
-
-            if (dialogPaths.Count == 0){
-                Debug.LogWarning("[DialogBaker] No .dialog files found in Assets folder.");
+        /// Bakes a collection of .dialog file paths in batch.
+        public static void BakeFiles(IReadOnlyList<string> dialogPaths){
+            if (dialogPaths == null || dialogPaths.Count == 0){
+                Debug.LogWarning("[DialogBaker] No .dialog files specified to bake.");
                 return;
             }
 
@@ -75,6 +63,11 @@ namespace Editor.Dialog{
                     Debug.LogError($"<color=#ff4d4d><b>[DialogBaker] Error parsing '{scriptName}':</b></color>\n{ex.Message}");
                     failed++;
                 }
+            }
+
+            if (parsedAsts.Count == 0){
+                Debug.LogWarning("[DialogBaker] None of the specified dialogues could be parsed successfully.");
+                return;
             }
 
             // Step 2: Batch Emit Localization files
@@ -98,6 +91,65 @@ namespace Editor.Dialog{
 
             AssetDatabase.Refresh();
             Debug.Log($"<color=#00ff88><b>[DialogBaker]</b></color> Batch bake complete: {csSuccess}/{dialogPaths.Count} dialogues generated across {locBatchResults.Count} localization table(s). Failed: {failed}");
+        }
+
+        /// Scans the entire project for .dialog files and bakes all of them in batches.
+        [MenuItem("Tools/CRPG/Bake All Dialogues")]
+        public static void BakeAllDialogues(){
+            string[] guids = AssetDatabase.FindAssets("", new[] { "Assets" });
+            List<string> dialogPaths = new();
+
+            foreach (string guid in guids){
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path.EndsWith(".dialog", StringComparison.OrdinalIgnoreCase))
+                    dialogPaths.Add(path);
+            }
+
+            if (dialogPaths.Count == 0){
+                Debug.LogWarning("[DialogBaker] No .dialog files found in Assets folder.");
+                return;
+            }
+
+            BakeFiles(dialogPaths);
+        }
+
+        /// Bakes all .dialog files currently selected in Unity's Project view.
+        [MenuItem("Tools/CRPG/Bake Selected Dialogues")]
+        [MenuItem("Assets/Bake Selected Dialogue(s)", false, 20)]
+        public static void BakeSelectedDialogues(){
+            List<string> selectedPaths = GetSelectedDialogPaths();
+            if (selectedPaths.Count == 0){
+                EditorUtility.DisplayDialog("Dialogue Baker", "No .dialog files or folders containing .dialog files are currently selected in the Project view.\n\nPlease select one or more .dialog files or use 'Tools > CRPG > Dialogue Baker Window' to choose files.", "OK");
+                return;
+            }
+
+            BakeFiles(selectedPaths);
+        }
+
+        [MenuItem("Assets/Bake Selected Dialogue(s)", true)]
+        public static bool ValidateBakeSelectedDialogues(){
+            return GetSelectedDialogPaths().Count > 0;
+        }
+
+        /// Collects all .dialog file paths from the current Editor selection.
+        public static List<string> GetSelectedDialogPaths(){
+            List<string> dialogPaths = new();
+            foreach (string guid in Selection.assetGUIDs){
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path.EndsWith(".dialog", StringComparison.OrdinalIgnoreCase)){
+                    if (!dialogPaths.Contains(path))
+                        dialogPaths.Add(path);
+                }
+                else if (Directory.Exists(path)){
+                    string[] files = Directory.GetFiles(path, "*.dialog", SearchOption.AllDirectories);
+                    foreach (string file in files){
+                        string normalized = file.Replace('\\', '/');
+                        if (!dialogPaths.Contains(normalized))
+                            dialogPaths.Add(normalized);
+                    }
+                }
+            }
+            return dialogPaths;
         }
     }
 }

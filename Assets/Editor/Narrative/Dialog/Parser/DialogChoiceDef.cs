@@ -13,6 +13,9 @@
         /// Localized text string displayed on the choice button.
         public string text;
 
+        /// Optional event name emitted when selected (e.g. [Option](OnEventName) -> Knot).
+        public string eventName;
+
         /// Optional item identifier required in the party inventory to pick this choice.
         public string requiredItemId;
 

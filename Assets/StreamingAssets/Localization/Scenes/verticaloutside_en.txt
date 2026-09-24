@@ -1,0 +1,36 @@
+﻿# --- Auto-Generated Dialogue Localization Keys ---
+# Target: verticaloutside_en
+# Batched scripts: 1
+# Generated on: 2026-09-24 00:22:28
+
+# >>> [Script: InspectorVane.dialog] <<<
+# [Knot: Main]
+DLG_INSPECTORVANE_MAIN_PROMPT_00 = "Halt right there. Sub-Level 07 intake is under emergency quarantine by order of the Municipal Siphon Authority. Nobody enters the canal catwalks without stamped clearance."
+DLG_INSPECTORVANE_MAIN_CHOICE_00 = "Inquire about the quarantine and the locked portcullis"
+DLG_INSPECTORVANE_MAIN_CHOICE_01 = "Cite Municipal Emergency Code 4-B to demand immediate access"
+DLG_INSPECTORVANE_MAIN_CHOICE_02 = "Present your case to pass the security checkpoint"
+DLG_INSPECTORVANE_MAIN_CHOICE_03 = "Step back away from the sentry desk"
+
+# [Knot: AskQuarantine]
+DLG_INSPECTORVANE_ASKQUARANTINE_PROMPT_00 = "Primary conduit pressure spiked two hours ago. Toxic violet runoff flooded the lower manifold. Until the siphon valves are drained and the pressure drops below critical, this entire sector is locked down tight."
+DLG_INSPECTORVANE_ASKQUARANTINE_CHOICE_00 = "Return to the checkpoint desk"
+
+# [Knot: CiteCode]
+DLG_INSPECTORVANE_CITECODE_PROMPT_00 = "Code 4-B applies strictly to certified conduit sweeps bearing lead-embossed municipal seals. You're not wearing the sweep harness, and you don't have lead seals. Try that bureaucrat routine on someone who hasn't spent ten years in this damp sump."
+DLG_INSPECTORVANE_CITECODE_CHOICE_00 = "Return to the checkpoint desk"
+
+# [Knot: ChallengeSentry]
+DLG_INSPECTORVANE_CHALLENGESENTRY_PROMPT_00 = "Shift change isn't for another two bells, and your faces aren't on my patrol roster. Step forward under the cage light and state your business."
+DLG_INSPECTORVANE_CHALLENGESENTRY_SUCCESS_00 = "Your credentials check out... barely. Keep your hands off the steam manifolds and don't linger on the steel grating. If conduit alarms trip, that gate seals permanently."
+DLG_INSPECTORVANE_CHALLENGESENTRY_FAILURE_00 = "Nice try, vagrants. Step back to the entrance stairs right now before I draw my truncheon and trigger the sector klaxon."
+
+# [Knot: GateCleared]
+DLG_INSPECTORVANE_GATECLEARED_PROMPT_00 = "Portcullis latch is released. Watch your step over the flooded canal—the runoff will dissolve boot leather in seconds."
+DLG_INSPECTORVANE_GATECLEARED_CHOICE_00 = "Proceed through the portcullis"
+
+# [Knot: Standoff]
+DLG_INSPECTORVANE_STANDOFF_PROMPT_00 = "I gave you an order. Back away from the desk or face municipal detention."
+DLG_INSPECTORVANE_STANDOFF_CHOICE_00 = "Step away slowly to avoid escalation"
+DLG_INSPECTORVANE_STANDOFF_CHOICE_01 = "Try to speak with the inspector again"
+
+

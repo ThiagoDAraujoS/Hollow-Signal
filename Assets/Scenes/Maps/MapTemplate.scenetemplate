@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 13966, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: MapTemplate
+  m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.SceneTemplate.SceneTemplateAsset
+  templateScene: {fileID: 102900000, guid: 57a258c5cfb3d974d889339aadc7cdc3, type: 3}
+  templateName: MapScene
+  description: This is a regular game map scene
+  preview: {fileID: 0}
+  dependencies:
+  - dependency: {fileID: 2800000, guid: ad19098509126b54eac79e08e40c26a1, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 2800000, guid: e4f97225bcfb64760a1c81f460837f01, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: -944628639613478452, guid: e281ab66cb328ed44952e7778f41ed5a,
+      type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 2800000, guid: 0e8d78a0d82d3f64aa2a92e548541581, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 23800000, guid: 427550f5ed63c9e47ac060fa7ce69e0c, type: 2}
+    instantiationMode: 1
+  - dependency: {fileID: 2800000, guid: 57da91ef0c2a5489891995dc81537253, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 2100000, guid: f9bd0354e7901d24d9ca1e74490e16bc, type: 2}
+    instantiationMode: 1
+  - dependency: {fileID: 11400000, guid: bf90e9a7befd09045b820a523ef8a43c, type: 2}
+    instantiationMode: 0
+  - dependency: {fileID: 2800000, guid: 26663a5ec9987421996161615506b6c5, type: 3}
+    instantiationMode: 1
+  templatePipeline: {fileID: 0}
+  badge: {fileID: 0}
+  addToDefaults: 1

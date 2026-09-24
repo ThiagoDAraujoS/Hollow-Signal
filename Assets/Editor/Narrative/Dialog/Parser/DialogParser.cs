@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Data;
@@ -7,7 +7,7 @@ namespace Editor.Dialog.Parser{
     /// High-performance recursive descent parser compiling raw .dialog script files into DialogScriptAst.
     public static class DialogParser{
         private static readonly Regex VarRegex = new(
-            @"^VAR\s+(local|map|global)\s+(bool|int|float|string)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\\s*(.+)$",
+            @"^VAR\s+(local|map|global)\s+(bool|int|float|string)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$",
             RegexOptions.Compiled
         );
 
@@ -22,12 +22,12 @@ namespace Editor.Dialog.Parser{
         );
 
         private static readonly Regex ChoiceRegex = new(
-            @"^(\*|\+)\s*(?:\{([^}]+)\}\s*)?\[([^\]]+)\]\s*->\s*([a-zA-Z0-9_]+)$",
+            @"^(\*|\+)\s*(?:\{([^}]+)\}\s*)?\[([^\]]+)\](?:\s*\(([a-zA-Z0-9_]+)\))?\s*->\s*([a-zA-Z0-9_]+)$",
             RegexOptions.Compiled
         );
 
         private static readonly Regex ItemReqRegex = new(
-            @"\(item:\s*([a-zA-Z0-9_]+)(?:\s*x\s*([0-9]+))?\)",
+            @"\(item:\s*([a-zA-Z0-9_]+)(?:\\s*x\\s*([0-9]+))?\)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase
         );
 
@@ -73,13 +73,19 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 3. Variable Declaration (VAR <scope> <type> <name> = <val>)
+                // 3. Localization File Header (LOC_FILE: FileName)
+                if (line.StartsWith("LOC_FILE:", StringComparison.OrdinalIgnoreCase)){
+                    ast.locFileName = line.Substring(9).Trim();
+                    continue;
+                }
+
+                // 4. Variable Declaration (VAR <scope> <type> <name> = <val>)
                 if (line.StartsWith("VAR ", StringComparison.Ordinal)){
                     ParseVariable(ast, line, lineNumber, scriptName);
                     continue;
                 }
 
-                // 4. Knot Header (=== KNOT: KnotName ===)
+                // 5. Knot Header (=== KNOT: KnotName ===)
                 Match knotMatch = KnotRegex.Match(line);
                 if (knotMatch.Success){
                     string knotId = knotMatch.Groups[1].Value;
@@ -93,7 +99,7 @@ namespace Editor.Dialog.Parser{
                 if (currentKnot == null)
                     throw new FormatException($"[{scriptName}:{lineNumber}] Unexpected text found outside of any knot block: '{line}'");
 
-                // 5. Outcome Branch Header (- SUCCESS -> etc.)
+                // 6. Outcome Branch Header (- SUCCESS -> etc.)
                 Match outcomeHeaderMatch = OutcomeHeaderRegex.Match(line);
                 if (outcomeHeaderMatch.Success){
                     if (currentKnot.skillCheck == null && currentKnot.problem == null)
@@ -108,7 +114,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 6. Outcome Body Lines (Indented or inside an outcome branch)
+                // 7. Outcome Body Lines (Indented or inside an outcome branch)
                 if (currentOutcome != null){
                     if (line.StartsWith("->", StringComparison.Ordinal)){
                         currentOutcome.targetKnot = line.Substring(2).Trim();
@@ -129,7 +135,7 @@ namespace Editor.Dialog.Parser{
                     }
                 }
 
-                // 7. Problem Declaration (~ Problem(Door: 5))
+                // 8. Problem Declaration (~ Problem(Door: 5))
                 Match problemMatch = ProblemRegex.Match(line);
                 if (problemMatch.Success){
                     string archetypeId = problemMatch.Groups[1].Value;
@@ -141,7 +147,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 8. Skill Check Declaration (~ SkillCheck(SkillName, DC))
+                // 9. Skill Check Declaration (~ SkillCheck(SkillName, DC))
                 Match skillMatch = SkillCheckRegex.Match(line);
                 if (skillMatch.Success){
                     string skillName = skillMatch.Groups[1].Value;
@@ -156,13 +162,13 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 9. Choices (* or +)
+                // 10. Choices (* or +)
                 if (line.StartsWith("*", StringComparison.Ordinal) || line.StartsWith("+", StringComparison.Ordinal)){
                     ParseChoice(currentKnot, line, lineNumber, scriptName, ref choiceCounter);
                     continue;
                 }
 
-                // 10. Spoken Prompt Lines (SPEAKER: Prompt)
+                // 11. Spoken Prompt Lines (SPEAKER: Prompt)
                 Match speakerMatch = SpeakerRegex.Match(line);
                 if (speakerMatch.Success){
                     currentKnot.speakerId = speakerMatch.Groups[1].Value;
@@ -171,7 +177,7 @@ namespace Editor.Dialog.Parser{
                     continue;
                 }
 
-                // 11. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
+                // 12. In-line Commands (~ SET, ~ EndCrisisTurn, etc.)
                 if (line.StartsWith("~", StringComparison.Ordinal)){
                     currentKnot.inLineCommands.Add(line.Substring(1).Trim());
                     continue;
@@ -202,12 +208,13 @@ namespace Editor.Dialog.Parser{
         private static void ParseChoice(DialogKnotDef knot, string line, int lineNumber, string scriptName, ref int choiceCounter){
             Match match = ChoiceRegex.Match(line);
             if (!match.Success)
-                throw new FormatException($"[{scriptName}:{lineNumber}] Malformed choice syntax: '{line}'. Expected syntax: * or + {{optional_condition}} [Choice Text] -> TargetKnot");
+                throw new FormatException($"[{scriptName}:{lineNumber}] Malformed choice syntax: '{line}'. Expected syntax: * or + {{optional_condition}} [Choice Text](OptionalEvent) -> TargetKnot");
 
             bool isOneShot = match.Groups[1].Value == "*";
             string rawCondition = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
             string rawText = match.Groups[3].Value.Trim();
-            string targetKnot = match.Groups[4].Value.Trim();
+            string eventName = match.Groups[4].Success ? match.Groups[4].Value.Trim() : null;
+            string targetKnot = match.Groups[5].Value.Trim();
 
             string requiredItem = null;
             int itemAmount = 0;
@@ -245,6 +252,7 @@ namespace Editor.Dialog.Parser{
                 isOneShot = isOneShot,
                 condition = rawCondition,
                 text = rawText,
+                eventName = eventName,
                 requiredItemId = requiredItem,
                 requiredItemAmount = itemAmount,
                 targetKnot = targetKnot,

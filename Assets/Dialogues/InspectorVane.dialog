@@ -1,0 +1,42 @@
+﻿MAP: Vertical
+DEFAULT_SPEAKER: VANE
+
+// ==============================================================================
+// InspectorVane.dialog
+// Siphon Sub-Level 07 — Zone 1: Intake Hallway & Guard Desk Chokepoint
+// Challenge: SuspiciousSentry (Inspector Vane)
+// ==============================================================================
+
+=== KNOT: Main ===
+VANE [portrait: stern]: Halt right there. Sub-Level 07 intake is under emergency quarantine by order of the Municipal Siphon Authority. Nobody enters the canal catwalks without stamped clearance.
+* [Inquire about the quarantine and the locked portcullis] -> AskQuarantine
+* [Cite Municipal Emergency Code 4-B to demand immediate access] -> CiteCode
+* [Present your case to pass the security checkpoint] -> ChallengeSentry
++ [Step back away from the sentry desk] -> END
+
+=== KNOT: AskQuarantine ===
+VANE [portrait: weary]: Primary conduit pressure spiked two hours ago. Toxic violet runoff flooded the lower manifold. Until the siphon valves are drained and the pressure drops below critical, this entire sector is locked down tight.
++ [Return to the checkpoint desk] -> Main
+
+=== KNOT: CiteCode ===
+VANE [portrait: skeptical]: Code 4-B applies strictly to certified conduit sweeps bearing lead-embossed municipal seals. You're not wearing the sweep harness, and you don't have lead seals. Try that bureaucrat routine on someone who hasn't spent ten years in this damp sump.
++ [Return to the checkpoint desk] -> Main
+
+=== KNOT: ChallengeSentry ===
+VANE [portrait: suspicious]: Shift change isn't for another two bells, and your faces aren't on my patrol roster. Step forward under the cage light and state your business.
+~ Problem(SuspiciousSentry: 4)
+- SUCCESS ->
+    VANE [portrait: neutral]: Your credentials check out... barely. Keep your hands off the steam manifolds and don't linger on the steel grating. If conduit alarms trip, that gate seals permanently.
+    -> GateCleared
+- FAILURE ->
+    VANE [portrait: hostile]: Nice try, vagrants. Step back to the entrance stairs right now before I draw my truncheon and trigger the sector klaxon.
+    -> Standoff
+
+=== KNOT: GateCleared ===
+VANE [portrait: neutral]: Portcullis latch is released. Watch your step over the flooded canal—the runoff will dissolve boot leather in seconds.
++ [Proceed through the portcullis](OnPortcullisPassed) -> END
+
+=== KNOT: Standoff ===
+VANE [portrait: hostile]: I gave you an order. Back away from the desk or face municipal detention.
++ [Step away slowly to avoid escalation] -> END
++ [Try to speak with the inspector again] -> Main

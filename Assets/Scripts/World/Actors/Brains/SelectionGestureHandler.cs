@@ -109,7 +109,6 @@ namespace World.Actors.Brains{
                     else
                         _selection.SingleUnitSelect(hitCharacter);
 
-                    CameraAnchor.Track(hitCharacter.BodyTransform);
                     _lastClickedCharacter = hitCharacter;
                     _lastClickTime        = Time.unscaledTime;
                 }

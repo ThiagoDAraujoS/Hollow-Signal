@@ -16,8 +16,6 @@ namespace Editor.Dialog.Emitter{
                 return null;
 
             var mapVars = ast.variables.FindAll(v => v.scope == "map");
-            if (mapVars.Count == 0)
-                return null;
 
             string folder = string.IsNullOrEmpty(targetFolder) ? DefaultMapScriptsFolder : targetFolder;
             if (!Directory.Exists(folder))
@@ -30,7 +28,7 @@ namespace Editor.Dialog.Emitter{
                 CreateNewMapClass(filePath, className, ast.mapName, mapVars);
                 Debug.Log($"<color=#5ce1e6><b>[DialogMapSync]</b></color> Created new map variables file: '<b>{className}.cs</b>'");
             }
-            else
+            else if (mapVars.Count > 0)
                 AppendMissingVariables(filePath, className, mapVars);
 
             return filePath;
@@ -60,40 +58,33 @@ namespace Editor.Dialog.Emitter{
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
-        /// Appends undeclared Tracked fields into an existing MapDialogVariables class file.
+        /// Appends missing variables to an existing MapDialogVariables partial class.
         private static void AppendMissingVariables(string filePath, string className, System.Collections.Generic.List<DialogVarDef> mapVars){
-            string fileContent = File.ReadAllText(filePath);
-            StringBuilder newVarsBuilder = new();
-            int appendedCount = 0;
+            string existingContent = File.ReadAllText(filePath);
+            StringBuilder appends = new();
 
             foreach (DialogVarDef varDef in mapVars){
-                Regex fieldRegex = new($@"\b{varDef.name}\b");
-                if (!fieldRegex.IsMatch(fileContent)){
+                string pattern = $@"\b{varDef.name}\b";
+                if (!Regex.IsMatch(existingContent, pattern)){
                     string csType = NormalizeType(varDef.typeName);
                     string defaultVal = FormatDefaultValue(varDef.typeName, varDef.defaultValue);
-                    newVarsBuilder.AppendLine($"        public Tracked<{csType}> {varDef.name} = new(\"{varDef.name}\", {defaultVal});");
-                    appendedCount++;
+                    appends.AppendLine($"        public Tracked<{csType}> {varDef.name} = new(\"{varDef.name}\", {defaultVal});");
                 }
             }
 
-            if (appendedCount == 0)
-                return;
-
-            int lastBraceIdx = fileContent.LastIndexOf('}');
-            if (lastBraceIdx > 0){
-                int secondToLastBrace = fileContent.LastIndexOf('}', lastBraceIdx - 1);
-                int insertionPoint = secondToLastBrace > 0 ? secondToLastBrace : lastBraceIdx;
-
-                string before = fileContent.Substring(0, insertionPoint);
-                string after = fileContent.Substring(insertionPoint);
-
-                string updatedContent = $"{before}\n{newVarsBuilder}{after}";
-                File.WriteAllText(filePath, updatedContent, Encoding.UTF8);
-                Debug.Log($"<color=#5ce1e6><b>[DialogMapSync]</b></color> Appended <b>{appendedCount}</b> new variable(s) to '<b>{className}.cs</b>'");
+            if (appends.Length > 0){
+                int lastClosingBrace = existingContent.LastIndexOf('}');
+                if (lastClosingBrace > 0){
+                    int classClosingBrace = existingContent.LastIndexOf('}', lastClosingBrace - 1);
+                    if (classClosingBrace > 0){
+                        string updated = existingContent.Insert(classClosingBrace, appends.ToString());
+                        File.WriteAllText(filePath, updated, Encoding.UTF8);
+                        Debug.Log($"<color=#5ce1e6><b>[DialogMapSync]</b></color> Appended new variables into '<b>{className}.cs</b>'");
+                    }
+                }
             }
         }
 
-        /// Maps DSL primitive type strings to C# types.
         private static string NormalizeType(string typeName) => typeName switch{
             "bool" => "bool",
             "int" => "int",
@@ -102,7 +93,6 @@ namespace Editor.Dialog.Emitter{
             _ => typeName
         };
 
-        /// Formats initial variable values into C# literal syntax.
         private static string FormatDefaultValue(string typeName, string rawDefault){
             if (string.IsNullOrEmpty(rawDefault))
                 return typeName == "string" ? "\"\"" : "default";
@@ -113,7 +103,6 @@ namespace Editor.Dialog.Emitter{
             return rawDefault;
         }
 
-        /// Sanitizes raw map name string into a valid C# identifier.
         private static string SanitizeIdentifier(string raw) => string.IsNullOrEmpty(raw) ? "Map" : raw.Replace(" ", "_").Replace("-", "_");
     }
 }

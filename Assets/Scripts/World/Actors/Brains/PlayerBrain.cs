@@ -204,8 +204,6 @@ namespace World.Actors.Brains{
             _boundActions.Add(new BoundAction(selectAllActionRef,     _ => _selection.SelectAll(activePartyMembers)));
             _boundActions.Add(new BoundAction(cycleLeaderActionRef,   _ => {
                 _selection.CycleLeader(activePartyMembers);
-                if (_selection.Lead != null)
-                    CameraAnchor.Track(_selection.Lead.BodyTransform);
             }));
             _boundActions.Add(new BoundAction(deselectActionRef,      _ => {
                 bool leadInDialogue = Lead != null && Lead.dialogueSession != null && Lead.dialogueSession.HasActiveDialogue;
@@ -347,8 +345,6 @@ namespace World.Actors.Brains{
                         _selection.SetLead(hitCharacter);
                     else
                         _selection.SingleUnitSelect(hitCharacter);
-
-                    CameraAnchor.Track(hitCharacter.BodyTransform);
                 }
                 return;
             }
@@ -426,8 +422,6 @@ namespace World.Actors.Brains{
                     _selection.SetLead(hero);
                 else
                     _selection.SingleUnitSelect(hero);
-
-                CameraAnchor.Track(hero.BodyTransform);
             }
         }
 

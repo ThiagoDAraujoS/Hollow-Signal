@@ -25,6 +25,7 @@ graph TD
    - Inherits from `DialogueBehaviour` (which inherits from `TrackedBehaviour`).
    - Automatically defines strongly-typed `Tracked<T>` variables for all declared local dialogue state.
    - Compiles knot branches, conditions, and skill checks into native, compiled C# code with zero runtime string parsing.
+   - Automatically declares serialized `UnityEvent` fields for any choice hooked with `[Choice](OnEventName)` markdown syntax.
 2. **Localization String Table (`.txt`)**:
    - Emits standard plain text key-value pairs matching the project's existing format (`KEY = "Value"` in `Assets/StreamingAssets/Localization/`).
    - Automatically groups and batches dialogues sharing the same `LOC_FILE: <FileName>` into a single file to keep memory footprint lean and manageable.
@@ -37,7 +38,7 @@ graph TD
 A `.dialog` file consists of three sequential parts:
 1. **Header Declarations**: Declares the associated `MAP:`, target `LOC_FILE:`, and `VAR` scopes.
 2. **Knots (Conversation States)**: Modular text blocks containing dialogue lines and actions.
-3. **Choices & Diverts**: Player options, condition gates, item requirements, tactical resource modifiers, and destination targets.
+3. **Choices & Diverts**: Player options, condition gates, item requirements, event hooks, tactical resource modifiers, and destination targets.
 
 ---
 
@@ -118,20 +119,44 @@ Choices present clickable options to the player.
 - **Repeatable choice (`+`)**: Always visible whenever its conditions are met.
 - **Conditions (`{condition}`)**: Native C# boolean expression evaluated before displaying.
 - **Item Gating (`(item: ItemId xCount)`)**: Requires the specified item in party inventory.
+- **Event Hooks (`(OnEventName)`)**: Emits a strongly-typed `UnityEvent` on the generated C# class. Formatted like Markdown links: `[Choice Text](OnEventName)`.
 - **Divert target (`-> KnotName` or `-> END`)**: The knot to transition to when chosen.
 
 Syntax:
 ```text
 * [One-time question] -> AnswerKnot
 + [Repeatable question] -> AnswerKnot
-* {!is_hacked} [Bypass terminal security (item: Keycard_Blue x1)] -> HackNode
+* [Lower the security gate](OnSecurityGateLowered) -> GateOpenNode
+* {!is_hacked} [Bypass terminal security (item: Keycard_Blue x1)](OnTerminalHacked) -> HackNode
 + {generator_online == true} [Access diagnostic logs] -> LogsNode
 + [Step away] -> END
 ```
 
 ---
 
-### 3.7 Tactical Crisis Turn Modifiers (`<!>`, `<!!>`, `<M>`)
+### 3.7 Choice Event Hooks & Cutscene Synchronization
+When building cinematic sequences, opening locked obstacles, or shifting cameras upon selecting dialogue choices, authors can attach an **Event Hook** using Markdown link syntax:
+
+```text
+* [Proceed through the checkpoint gate](OnGateUnlocked) -> GateCleared
+```
+
+#### How It Works:
+1. **Compilation**: When the baker compiles the script, any choice with `(OnEventName)` generates a public `UnityEvent` field on the resulting C# class:
+   ```csharp
+   [Header("Dialogue Choice Events")]
+   public UnityEvent OnGateUnlocked = new();
+   ```
+2. **Execution**: Selecting that choice automatically invokes `OnGateUnlocked?.Invoke()` via the `DialogueChoice.onSelect` callback.
+3. **Unity Inspector Setup**: In the Unity Editor, the dialogue component displays the event in the inspector under `Dialogue Choice Events`. Level designers can drag-and-drop:
+   - **`PlayableDirector.Play`** (for cutscenes / timeline sequences).
+   - **Door/Obstacle animators** (e.g., lowering a portcullis or raising security barriers).
+   - **Audio cues / SFX** (klaxons, radio chatter).
+   - **Cinemachine cameras** (focus shifts).
+
+---
+
+### 3.8 Tactical Crisis Turn Modifiers (`<!>`, `<!!>`, `<M>`)
 In Hollow Signal, dialogue can occur seamlessly during **Crisis Mode (turn-based tactical combat)**. Choices can declare tactical budget costs directly in the bracketed option text:
 
 | Tag | Tactical Resource Cost | Crisis Presentation & Hover Tooltip |
@@ -161,7 +186,7 @@ Syntax:
 
 ---
 
-### 3.8 In-line Commands (`~`)
+### 3.9 In-line Commands (`~`)
 Commands execute side effects or mutations:
 ```text
 ~ SET is_unlocked = true
@@ -170,7 +195,7 @@ Commands execute side effects or mutations:
 
 ---
 
-### 3.9 Skill Check Resolution Blocks
+### 3.10 Skill Check Resolution Blocks
 When a knot represents a skill check roll, it specifies the test and branches based on the outcome:
 
 Syntax:
@@ -209,9 +234,9 @@ VAR global bool G_QuarantineActive = false
 
 === KNOT: Main ===
 TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power required.
-* {!is_terminal_hacked} [<!> Bypass terminal security (item: Keycard_Blue x1)] -> HackNode
+* {!is_terminal_hacked} [<!> Bypass terminal security (item: Keycard_Blue x1)](OnTerminalHacked) -> HackNode
 + {generator_power == true} [<M> Access patient logs and telemetry] -> LogsNode
-* [<!!> Initiate emergency containment lockdown] -> LockdownNode
+* [<!!> Initiate emergency containment lockdown](OnEmergencyLockdownTriggered) -> LockdownNode
 + [Step away] -> END
 
 === KNOT: HackNode ===
