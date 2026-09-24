@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using World.Actors.Player;
 using World.Anchors;
+using World.Interactables;
 
 namespace World.Actors.Brains{
     /// Central input coordinator and party facade.
@@ -70,6 +71,7 @@ namespace World.Actors.Brains{
 
         private Vector2 _currentScreenPos;
         private bool    _isDialogueActive;
+        private bool    _controlsEnabled = true;
 
         public static PlayerBrain        Instance           => _instance;
         public static PartySelection     Selection          => _instance._selection;
@@ -186,6 +188,33 @@ namespace World.Actors.Brains{
                 _instance._selection.ToggleAddSelection(character);
         }
 
+        /// Returns active party characters matching the specified hero flag mask.
+        public static List<Character> GetHeroes(HeroEnum heroMask){
+            List<Character> matching = new();
+            foreach (Character hero in _instance.activePartyMembers)
+                if ((hero.heroType & heroMask) != 0 || ((heroMask & HeroEnum.Leader) != 0 && hero == Lead))
+                    if (!matching.Contains(hero))
+                        matching.Add(hero);
+            return matching;
+        }
+
+        /// Disables player input and movement commands.
+        public static void TurnControlsOff(){
+            _instance._controlsEnabled = false;
+            foreach (BoundAction t in _instance._boundActions)
+                t.Disable();
+            _instance._commandDispatcher.Reset();
+            _instance._gestureHandler.Reset();
+            InteractableHighlight.ClearHover();
+        }
+
+        /// Enables player input and movement commands.
+        public static void TurnControlsOn(){
+            _instance._controlsEnabled = true;
+            foreach (BoundAction t in _instance._boundActions)
+                t.Enable();
+        }
+
         /// Inspects character or interactable sheet and fires inspection event.
         public static void Inspect(ISelectable selectable){
             if (selectable?.Sheet == null) return;
@@ -226,8 +255,9 @@ namespace World.Actors.Brains{
         private void OnEnable(){
             if (_instance != this) return;
 
-            foreach (BoundAction t in _boundActions)
-                t.Enable();
+            if (_controlsEnabled)
+                foreach (BoundAction t in _boundActions)
+                    t.Enable();
 
             pointActionRef.action.Enable();
             modifierAppendActionRef.action.Enable();
@@ -251,11 +281,11 @@ namespace World.Actors.Brains{
         }
 
         /// Synchronizes screen index and controller references across active party members.
-        public void SyncDialogueScreens(){
+        public void SyncDialogueScreens() {
             if (dialogueScreens == null || dialogueScreens.Length == 0)
                 dialogueScreens = new DialogueController[4];
 
-            if (dialogueScreens[0] == null){
+            if (dialogueScreens[0] == null) {
                 DialogueController[] controllers = FindObjectsByType<DialogueController>(FindObjectsInactive.Include);
                 for (int i = 0; i < controllers.Length && i < dialogueScreens.Length; i++)
                     dialogueScreens[i] = controllers[i];
@@ -264,7 +294,7 @@ namespace World.Actors.Brains{
             if (sharedDialogueBackground == null && dialogueScreens.Length > 0 && dialogueScreens[0] != null && dialogueScreens[0].DialogRoot != null)
                 sharedDialogueBackground = dialogueScreens[0].DialogRoot;
 
-            for (int i = 0; i < activePartyMembers.Count; i++){
+            for (int i = 0; i < activePartyMembers.Count; i++) {
                 DialogueController controller = i < dialogueScreens.Length ? dialogueScreens[i] : null;
                 if (activePartyMembers[i] != null && activePartyMembers[i].dialogueSession != null)
                     activePartyMembers[i].dialogueSession.BindScreen(i, controller);
@@ -307,12 +337,16 @@ namespace World.Actors.Brains{
             _commandDispatcher.Reset();
             _gestureHandler.Reset();
             StopSelectedUnits();
+            InteractableHighlight.ClearHover();
         }
 
-        /// Updates pointer tracking, gesture recognition, and continuous movement dispatching.
+        /// Updates pointer tracking, gesture recognition, hover detection, and continuous movement dispatching.
         private void Update(){
             _currentScreenPos = pointActionRef.action.ReadValue<Vector2>();
+            if (!_controlsEnabled) return;
+
             _gestureHandler.Update(_currentScreenPos);
+            UpdateHover();
 
             bool leadInDialogue = Lead != null && Lead.dialogueSession != null && Lead.dialogueSession.HasActiveDialogue;
             if (leadInDialogue) return;
@@ -320,6 +354,30 @@ namespace World.Actors.Brains{
             if (!_commandDispatcher.IsCommandHeld || !SelectionScanner.IsPointerInsideViewport(_currentScreenPos)) return;
             _commandDispatcher.UpdateContinuous(_currentScreenPos, Lead, _selection.Selected);
             OnContinuousCommand?.Invoke(_currentScreenPos);
+        }
+
+        /// Renders selection dragbox visuals when dragging.
+        private void OnGUI(){
+            if (_controlsEnabled && _gestureHandler != null)
+                _gestureHandler.DrawGUI(_currentScreenPos);
+        }
+
+        /// Evaluates 3D interactable hover state under the pointer using the current camera.
+        private void UpdateHover(){
+            if (!SelectionScanner.IsPointerInsideViewport(_currentScreenPos) || IsPointerOverUI(_currentScreenPos)){
+                InteractableHighlight.ClearHover();
+                return;
+            }
+
+            if (mainCamera == null) return;
+
+            Ray ray = mainCamera.ScreenPointToRay(_currentScreenPos);
+            if (Physics.Raycast(ray, out RaycastHit hit, 300f, groundLayer)){
+                InteractableHighlight highlight = hit.collider.GetComponentInParent<InteractableHighlight>();
+                InteractableHighlight.SetHoveredInstance(highlight);
+            } else{
+                InteractableHighlight.ClearHover();
+            }
         }
 
         /// Checks whether the screen position directly hits a UI element using EventSystem raycast.
@@ -333,6 +391,8 @@ namespace World.Actors.Brains{
 
         /// Selects a hero or dispatches direct command at pointer position.
         private void OnCommandStarted(InputAction.CallbackContext context){
+            if (!_controlsEnabled) return;
+
             Vector2 mousePos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(mousePos) || IsPointerOverUI(mousePos)) return;
 
@@ -362,6 +422,8 @@ namespace World.Actors.Brains{
 
         /// Starts selection gesture handling on primary select press.
         private void OnPrimarySelectStarted(InputAction.CallbackContext context){
+            if (!_controlsEnabled) return;
+
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos) || IsPointerOverUI(startPos)) return;
 
@@ -370,6 +432,8 @@ namespace World.Actors.Brains{
 
         /// Concludes selection gesture handling on primary select release.
         private void OnPrimarySelectCanceled(InputAction.CallbackContext context){
+            if (!_controlsEnabled) return;
+
             Vector2 releasePos = pointActionRef.action.ReadValue<Vector2>();
             _gestureHandler.OnPressCanceled(releasePos, IsAppendPressed);
         }
@@ -395,6 +459,8 @@ namespace World.Actors.Brains{
 
         /// Routes scroll wheel input to an IScrollable target or defaults to camera map zoom.
         private void OnScrollPerformed(InputAction.CallbackContext context){
+            if (!_controlsEnabled) return;
+
             float scrollDelta = context.ReadValue<Vector2>().y;
             if (Mathf.Abs(scrollDelta) < 0.01f) return;
 
@@ -410,32 +476,27 @@ namespace World.Actors.Brains{
             CameraAnchor.Zoom(Mathf.Sign(scrollDelta));
         }
 
-        /// Selects active party member corresponding to slot index.
-        public void SelectSlot(int index){
-            if (index < 0 || index >= activePartyMembers.Count) return;
-            Character hero = activePartyMembers[index];
+        /// Selects the party member corresponding to the given zero-based roster slot index.
+        private void SelectSlot(int slotIndex){
+            if (slotIndex < 0 || slotIndex >= activePartyMembers.Count) return;
+            Character target = activePartyMembers[slotIndex];
+            if (target == null) return;
 
             if (IsAppendPressed)
-                _selection.AddUnitSelect(hero);
-            else{
-                if (_selection.Contains(hero) && _selection.Count > 1)
-                    _selection.SetLead(hero);
-                else
-                    _selection.SingleUnitSelect(hero);
-            }
+                _selection.AddUnitSelect(target);
+            else
+                _selection.SingleUnitSelect(target);
         }
 
-        /// Synchronizes ground selection ring indicators with current selection state.
-        private void UpdateSelectionCircles() =>
-            activePartyMembers.ForEach(member => {
-                if (member == null) return;
-                if (_selection.Contains(member))
-                    member.TurnSelectionCircleOn();
+        /// Refreshes selection indicator rings on all active party members.
+        private void UpdateSelectionCircles(){
+            foreach (Character c in activePartyMembers){
+                if (c == null) continue;
+                if (_selection.Contains(c))
+                    c.TurnSelectionCircleOn();
                 else
-                    member.TurnSelectionCircleOff();
-            });
-
-        /// Draws selection box marquee graphics.
-        private void OnGUI() => _gestureHandler.DrawGUI(_currentScreenPos);
+                    c.TurnSelectionCircleOff();
+            }
+        }
     }
 }

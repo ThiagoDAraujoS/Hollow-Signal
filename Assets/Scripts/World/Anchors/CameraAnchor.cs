@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using World.Actors.Player;
 
 namespace World.Anchors{
     public class CameraAnchor : MonoBehaviour{
@@ -23,8 +25,9 @@ namespace World.Anchors{
 
         [SerializeField] private CinemachineCamera cinemachineCamera;
 
-        private Vector2   _moveInput;
-        private Transform _trackedTarget;
+        private Vector2         _moveInput;
+        private Transform       _trackedTarget;
+        private List<Character> _trackedHeroes;
 
         [Header("Camera Bounds")] [SerializeField]
         private Bounds bounds = new();
@@ -83,6 +86,7 @@ namespace World.Anchors{
         /// Detaches target follow and reads pan direction vector on move action.
         private void OnMovePerformed(InputAction.CallbackContext context){
             _trackedTarget = null;
+            _trackedHeroes = null;
             _moveInput     = context.ReadValue<Vector2>();
         }
 
@@ -109,8 +113,18 @@ namespace World.Anchors{
         private void LateUpdate(){
             if (_moveInput != Vector2.zero)
                 MoveAnchor();
+            else if (_trackedHeroes != null && _trackedHeroes.Count > 0)
+                transform.position = bounds.Clamp(CalculateMidpoint(_trackedHeroes));
             else if (_trackedTarget != null)
                 transform.position = bounds.Clamp(_trackedTarget.position);
+        }
+
+        /// Calculates center point of all tracked heroes.
+        private static Vector3 CalculateMidpoint(List<Character> heroes){
+            Vector3 sum = Vector3.zero;
+            foreach (Character hero in heroes)
+                sum += hero.WorldPosition;
+            return sum / heroes.Count;
         }
 
         /// Configures camera anchor position and map boundaries when a new map loads.
@@ -122,8 +136,17 @@ namespace World.Anchors{
         /// Sets the transform target for the camera anchor to follow.
         public static void Track(Transform target) => _instance._trackedTarget = target;
 
+        /// Commands camera anchor to track the midpoint of a group of heroes.
+        public static void FollowHeroes(List<Character> heroes) => _instance._trackedHeroes = heroes;
+
+        /// Stops tracking hero group.
+        public static void StopFollow() => _instance._trackedHeroes = null;
+
         /// Clears the camera anchor's tracked target.
-        public static void Detach() => _instance._trackedTarget = null;
+        public static void Detach(){
+            _instance._trackedTarget = null;
+            _instance._trackedHeroes = null;
+        }
 
         /// Translates camera anchor according to input direction relative to rendering camera angle.
         private void MoveAnchor(){

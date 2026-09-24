@@ -492,7 +492,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -10, y: 10.8, z: -10}
+  TargetOffset: {x: 0, y: 0, z: 0}
   Damping: {x: 0, y: 0, z: 0}
   Lookahead:
     Enabled: 0
@@ -508,7 +508,7 @@ Transform:
   m_GameObject: {fileID: 430298521}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -99.99999, y: 70.80001, z: -61.96151}
+  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -757,7 +757,7 @@ Transform:
   m_GameObject: {fileID: 561672361}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -99.99999, y: 70.80001, z: -61.96151}
+  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1161,7 +1161,7 @@ Transform:
   m_GameObject: {fileID: 1251109151}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.17, y: 0, z: -1.13}
+  m_LocalPosition: {x: -3.88, y: 0, z: 0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1279,7 +1279,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921e310cf12202b48ba21745a534dbce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.Managers.MapManager
-  defaultSpawnPoint: {fileID: 1251109152}
+  spawnPoints:
+  - {fileID: 1251109152}
+  showGizmos: 1
 --- !u!114 &1730034629
 MonoBehaviour:
   m_ObjectHideFlags: 0

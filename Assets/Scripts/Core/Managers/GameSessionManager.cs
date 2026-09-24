@@ -26,6 +26,7 @@ namespace Core.Managers{
 
         public IReadOnlyList<string> ActiveCharacterIds => activeCharacterIds;
 
+        public static int                      PendingSpawnIndex{ get; set; } = 0;
         public static MapManager               CurrentMapManager{ get; private set; }
         public static event Action<MapManager> OnMapLoaded;
 
@@ -58,6 +59,7 @@ namespace Core.Managers{
                 List<string> deps = dependencyDatabase.GetSceneDependencies(currentMapName);
                 await SaveSystem.LoadFiles(deps, _ => { });
 
+                SceneCoordinator.Instance.ActiveMapScene = currentMapName.Value;
                 await SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
                 Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
             }
@@ -66,7 +68,7 @@ namespace Core.Managers{
             }
         }
 
-        /// Spawns and configures active party members in formation at the map's default spawn point.
+        /// Spawns and configures active party members in formation at the target map spawn point.
         public void InitializeParty(MapManager map){
             Character[] allHeroes = heroesContainer.GetComponentsInChildren<Character>(includeInactive: true);
             PlayerBrain.ClearPartyMembers();
@@ -89,7 +91,8 @@ namespace Core.Managers{
 
             if (activeHeroes.Count == 0) return;
 
-            Transform spawn = map.DefaultSpawnPoint;
+            Transform spawn = map.GetSpawnPoint(PendingSpawnIndex);
+            PendingSpawnIndex = 0;
             Character lead  = activeHeroes[0];
             Dictionary<Character, Vector3> destinations = FormationCalculator.CalculateFormationPositions(
                 spawn.position,
@@ -118,21 +121,23 @@ namespace Core.Managers{
                 activeCharacterIds.Remove(characterId);
         }
 
-        /// Serializes active character IDs into the persistence partition.
+        /// Gathers active state from children and components.
         public override void OnSaveState(Partition state){
             base.OnSaveState(state);
-            state["active_character_ids"] = new List<string>(activeCharacterIds);
+            state["ActiveParty"] = new List<string>(activeCharacterIds);
         }
 
-        /// Restores active character ID list from persisted state.
+        /// Restores state from partition data.
         public override void OnLoadState(Partition state){
             base.OnLoadState(state);
-            if (!state.TryGetValue("active_character_ids", out object rawList)) return;
+            if (!state.TryGetValue("ActiveParty", out object rawList)) return;
+
             activeCharacterIds.Clear();
-            if (rawList is not IEnumerable enumerable) return;
-            foreach (object item in enumerable)
-                if (item != null)
+            if (rawList is IEnumerable<object> objEnum)
+                foreach (object item in objEnum)
                     activeCharacterIds.Add(item.ToString());
+            else if (rawList is IEnumerable<string> strEnum)
+                activeCharacterIds.AddRange(strEnum);
         }
     }
 }

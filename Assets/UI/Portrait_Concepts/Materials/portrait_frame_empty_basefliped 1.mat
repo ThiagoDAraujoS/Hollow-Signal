@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: portrait_frame_empty_basefliped 1
+  m_Shader: {fileID: 4800000, guid: b95d27a03d95441b8d84fff3693434fc, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ENABLE_RIDGE_CAVITY
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: a23c226af99ce2441b58e4cfcbaa87f4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AmbientBoost: 1
+    - _CavityPower: 1.2
+    - _CavityRadius: 1.5
+    - _CavityStrength: 1.5
+    - _Cull: 0
+    - _CurvatureBias: 1
+    - _Cutoff: 0.5
+    - _EnableHeightGrad: 0
+    - _EnableRidgeCavity: 1
+    - _EnableShadowSharpness: 0
+    - _HeightGradMaxY: 15
+    - _HeightGradMinY: 0
+    - _HeightGradStrength: 0.5
+    - _RidgePower: 2
+    - _RidgeStrength: 0.8
+    - _Saturation: 1
+    - _ShadowSoftness: 0.15
+    - _ShadowThreshold: 0.25
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _CavityTint: {r: 0.15, g: 0.15, b: 0.18, a: 1}
+    - _HeightGradColor: {r: 0.4, g: 0.4, b: 0.45, a: 1}
+    - _RidgeTint: {r: 1.25, g: 1.25, b: 1.25, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

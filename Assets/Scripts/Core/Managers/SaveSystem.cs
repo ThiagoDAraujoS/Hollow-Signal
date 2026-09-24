@@ -1,6 +1,6 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Core.State;
 using Newtonsoft.Json;
@@ -23,10 +23,14 @@ namespace Core.Managers{
         [SerializeField] private string defaultSaveTemplate = "template";
         public static            string DefaultSaveTemplate => Instance.defaultSaveTemplate;
 
-        private const string TempDirectoryName = "temp";
-        public static string TempDirectory => Path.Combine(_baseSavePath, TempDirectoryName);
+        private const string TempDirectoryName          = "temp";
+        private const string ActiveSessionDirectoryName = "_active_session";
+
+        public static string TempDirectory          => Path.Combine(_baseSavePath, TempDirectoryName);
+        public static string ActiveSessionDirectory => _activeSessionDirectory;
 
         private static string _baseSavePath;
+        private static string _activeSessionDirectory;
 
         public void Awake(){
             if (Instance != null && Instance != this){
@@ -34,8 +38,10 @@ namespace Core.Managers{
                 return;
             }
 
-            Instance      = this;
-            _baseSavePath = Path.Combine(Application.persistentDataPath, "Saves");
+            Instance                = this;
+            _baseSavePath           = Path.Combine(Application.persistentDataPath, "Saves");
+            _activeSessionDirectory = Path.Combine(Application.persistentDataPath, ActiveSessionDirectoryName);
+
             if (!Directory.Exists(_baseSavePath))
                 Directory.CreateDirectory(_baseSavePath);
 
@@ -55,6 +61,40 @@ namespace Core.Managers{
                 Directory.CreateDirectory(directory);
         }
 
+        /// Copies files from the selected source save slot directly into the active session working folder.
+        public static void InitializeSession(string sourceSlotName){
+            Instance.currentSaveSlot = sourceSlotName;
+
+            if (Directory.Exists(ActiveSessionDirectory))
+                Directory.Delete(ActiveSessionDirectory, true);
+
+            Directory.CreateDirectory(ActiveSessionDirectory);
+
+            string sourceDir = Path.Combine(_baseSavePath, sourceSlotName);
+            if (Directory.Exists(sourceDir))
+                CopyDirectory(sourceDir, ActiveSessionDirectory);
+        }
+
+        /// Flushes active entities and commits all currently loaded Blackboard partitions to the active session folder on disk.
+        public static async Task CommitToActiveSessionAsync(Action<string> onFailure = null){
+            foreach (BlackboardClient client in BlackboardClient.ActiveClients)
+                client.FlushStateToBlackboard();
+
+            await Blackboard.SerializeBoard(onFailure);
+        }
+
+        /// Serializes a specific partition to the active session folder on disk and purges it from RAM.
+        public static async Task CommitAndReleaseFileAsync(string fileName, Action<string> onFailure = null){
+            if (!Blackboard.Contains(fileName)) return;
+
+            foreach (BlackboardClient client in BlackboardClient.ActiveClients)
+                if (string.Equals(client.fileName, fileName, StringComparison.OrdinalIgnoreCase))
+                    client.FlushStateToBlackboard();
+
+            await Blackboard.SerializeFile(fileName, onFailure);
+            Blackboard.ReleaseFile(fileName);
+        }
+
         /// Cold Stop: Completely purges ALL loaded partitions from active memory.
         public static void ClearActiveMemory() => Blackboard.Clear();
 
@@ -64,35 +104,40 @@ namespace Core.Managers{
                 Blackboard.ReleaseFile(fileName);
         }
 
-        /// Saves the Blackboard into the active save slot directory atomically.
-        /// Serializes all partitions and a metadata file to the Temp directory first, 
-        /// then performs a rapid directory swap.
-        public static async Task SaveGame(Action<string> onFailure = null){
+        /// Commits active RAM state to the working session and copies the session folder to the target save slot.
+        public static async Task SaveGame(string targetSlotName = null, Action<string> onFailure = null){
             try{
-                if (Directory.Exists(TempDirectory))
-                    Directory.Delete(TempDirectory, true);
-                Directory.CreateDirectory(TempDirectory);
+                if (!string.IsNullOrEmpty(targetSlotName))
+                    Instance.currentSaveSlot = targetSlotName;
 
-                // IMPORTANT: Flush all active game objects into the Blackboard dict before saving
-                foreach (BlackboardClient client in BlackboardClient.ActiveClients)
-                    client.FlushStateToBlackboard();
-
-                await Blackboard.SerializeBoard(onFailure);
+                await CommitToActiveSessionAsync(onFailure);
 
                 string charName = GameSessionManager.Instance != null
                     ? GameSessionManager.Instance.mainCharacterName.Value
                     : null;
 
+                string mapLocation = GameSessionManager.Instance != null && !string.IsNullOrEmpty(GameSessionManager.Instance.currentMapName.Value)
+                    ? GameSessionManager.Instance.currentMapName.Value
+                    : (!string.IsNullOrEmpty(SceneCoordinator.Instance?.ActiveMapScene)
+                        ? SceneCoordinator.Instance.ActiveMapScene
+                        : "Unknown Location");
+
                 SaveFileMetadata meta = new(
                     CurrentSaveSlot,
                     DateTime.Now,
-                    CurrentSaveSlotDirectory,
+                    mapLocation,
                     charName,
                     "Station Outpost"
                 );
+
                 string metaJson     = JsonConvert.SerializeObject(meta, Formatting.Indented);
-                string metaFilePath = Path.Combine(TempDirectory, "meta.json");
+                string metaFilePath = Path.Combine(ActiveSessionDirectory, "meta.json");
                 await File.WriteAllTextAsync(metaFilePath, metaJson);
+
+                if (Directory.Exists(TempDirectory))
+                    Directory.Delete(TempDirectory, true);
+
+                CopyDirectory(ActiveSessionDirectory, TempDirectory);
 
                 if (Directory.Exists(CurrentSaveSlotDirectory))
                     Directory.Delete(CurrentSaveSlotDirectory, true);
@@ -105,11 +150,22 @@ namespace Core.Managers{
             }
         }
 
-        /// Loads a specific Blackboard partition on demand from the active save slot directory.
+        /// Helper method to recursively copy all files from source directory to destination directory.
+        private static void CopyDirectory(string sourceDir, string destinationDir){
+            Directory.CreateDirectory(destinationDir);
+
+            foreach (string file in Directory.GetFiles(sourceDir))
+                File.Copy(file, Path.Combine(destinationDir, Path.GetFileName(file)), true);
+
+            foreach (string subDir in Directory.GetDirectories(sourceDir))
+                CopyDirectory(subDir, Path.Combine(destinationDir, Path.GetFileName(subDir)));
+        }
+
+        /// Loads a specific Blackboard partition on demand from the active session directory.
         public static async Task LoadFile(string fileName, Action<string> onFailure = null) =>
             await Instance._blackboard.DeserializeFiles(new[]{ fileName }, onFailure);
 
-        /// Loads multiple Blackboard partitions in parallel on demand from the active save slot directory.
+        /// Loads multiple Blackboard partitions in parallel on demand from the active session directory.
         public static async Task LoadFiles(IEnumerable<string> fileNames, Action<string> onFailure = null){
             if (fileNames == null) return;
             await Instance._blackboard.DeserializeFiles(fileNames, onFailure);
@@ -159,7 +215,7 @@ namespace Core.Managers{
                 catch (Exception e){
                     Debug.LogWarning($"[SaveSystem] Failed to parse metadata for {dirName}: {e.Message}");
                     DateTime lastWriteTime = Directory.GetLastWriteTimeUtc(dirPath);
-                    saveList.Add(new SaveFileMetadata(dirName, lastWriteTime.ToLocalTime(), dirPath));
+                    saveList.Add(new SaveFileMetadata(dirName, lastWriteTime.ToLocalTime(), "Unknown Location"));
                 }
             }
 
@@ -190,8 +246,7 @@ namespace Core.Managers{
                 targetName = baseName;
             }
 
-            SetSaveSlot(targetName);
-            await SaveGame(onFailure);
+            await SaveGame(targetName, onFailure);
         }
 
 #if UNITY_EDITOR
@@ -205,10 +260,7 @@ namespace Core.Managers{
         public void CloseSession() => _ = SceneCoordinator.Instance.ReturnToTitleMenuAsync();
 
         [ContextMenu("Save")]
-        public void Save(){
-            SetSaveSlot("TestSave");
-            _ = SaveGame();
-        }
+        public void Save() => _ = SaveGame("TestSave");
 
         [ContextMenu("AutoSave")]
         public void AutoSave() => _ = AutosaveAsync();
@@ -219,16 +271,16 @@ namespace Core.Managers{
     public struct SaveFileMetadata{
         public string   slotName;
         public DateTime lastSaveTime;
-        public string   directoryPath;
-        public string   characterName;
         public string   location;
+        public string   characterName;
+        public string   region;
 
-        public SaveFileMetadata(string slotName, DateTime lastSaveTime, string directoryPath, string characterName = null, string location = null){
+        public SaveFileMetadata(string slotName, DateTime lastSaveTime, string location, string characterName = null, string region = null){
             this.slotName      = slotName;
             this.lastSaveTime  = lastSaveTime;
-            this.directoryPath = directoryPath;
-            this.characterName = characterName;
             this.location      = location;
+            this.characterName = characterName;
+            this.region        = region;
         }
     }
 }

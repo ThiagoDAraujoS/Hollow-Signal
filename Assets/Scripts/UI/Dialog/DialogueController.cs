@@ -104,9 +104,15 @@ namespace UI.Dialog{
                 return;
             }
 
-            _characterSession.SetKnot(_currentDialogue, knotId);
+            if (_characterSession != null)
+                _characterSession.SetKnot(_currentDialogue, knotId);
 
-            _currentNode = _currentDialogue.GetNode(knotId);
+            _currentNode = _currentDialogue != null ? _currentDialogue.GetNode(knotId) : null;
+            if (_currentNode == null){
+                Debug.LogError($"[DialogueController] Could not find knot '{knotId}' in active dialogue.");
+                return;
+            }
+
             _currentNode.onEnter?.Invoke();
 
             DisplayPrompt(_currentNode);
@@ -133,7 +139,9 @@ namespace UI.Dialog{
             HideTooltip();
 
             ActionStyle style = skillCheck.GetEffectiveActionStyle();
-            CharacterSheet actor = _characterSession.Character.sheet;
+            CharacterSheet actor = _characterSession != null && _characterSession.Character != null
+                ? _characterSession.Character.sheet
+                : null;
 
             if (!style.CanAttempt(actor)){
                 AddTranscriptEntry($"<b><color={DialogueColorTheme.CheckFailedColor}>[CANNOT ATTEMPT: Requires {style.actionType} Perk]</color></b>");
@@ -188,17 +196,43 @@ namespace UI.Dialog{
             ClearOptions();
             HideTooltip();
 
-            ProblemArchetype archetype = ProblemArchetypeDatabase.Instance.Get(problem.archetypeId);
+            if (problem == null || string.IsNullOrEmpty(problem.archetypeId)){
+                Debug.LogError("[DialogueController] Invalid or missing Problem definition in knot.");
+                return;
+            }
+
+            ProblemArchetypeDatabase archetypeDb = ProblemArchetypeDatabase.Instance;
+            if (archetypeDb == null){
+                Debug.LogError("[DialogueController] ProblemArchetypeDatabase.Instance could not be found or loaded.");
+                return;
+            }
+
+            ProblemArchetype archetype = archetypeDb.Get(problem.archetypeId);
+            if (archetype == null){
+                Debug.LogError($"[DialogueController] Problem archetype '{problem.archetypeId}' not found in ProblemArchetypeDatabase.");
+                return;
+            }
+
             int index = 1;
-            CharacterSheet actor = _characterSession.Character.sheet;
+            CharacterSheet actor = _characterSession != null && _characterSession.Character != null
+                ? _characterSession.Character.sheet
+                : null;
+
+            ActionDatabase actionDb = ActionDatabase.Instance;
 
             foreach (ProblemActionEntry entry in archetype.Actions){
-                ActionDefinition actionDef = ActionDatabase.Instance.Get(entry.actionType);
+                ActionDefinition actionDef = actionDb != null ? actionDb.Get(entry.actionType) : null;
+                if (actionDef == null){
+                    Debug.LogWarning($"[DialogueController] ActionDefinition for '{entry.actionType}' not found in ActionDatabase.");
+                    continue;
+                }
 
                 int effectiveLevel = Mathf.Max(1, problem.baseLevel + entry.levelOffset);
                 int targetDc = effectiveLevel * 3;
 
-                bool lacksPerk = actionDef.perkRequirement != PerkRequirementMode.None && !actor.HasPerk(entry.actionType);
+                bool lacksPerk = actionDef.perkRequirement != PerkRequirementMode.None
+                                 && (actor == null || !actor.HasPerk(entry.actionType));
+
                 if (lacksPerk && actionDef.perkRequirement == PerkRequirementMode.HiddenWhenLocked)
                     continue;
 
@@ -251,7 +285,10 @@ namespace UI.Dialog{
                 failureQuipKeys = actionDef.failureQuipKeys
             };
 
-            CharacterSheet actor = _characterSession.Character.sheet;
+            CharacterSheet actor = _characterSession != null && _characterSession.Character != null
+                ? _characterSession.Character.sheet
+                : null;
+
             SkillEvaluator.Evaluate(actor, style, result => {
                 string transcript = SkillCheckTranscriptFormatter.Format(result);
                 AddTranscriptEntry(transcript);
@@ -279,7 +316,7 @@ namespace UI.Dialog{
         private void DisplayPrompt(DialogueNode node){
             string text = !string.IsNullOrEmpty(node.textKey)
                 ? _currentDialogue.GetLocalizedString(node.textKey)
-                : node.problem != null
+                : node.problem != null && ProblemArchetypeDatabase.Instance != null && ProblemArchetypeDatabase.Instance.Get(node.problem.archetypeId) != null
                     ? ProblemArchetypeDatabase.Instance.Get(node.problem.archetypeId).LocalizedDescription
                     : null;
 
@@ -300,7 +337,10 @@ namespace UI.Dialog{
             int index = 1;
 
             bool isCrisis = CrisisManager.Instance != null && CrisisManager.Instance.IsCrisis;
-            CrisisTurn turn = isCrisis ? _characterSession.Character.sheet.CrisisTurn : null;
+            CharacterSheet actor = _characterSession != null && _characterSession.Character != null
+                ? _characterSession.Character.sheet
+                : null;
+            CrisisTurn turn = isCrisis && actor != null ? actor.CrisisTurn : null;
 
             foreach (DialogueChoice choice in node.choices){
                 if (choice.isVisible != null && !choice.isVisible())
@@ -308,7 +348,7 @@ namespace UI.Dialog{
 
                 bool lacksPerk = choice.perkRequirement != PerkRequirementMode.None
                                  && choice.requiredPerk != ActionType.None
-                                 && !_characterSession.Character.sheet.HasPerk(choice.requiredPerk);
+                                 && (actor == null || !actor.HasPerk(choice.requiredPerk));
 
                 if (lacksPerk && choice.perkRequirement == PerkRequirementMode.HiddenWhenLocked)
                     continue;
@@ -416,7 +456,7 @@ namespace UI.Dialog{
             if (choice.isOneShot)
                 _currentDialogue.ConsumeChoice(choice.choiceId);
 
-            if (CrisisManager.Instance != null && CrisisManager.Instance.IsCrisis){
+            if (CrisisManager.Instance != null && CrisisManager.Instance.IsCrisis && _characterSession != null && _characterSession.Character != null){
                 CrisisTurn turn = _characterSession.Character.sheet.CrisisTurn;
                 if (turn != null){
                     if (choice.endsTurn)

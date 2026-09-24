@@ -428,7 +428,7 @@ Transform:
   m_GameObject: {fileID: 107251102}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -99.99999, y: 70.80001, z: -61.96151}
+  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -571,6 +571,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1887769595}
+  - {fileID: 903094748}
   m_Father: {fileID: 762655501}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &325206132
@@ -590,7 +591,19 @@ MonoBehaviour:
     value: []
   OnPortcullisPassed:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 903094749}
+        m_TargetAssemblyTypeName: World.Actors.Brains.GoHere, CRPG.Runtime
+        m_MethodName: Send
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &325206133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1005,6 +1018,68 @@ Transform:
   - {fileID: 325206131}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &903094747
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 903094748}
+  - component: {fileID: 903094749}
+  m_Layer: 0
+  m_Name: GoHere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &903094748
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903094747}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.34, y: 0, z: -0.49}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 325206131}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &903094749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903094747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f115091060e34a629464cc7265af4b6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Actors.Brains.GoHere
+  targetHeroes: -1
+  trackTarget: 1
+  onArrived:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1887769601}
+        m_TargetAssemblyTypeName: World.Actors.Brains.MapTransition, CRPG.Runtime
+        m_MethodName: Transition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  showGizmo: 1
 --- !u!1 &1030220506
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,7 +1274,7 @@ Transform:
   m_GameObject: {fileID: 1107584218}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -99.99999, y: 70.80001, z: -61.96151}
+  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1229,7 +1304,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -10, y: 10.8, z: -10}
+  TargetOffset: {x: 0, y: 0, z: 0}
   Damping: {x: 0, y: 0, z: 0}
   Lookahead:
     Enabled: 0
@@ -1436,7 +1511,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921e310cf12202b48ba21745a534dbce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.Managers.MapManager
-  defaultSpawnPoint: {fileID: 1726128428}
+  spawnPoints:
+  - {fileID: 1726128428}
+  showGizmos: 1
 --- !u!114 &1619191062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1672,7 +1749,7 @@ Transform:
   m_GameObject: {fileID: 1726128427}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.24, y: 0, z: -14.47}
+  m_LocalPosition: {x: 1.05, y: 0, z: -14.78}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1692,6 +1769,8 @@ GameObject:
   - component: {fileID: 1887769598}
   - component: {fileID: 1887769597}
   - component: {fileID: 1887769596}
+  - component: {fileID: 1887769601}
+  - component: {fileID: 1887769602}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Untagged
@@ -1789,7 +1868,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: c0590ea9ea1851b438ba6e076c125d60, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1821,6 +1900,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1887769594}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1887769601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887769594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdff84ee2b65439f8f7d22578028a053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Actors.Brains.MapTransition
+  targetMapName: VerticalOutside
+  targetSpawnIndex: 0
+  showGizmo: 1
+--- !u!114 &1887769602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887769594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eb6902a71b848d6b4114f822f1d8d80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Interactables.InteractableHighlight
+  targetRenderers:
+  - {fileID: 1887769599}
+  linkedSlot: {fileID: 325206133}
+  fadeDuration: 0.15
 --- !u!1 &2147239945
 GameObject:
   m_ObjectHideFlags: 0

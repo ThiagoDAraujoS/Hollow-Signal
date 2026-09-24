@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ namespace Core.Managers{
         public static event Action<Scene> OnTitleSceneLoaded;
         public static event Action        OnTitleSceneUnloaded;
 
-        public string ActiveMapScene{ get; private set; }
+        public string ActiveMapScene{ get; set; }
 
         private void Awake(){
             if (Instance != null && Instance != this){
@@ -71,7 +71,7 @@ namespace Core.Managers{
             await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
-        /// Unloads the title scene, sets the active save slot, loads core blackboard data,
+        /// Unloads the title scene, initializes the active working session, loads core blackboard data,
         /// and additively loads the persistent GameSession scene.
         public static async Task StartGameSessionAsync(string saveSlotName){
             OnTransitionStarted?.Invoke();
@@ -85,7 +85,7 @@ namespace Core.Managers{
                 await Resources.UnloadUnusedAssets();
             }
 
-            SaveSystem.SetSaveSlot(saveSlotName);
+            SaveSystem.InitializeSession(saveSlotName);
 
             AsyncOperation sessionOp = SceneManager.LoadSceneAsync(GameSessionSceneName, LoadSceneMode.Additive);
             if (sessionOp != null){
@@ -101,19 +101,22 @@ namespace Core.Managers{
             await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
-        /// Transitions between two map zones: unloads old map, purges its blackboard partitions,
-        /// loads new dependencies, and activates the new map.
-        public async Task TransitionToMapAsync(string newMapName){
+        /// Transitions between two map zones to a target spawn index, committing memory and streaming new scene.
+        public async Task TransitionToMapAsync(string newMapName, int spawnIndex = 0){
+            GameSessionManager.PendingSpawnIndex                   = spawnIndex;
+            GameSessionManager.Instance.currentMapName.Value = newMapName;
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
 
-            // 1. Unload old map scene & purge its resources if an active map exists
+            // 1. Unload old map scene, commit partitions to disk, and purge its RAM tables
             if (!string.IsNullOrEmpty(ActiveMapScene) && SceneManager.GetSceneByName(ActiveMapScene).isLoaded){
                 await SceneManager.UnloadSceneAsync(ActiveMapScene);
 
                 List<string> oldDeps = dependencyDatabase.GetSceneDependencies(ActiveMapScene);
                 foreach (string file in oldDeps)
-                    SaveSystem.ReleaseFile(file);
+                    await SaveSystem.CommitAndReleaseFileAsync(file);
+
+                await SaveSystem.AutosaveAsync();
 
                 GC.Collect();
                 await Resources.UnloadUnusedAssets();
@@ -125,7 +128,7 @@ namespace Core.Managers{
             if (loadOp != null){
                 loadOp.allowSceneActivation = false;
 
-                // 3. Read and parse incoming save data
+                // 3. Read and parse incoming save data from active session
                 List<string> newDeps = dependencyDatabase.GetSceneDependencies(newMapName);
                 await SaveSystem.LoadFiles(newDeps);
 
@@ -159,13 +162,22 @@ namespace Core.Managers{
             Scene                bootScene = SceneManager.GetSceneAt(0);
             List<AsyncOperation> unloadOps = new();
 
-            foreach (Scene scene in Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt))
-                if (scene != bootScene)
+            for (int i = 0; i < SceneManager.sceneCount; i++){
+                Scene scene = SceneManager.GetSceneAt(i);
+                if (scene != bootScene && scene.isLoaded)
                     unloadOps.Add(SceneManager.UnloadSceneAsync(scene));
+            }
 
-            foreach (AsyncOperation op in unloadOps)
-                while (op is{ isDone: false })
-                    await Task.Yield();
+            await Task.WhenAll(unloadOps.Select(op => op.AsTask()));
+        }
+    }
+
+    /// Extension utility to await Unity's AsyncOperation directly.
+    public static class AsyncOperationExtensions{
+        public static Task AsTask(this AsyncOperation asyncOp){
+            TaskCompletionSource<bool> tcs = new();
+            asyncOp.completed += _ => tcs.SetResult(true);
+            return tcs.Task;
         }
     }
 }

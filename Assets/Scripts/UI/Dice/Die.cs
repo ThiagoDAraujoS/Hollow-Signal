@@ -19,12 +19,12 @@ namespace UI.Dice{
         public Vector3 readingUpVector = Vector3.up;
 
         private static readonly Face[] Faces = {
-            new(1, new(0f, 180f, 180f), new(0f, 0f, -1f)),
-            new(2, new(-90f, 0f, -90f), new(1f, 0f, 0f)),
-            new(3, new(-90f, 0f, 0f),   new(0f, -1f, 0f)),
-            new(4, new(-90f, 0f, 180f), new(0f, 1f, 0f)),
-            new(5, new(-90f, 0f, 90f),  new(-1f, 0f, 0f)),
-            new(6, new(0f, 0f, 0f),     new(0f, 0f, 1f))
+            new(1, new(0f, 0f, 0f),     new(0f, 0f, 1f)),
+            new(2, new(-90f, 0f, 90f),  new(-1f, 0f, 0f)),
+            new(3, new(-90f, 0f, 180f), new(0f, 1f, 0f)),
+            new(4, new(-90f, 0f, 0f),   new(0f, -1f, 0f)),
+            new(5, new(-90f, 0f, -90f), new(1f, 0f, 0f)),
+            new(6, new(0f, 180f, 180f), new(0f, 0f, -1f))
         };
 
         private Rigidbody _rb;

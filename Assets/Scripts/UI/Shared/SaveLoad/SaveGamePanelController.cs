@@ -29,7 +29,7 @@ namespace UI.Shared.SaveLoad{
             carouselController.BuildCarousel(bulletDataList);
         }
 
-        /// Saves the game to an auto-named slot or overwrites the clicked slot.
+        /// Saves the game to an auto-named slot or overwrites the clicked slot by committing the active session.
         protected override async void HandleAction(GameFileBullet bullet){
             try{
                 string targetSlot = bullet.SlotName;
@@ -41,8 +41,7 @@ namespace UI.Shared.SaveLoad{
                 }
 
                 Debug.Log($"[SavePanelController] Saving game to slot: {targetSlot}");
-                SaveSystem.SetSaveSlot(targetSlot);
-                await SaveSystem.SaveGame();
+                await SaveSystem.SaveGame(targetSlot);
 
                 BuildList();
             }

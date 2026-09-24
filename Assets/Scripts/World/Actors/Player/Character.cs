@@ -17,6 +17,9 @@ namespace World.Actors.Player{
         [HideInInspector] public NavMeshAgent            nmAgent;
         [HideInInspector] public Animator                animator;
 
+        [Header("Hero Identity")]
+        [SerializeField] public HeroEnum heroType;
+
         [Header("Selection & Visuals")] public Transform selectionCircle;
 
         [Tooltip("The parent object holding body, items, colliders, and visuals.")] [SerializeField]

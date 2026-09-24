@@ -28,8 +28,7 @@ namespace Core.Managers{
 
         public bool Contains(string fileName) => Files.ContainsKey(fileName);
 
-        private static string GetSaveFilePath(string fileName) => Path.Combine(SaveSystem.CurrentSaveSlotDirectory, $"{fileName}.json");
-        private static string GetTempFilePath(string fileName) => Path.Combine(SaveSystem.TempDirectory,            $"{fileName}.json");
+        private static string GetSessionFilePath(string fileName) => Path.Combine(SaveSystem.ActiveSessionDirectory, $"{fileName}.json");
 
         public Partition GetPartition(string fileName, string partitionName){
             FileContainer container = GetOrCreateFile(fileName);
@@ -38,11 +37,31 @@ namespace Core.Managers{
             return container[partitionName];
         }
 
-        /// Serializes all active file partitions in parallel to the temporary directory.
+        /// Serializes a single file partition directly into the active session working folder on disk.
+        public async Task SerializeFile(string fileName, Action<string> onFailure = null){
+            if (!Files.TryGetValue(fileName, out FileContainer data)) return;
+
+            string filePath = GetSessionFilePath(fileName);
+            await Task.Run(() => {
+                try{
+                    string json;
+                    lock (data){
+                        json = JsonConvert.SerializeObject(data, Formatting.Indented);
+                    }
+
+                    File.WriteAllText(filePath, json);
+                }
+                catch (Exception e){
+                    onFailure?.Invoke($"Failed writing session file {fileName}: {e.Message}");
+                }
+            });
+        }
+
+        /// Serializes all active file partitions in parallel into the active session working folder.
         public async Task SerializeBoard(Action<string> onFailure = null){
             List<Task> tasks = Files.Select(board => Task.Run(() => {
                 (string fileName, FileContainer data) = board;
-                string filePath = GetTempFilePath(fileName);
+                string filePath = GetSessionFilePath(fileName);
 
                 try{
                     string json;
@@ -53,18 +72,17 @@ namespace Core.Managers{
                     File.WriteAllText(filePath, json);
                 }
                 catch (Exception e){
-                    onFailure?.Invoke($"Failed writing save file {fileName} asynchronously: {e.Message}");
+                    onFailure?.Invoke($"Failed writing session file {fileName} asynchronously: {e.Message}");
                 }
             })).ToList();
 
             await Task.WhenAll(tasks);
         }
 
-        /// Deserializes multiple save files in parallel on background worker threads.
-        /// If a file does not exist, creates an empty file on disk and returns an empty container.
+        /// Deserializes multiple save files in parallel on background worker threads from active session folder.
         public async Task DeserializeFiles(IEnumerable<string> fileNames, Action<string> onFailure = null){
             List<Task<(string Name, FileContainer Data)>> tasks = fileNames.Select(fileName => Task.Run(() => {
-                string filePath = GetSaveFilePath(fileName);
+                string filePath = GetSessionFilePath(fileName);
 
                 if (!File.Exists(filePath)){
                     try{
@@ -83,7 +101,7 @@ namespace Core.Managers{
                     return (fileName, diskData ?? new FileContainer(StringComparer.OrdinalIgnoreCase));
                 }
                 catch (Exception e){
-                    onFailure?.Invoke($"Save file {fileName} is corrupted: {e.Message}");
+                    onFailure?.Invoke($"Session file {fileName} is corrupted: {e.Message}");
                     return (fileName, null);
                 }
             })).ToList();
