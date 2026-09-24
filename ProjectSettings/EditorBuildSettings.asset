@@ -32,6 +32,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestMaps/VerticalMaps/VerticalInside.unity
     guid: 48ed64d07fb3a964ea039372f79af5b6
+  - enabled: 1
+    path: Assets/Scenes/TestMaps/UnitTestMaps/BlankMap.unity
+    guid: a600c8013e6a91b479e7914151917c74
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 332d9f72535bedd4faff017ed59b2d3e,
       type: 2}

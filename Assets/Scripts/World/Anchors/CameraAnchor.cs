@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -54,6 +54,8 @@ namespace World.Anchors{
 
         /// Sets the active world camera and finds the scene's virtual camera.
         public static void SetRenderingCamera(Camera camera){
+            if (_instance == null)
+                _instance = FindAnyObjectByType<CameraAnchor>();
             if (_instance == null) return;
             _instance.renderingCamera   = camera;
             _instance.cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
@@ -95,15 +97,12 @@ namespace World.Anchors{
 
         /// Applies orthographic camera zoom step and invokes the OnZoom event.
         public static void Zoom(float scrollSign){
-            if (_instance == null) return;
             _instance.ApplyZoom(scrollSign);
             OnZoom?.Invoke(scrollSign);
         }
 
         /// Adjusts and clamps orthographic camera lens size.
         private void ApplyZoom(float scrollSign){
-            if (cinemachineCamera == null) return;
-
             LensSettings lens = cinemachineCamera.Lens;
             lens.OrthographicSize  = Mathf.Clamp(lens.OrthographicSize - scrollSign * zoomSpeed, minZoom, maxZoom);
             cinemachineCamera.Lens = lens;

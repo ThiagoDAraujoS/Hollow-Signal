@@ -209,6 +209,7 @@ BoxCollider:
 --- !u!23 &14015864
 MeshRenderer:
   m_ObjectHideFlags: 0
+  m_FrameTiming: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -517,7 +518,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921e310cf12202b48ba21745a534dbce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.Managers.MapManager
-  spawnPoints: []
+  spawnPoints:
+  - {fileID: 1726128428}
   cameraBounds:
     min: {x: -100, y: -100}
     max: {x: 100, y: 100}
@@ -525,6 +527,7 @@ MonoBehaviour:
 --- !u!114 &1619191062
 MonoBehaviour:
   m_ObjectHideFlags: 0
+  m_FrameTiming: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
