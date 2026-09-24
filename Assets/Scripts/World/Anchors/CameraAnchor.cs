@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -161,15 +161,6 @@ namespace World.Anchors{
             Vector3 newPosition   = transform.position + moveDirection * (moveSpeed * Time.deltaTime);
 
             transform.position = bounds.Clamp(newPosition);
-        }
-
-        /// Draws bounding box gizmo in editor scene view.
-        private void OnDrawGizmos(){
-            if (bounds == null) return;
-
-            Gizmos.color                   = Color.yellow;
-            (Vector3 center, Vector3 size) = bounds.GetCenterAndSize(transform.position.y);
-            Gizmos.DrawWireCube(center, size);
         }
     }
 

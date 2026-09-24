@@ -188,16 +188,6 @@ namespace World.Actors.Brains{
                 _instance._selection.ToggleAddSelection(character);
         }
 
-        /// Returns active party characters matching the specified hero flag mask.
-        public static List<Character> GetHeroes(HeroEnum heroMask){
-            List<Character> matching = new();
-            foreach (Character hero in _instance.activePartyMembers)
-                if ((hero.heroType & heroMask) != 0 || ((heroMask & HeroEnum.Leader) != 0 && hero == Lead))
-                    if (!matching.Contains(hero))
-                        matching.Add(hero);
-            return matching;
-        }
-
         /// Disables player input and movement commands.
         public static void TurnControlsOff(){
             _instance._controlsEnabled = false;

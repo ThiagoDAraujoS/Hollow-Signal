@@ -8,8 +8,15 @@ using World.Anchors;
 
 namespace World.Actors.Brains{
     public class GoHere : MonoBehaviour{
-        [SerializeField] private HeroEnum   targetHeroes    = HeroEnum.All;
-        [SerializeField] private bool       trackTarget     = true;
+        [Header("Target Heroes")]
+        [SerializeField] private bool sendLeader    = true;
+        [SerializeField] private bool sendBrute     = true;
+        [SerializeField] private bool sendThief     = true;
+        [SerializeField] private bool sendScientist = true;
+        [SerializeField] private bool sendMage      = true;
+
+        [Header("Camera & Completion")]
+        [SerializeField] private bool trackTarget   = true;
         [SerializeField] private UnityEvent onArrived;
 
         [Header("Editor Visuals")]
@@ -25,14 +32,26 @@ namespace World.Actors.Brains{
                 _destination = transform.position;
         }
 
-        /// Updates the target hero mask dynamically.
-        public void SetHeroes(HeroEnum heroesMask) => targetHeroes = heroesMask;
-
         /// Dispatches targeted heroes in formation towards cached NavMesh destination and locks controls.
         public void Send(){
-            List<Character> heroes = PlayerBrain.GetHeroes(targetHeroes);
+            List<Character> heroes = new();
+            Character lead = PlayerBrain.Lead;
+
+            foreach (Character hero in PlayerBrain.ActivePartyMembers){
+                bool isTarget = (sendLeader && hero == lead)
+                             || (sendBrute && hero.heroType == HeroEnum.Brute)
+                             || (sendThief && hero.heroType == HeroEnum.Thief)
+                             || (sendScientist && hero.heroType == HeroEnum.Scientist)
+                             || (sendMage && hero.heroType == HeroEnum.Mage);
+
+                if (isTarget && !heroes.Contains(hero))
+                    heroes.Add(hero);
+            }
+
+            if (heroes.Count == 0) return;
+
             PlayerBrain.TurnControlsOff();
-            Character leadHero = heroes.Contains(PlayerBrain.Lead) ? PlayerBrain.Lead : heroes[0];
+            Character leadHero = heroes.Contains(lead) ? lead : heroes[0];
 
             if (trackTarget)
                 CameraAnchor.FollowHeroes(heroes);

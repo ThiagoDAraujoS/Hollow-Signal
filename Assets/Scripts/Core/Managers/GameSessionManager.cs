@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using World.Actors.Brains;
 using World.Actors.Player;
+using World.Anchors;
 using Partition = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Core.Managers{
@@ -62,10 +63,20 @@ namespace Core.Managers{
                 SceneCoordinator.Instance.ActiveMapScene = currentMapName.Value;
                 await SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
                 Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
+            } catch (Exception e){
+                Debug.LogError($"[GameSessionManager] Startup failed: {e.Message}");
             }
-            catch (Exception e){
-                Debug.LogError($"Could not load scene {currentMapName}. Details: {e}");
-            }
+        }
+
+        /// Finds a hero character instance by its unique identifier string.
+        public Character GetHeroById(string id){
+            if (string.IsNullOrEmpty(id)) return null;
+            Character[] heroes = heroesContainer.GetComponentsInChildren<Character>(includeInactive: true);
+            foreach (Character hero in heroes)
+                if (hero.TryGetComponent<UniqueId>(out var uniqueId) && uniqueId.Id == id)
+                    return hero;
+
+            return null;
         }
 
         /// Spawns and configures active party members in formation at the target map spawn point.
@@ -105,6 +116,9 @@ namespace Core.Managers{
                 hero.nmAgent.Warp(pos);
                 hero.transform.rotation = spawn.rotation;
             }
+
+            CameraAnchor.SetUpCamera(lead.WorldPosition, map.CameraBounds);
+            CameraAnchor.Track(lead.transform);
         }
 
         /// Checks whether a character ID is currently marked as an active party member.
@@ -124,10 +138,12 @@ namespace Core.Managers{
         /// Gathers active state from children and components.
         public override void OnSaveState(Partition state){
             base.OnSaveState(state);
-            state["ActiveParty"] = new List<string>(activeCharacterIds);
+            state["ActiveParty"]        = new List<string>(activeCharacterIds);
+            state["MainCharacterName"]  = (string)mainCharacterName;
+            state["CurrentMapName"]     = (string)currentMapName;
         }
 
-        /// Restores state from partition data.
+        /// Loads and synchronizes persistent state onto local fields.
         public override void OnLoadState(Partition state){
             base.OnLoadState(state);
             if (!state.TryGetValue("ActiveParty", out object rawList)) return;
@@ -138,6 +154,12 @@ namespace Core.Managers{
                     activeCharacterIds.Add(item.ToString());
             else if (rawList is IEnumerable<string> strEnum)
                 activeCharacterIds.AddRange(strEnum);
+
+            if (state.TryGetValue("MainCharacterName", out var mainNameObj) && mainNameObj != null)
+                mainCharacterName.Value = mainNameObj.ToString();
+
+            if (state.TryGetValue("CurrentMapName", out var mapNameObj) && mapNameObj != null)
+                currentMapName.Value = mapNameObj.ToString();
         }
     }
 }
