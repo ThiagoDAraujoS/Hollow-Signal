@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cameras;
 using Narrative.Dialog;
 using UI.Dialog;
+using UI.Shared.Transitions;
 using UnityEngine;
 using World;
 using World.Actors.Player;
@@ -17,6 +18,7 @@ namespace World.Actors.Brains{
         [SerializeField] private List<Character> activePartyMembers = new();
         [SerializeField] private DialogueController[] dialogueScreens = new DialogueController[4];
         [SerializeField] private GameObject sharedDialogueBackground;
+        [SerializeField] private CanvasTransitionController dialogueTransition;
 
         private readonly PartySelection _selection = new();
 
@@ -199,6 +201,7 @@ namespace World.Actors.Brains{
                 DialogueController[] controllers = FindObjectsByType<DialogueController>(FindObjectsInactive.Include);
                 for (int i = 0; i < controllers.Length && i < dialogueScreens.Length; i++) dialogueScreens[i] = controllers[i];
             }
+            if (!dialogueTransition) dialogueTransition = FindFirstObjectByType<CanvasTransitionController>(FindObjectsInactive.Include);
             if (!sharedDialogueBackground && dialogueScreens.Length > 0 && dialogueScreens[0] && dialogueScreens[0].DialogRoot)
                 sharedDialogueBackground = dialogueScreens[0].DialogRoot;
 
@@ -214,7 +217,11 @@ namespace World.Actors.Brains{
             Character lead = Lead;
             bool hasActiveDialogue = lead && lead.dialogueSession && lead.dialogueSession.HasActiveDialogue;
 
-            if (sharedDialogueBackground) sharedDialogueBackground.SetActive(hasActiveDialogue);
+            if (dialogueTransition){
+                if (hasActiveDialogue) dialogueTransition.ShowHero(lead.dialogueSession.ScreenIndex);
+                else dialogueTransition.Hide();
+                return;
+            }
 
             for (int i = 0; i < dialogueScreens.Length; i++){
                 if (!dialogueScreens[i]) continue;
@@ -227,11 +234,7 @@ namespace World.Actors.Brains{
                 if (member != lead) member.dialogueSession.Controller.SetVisible(false);
             }
 
-            if (!hasActiveDialogue){
-                if (sharedDialogueBackground) sharedDialogueBackground.SetActive(false);
-                else if (dialogueScreens.Length > 0 && dialogueScreens[0] && dialogueScreens[0].DialogRoot)
-                    dialogueScreens[0].DialogRoot.SetActive(false);
-            }
+            if (sharedDialogueBackground && !hasActiveDialogue) sharedDialogueBackground.SetActive(false);
         }
 
         /// Resets gestures and halts units when dialogue state changes.

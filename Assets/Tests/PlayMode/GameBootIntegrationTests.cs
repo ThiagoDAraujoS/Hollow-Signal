@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using Core.Managers;
 using NUnit.Framework;
 using UnityEngine;
@@ -8,6 +9,7 @@ using UnityEngine.TestTools;
 
 namespace CRPG.Tests.PlayMode{
     [TestFixture]
+    [Description("Tests the full game boot sequence from cold start to BlankMap scene.")]
     public class GameBootIntegrationTests{
         private const string UnitTestSaveSlotName = "UnitTest";
         private const string BlankMapSceneName = "BlankMap";
@@ -16,14 +18,17 @@ namespace CRPG.Tests.PlayMode{
         private const string GameSessionSceneName = "GameSession";
 
         [OneTimeSetUp]
-        public void OneTimeSetUp(){
-            EnsureUnitTestSaveSlot(BlankMapSceneName);
+        public void OneTimeSetUp() => EnsureUnitTestSaveSlot(BlankMapSceneName);
+
+        /// Gracefully unloads all additive scenes while persistent singletons are still alive.
+        [UnityOneTimeTearDown]
+        public IEnumerator OneTimeTearDown(){
+            Task unloadTask = SceneCoordinator.UnloadAllNonBootScenesAsync();
+            while (!unloadTask.IsCompleted)
+                yield return null;
         }
 
-        /// <summary>
-        /// Creates or overwrites the "UnitTest" save file on disk with partition data
-        /// targeting the specified map scene and default party state.
-        /// </summary>
+        /// Creates or overwrites the UnitTest save file on disk targeting the specified map scene.
         public static void EnsureUnitTestSaveSlot(string targetMapName = BlankMapSceneName, string mainHeroName = "Lucca"){
             string savesDirectory = Path.Combine(Application.persistentDataPath, "Saves");
             string slotDirectory = Path.Combine(savesDirectory, UnitTestSaveSlotName);
@@ -55,17 +60,15 @@ namespace CRPG.Tests.PlayMode{
             File.WriteAllText(metaJsonPath, metaJsonContent);
         }
 
+        /// Tests that Boot loads BootMenuScene, accepts a save slot load command, and activates GameSession and BlankMap.
         [UnityTest]
+        [Description("Verifies Boot -> BootMenuScene -> UnitTest save slot -> GameSession -> BlankMap sequence.")]
         public IEnumerator BootToBlankMap_ThroughBootMenuAndSaveLoad_Succeeds(){
-            // 1. Prepare save slot pointing to BlankMap
             EnsureUnitTestSaveSlot(BlankMapSceneName);
 
-            // 2. Load the main Boot scene
             AsyncOperation loadBootOp = SceneManager.LoadSceneAsync(BootSceneName, LoadSceneMode.Single);
-            Assert.IsNotNull(loadBootOp, "Failed to initiate loading of Boot scene.");
             yield return loadBootOp;
 
-            // 3. Wait for Boot to auto-load the BootMenuScene
             float timeout = 10f;
             float elapsed = 0f;
             while (!SceneManager.GetSceneByName(BootMenuSceneName).isLoaded && elapsed < timeout){
@@ -73,16 +76,10 @@ namespace CRPG.Tests.PlayMode{
                 yield return null;
             }
 
-            Assert.IsTrue(
-                SceneManager.GetSceneByName(BootMenuSceneName).isLoaded,
-                $"Timed out waiting for {BootMenuSceneName} to load."
-            );
-            Assert.IsNotNull(SceneCoordinator.Instance, "SceneCoordinator instance should be initialized.");
+            Assert.IsTrue(SceneManager.GetSceneByName(BootMenuSceneName).isLoaded);
 
-            // 4. Issue command to load the UnitTest save slot
             var startSessionTask = SceneCoordinator.StartGameSessionAsync(UnitTestSaveSlotName);
 
-            // 5. Wait for the GameSession scene and the target BlankMap scene to load
             elapsed = 0f;
             timeout = 15f;
             while ((!SceneManager.GetSceneByName(BlankMapSceneName).isLoaded ||
@@ -91,33 +88,10 @@ namespace CRPG.Tests.PlayMode{
                 yield return null;
             }
 
-            // 6. Assertions for successful boot & transition
-            Assert.IsTrue(
-                SceneManager.GetSceneByName(GameSessionSceneName).isLoaded,
-                $"{GameSessionSceneName} scene should be loaded."
-            );
-            Assert.IsTrue(
-                SceneManager.GetSceneByName(BlankMapSceneName).isLoaded,
-                $"{BlankMapSceneName} scene should be loaded."
-            );
-            Assert.IsNotNull(
-                GameSessionManager.Instance,
-                "GameSessionManager.Instance should be initialized."
-            );
-            Assert.IsNotNull(
-                GameSessionManager.CurrentMapManager,
-                "GameSessionManager.CurrentMapManager should be assigned."
-            );
-            Assert.AreEqual(
-                BlankMapSceneName,
-                GameSessionManager.CurrentMapManager.gameObject.scene.name,
-                "CurrentMapManager does not match BlankMap scene."
-            );
-            Assert.AreEqual(
-                BlankMapSceneName,
-                GameSessionManager.Instance.currentMapName.Value,
-                "GameSessionManager currentMapName does not match BlankMap."
-            );
+            Assert.IsTrue(SceneManager.GetSceneByName(GameSessionSceneName).isLoaded);
+            Assert.IsTrue(SceneManager.GetSceneByName(BlankMapSceneName).isLoaded);
+            Assert.AreEqual(BlankMapSceneName, GameSessionManager.CurrentMapManager.gameObject.scene.name);
+            Assert.AreEqual(BlankMapSceneName, GameSessionManager.Instance.currentMapName.Value);
         }
     }
 }

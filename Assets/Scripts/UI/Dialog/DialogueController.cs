@@ -5,6 +5,7 @@ using Data;
 using Narrative.Dialog;
 using Narrative.Skills;
 using TMPro;
+using UI.Shared.Transitions;
 using UnityEngine;
 using UnityEngine.UI;
 using World.Actors.Player;
@@ -28,6 +29,9 @@ namespace UI.Dialog{
         [SerializeField] private GameObject transcriptPrefab;
         [SerializeField] private DialogueOptionUI optionPrefab;
 
+        [Header("Transition")]
+        [SerializeField] private CanvasTransitionController transition;
+
         private DialogueBehaviour        _currentDialogue;
         private DialogueNode             _currentNode;
         private CharacterDialogueSession _characterSession;
@@ -40,28 +44,33 @@ namespace UI.Dialog{
         public static DialogueController Instance{ get; private set; }
 
         public GameObject DialogRoot => dialogRoot;
-        public bool       IsOpen     => gameObject.activeSelf && (dialogRoot == null || dialogRoot.activeInHierarchy);
+        public bool       IsOpen     => (transition ? transition.IsVisible : gameObject.activeSelf) && (!dialogRoot || dialogRoot.activeInHierarchy);
 
-        /// Assigns singleton instance.
-        private void Awake() => Instance = this;
+        /// Assigns singleton instance and default transition component from self or parent.
+        private void Awake(){
+            Instance = this;
+            if (!transition) transition = GetComponentInParent<CanvasTransitionController>();
+        }
 
         /// Dismisses active tooltip on disable.
         private void OnDisable() => HideTooltip();
 
-        /// Shows or hides the dialogue screen without clearing history.
-        public void SetVisible(bool visible){
-            gameObject.SetActive(visible);
+        /// Shows or hides the dialogue screen with optional transition.
+        public void SetVisible(bool visible, bool immediate = false){
+            if (!visible) HideTooltip();
 
-            if (!visible)
-                HideTooltip();
-
-            if (dialogRoot == null || dialogRoot == gameObject)
+            if (transition){
+                int heroIndex = _characterSession != null ? _characterSession.ScreenIndex : 0;
+                if (immediate) transition.SetInstant(visible, heroIndex);
+                else if (visible) transition.ShowHero(heroIndex);
+                else transition.Hide();
                 return;
+            }
 
-            if (visible)
-                dialogRoot.SetActive(true);
-            else if (dialogRoot.GetComponentsInChildren<DialogueController>(false).Length == 0)
-                dialogRoot.SetActive(false);
+            gameObject.SetActive(visible);
+            if (!dialogRoot || dialogRoot == gameObject) return;
+            if (visible) dialogRoot.SetActive(true);
+            else if (dialogRoot.GetComponentsInChildren<DialogueController>(false).Length == 0) dialogRoot.SetActive(false);
         }
 
         /// Starts dialogue session on this screen and navigates to the entry knot.
