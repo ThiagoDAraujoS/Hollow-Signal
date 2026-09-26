@@ -33,6 +33,7 @@ namespace World.Actors.Brains{
         public static bool IsAppendPressed => _instance.modifierAppendActionRef.action.IsPressed();
         public static bool IsAltPressed    => _instance.modifierAltActionRef && _instance.modifierAltActionRef.action.IsPressed();
 
+        public static event Action                           OnPointerPressed;
         public static event Action<Character, bool>          OnSelectCharacter;
         public static event Action<Vector2, Vector2, bool>   OnMarqueeSelect;
         public static event Action                           OnDeselect, OnSelectAll, OnCycleLeader, OnStop;
@@ -135,6 +136,7 @@ namespace World.Actors.Brains{
 
         /// Initiates selection gesture on select button down.
         private void HandleSelectStarted(InputAction.CallbackContext _){
+            OnPointerPressed?.Invoke();
             if (!_controlsEnabled) return;
             Vector2 startPos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(startPos) || IsPointerOverUI(startPos)) return;
@@ -165,6 +167,7 @@ namespace World.Actors.Brains{
 
         /// Evaluates interactables, characters, or ground movement orders on command press.
         private void HandleCommandStarted(InputAction.CallbackContext _){
+            OnPointerPressed?.Invoke();
             if (!_controlsEnabled) return;
             Vector2 pos = pointActionRef.action.ReadValue<Vector2>();
             if (!SelectionScanner.IsPointerInsideViewport(pos) || IsPointerOverUI(pos)) return;
@@ -181,7 +184,7 @@ namespace World.Actors.Brains{
             OnCommandMove?.Invoke(rayHit.point);
         }
 
-        /// Halts continuous command tracking on command button release.
+        /// Resets command button state on release.
         private void HandleCommandCanceled(InputAction.CallbackContext _) => _isCommandHeld = false;
 
         /// Routes scroll input to an IScrollable or emits camera zoom event.
@@ -213,12 +216,12 @@ namespace World.Actors.Brains{
             return Physics.Raycast(ActiveCam.ScreenPointToRay(screenPos), out RaycastHit hit, 500f) ? hit.collider.GetComponentInParent<IScrollable>() : null;
         }
 
-        /// Renders selection marquee box onto the screen GUI during dragging.
-        private void OnGUI(){
-            if (!_isDragging) return;
-            Rect guiRect = SelectionScanner.GetScreenRect(new Vector2(_pressStartPos.x, Screen.height - _pressStartPos.y), new Vector2(_currentScreenPos.x, Screen.height - _currentScreenPos.y));
-            SelectionScanner.DrawScreenRect(guiRect, boxFillColor);
-            SelectionScanner.DrawScreenRectBorder(guiRect, 2f, boxBorderColor);
+        /// Enables or disables processing of gestures, hotkeys, and commands.
+        public void SetControlsEnabled(bool isEnabled){
+            _controlsEnabled = isEnabled;
+            if (isEnabled) return;
+            ResetState();
+            InteractableHighlight.ClearHover();
         }
 
         /// Checks whether the screen position directly hits an active UI element.
@@ -229,15 +232,15 @@ namespace World.Actors.Brains{
             return _uiRaycastResults.Count > 0;
         }
 
-        /// Enables or disables processing of gestures, hotkeys, and commands.
-        public void SetControlsEnabled(bool isEnabled){
-            _controlsEnabled = isEnabled;
-            if (isEnabled) return;
-            ResetState();
-            InteractableHighlight.ClearHover();
-        }
-
         /// Resets active drag, hold, and command hold state.
         public void ResetState() => _isPressed = _isDragging = _holdFired = _isCommandHeld = false;
+
+        /// Renders selection marquee box onto the screen GUI during dragging.
+        private void OnGUI(){
+            if (!_isDragging) return;
+            Rect guiRect = SelectionScanner.GetScreenRect(new Vector2(_pressStartPos.x, Screen.height - _pressStartPos.y), new Vector2(_currentScreenPos.x, Screen.height - _currentScreenPos.y));
+            SelectionScanner.DrawScreenRect(guiRect, boxFillColor);
+            SelectionScanner.DrawScreenRectBorder(guiRect, 2f, boxBorderColor);
+        }
     }
 }

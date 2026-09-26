@@ -22,7 +22,7 @@ namespace UI.Dialog{
 
         /// Removes underline style and dismisses active tooltip when disabled.
         private void OnDisable(){
-            textMesh.fontStyle &= ~FontStyles.Underline;
+            if (textMesh) textMesh.fontStyle &= ~FontStyles.Underline;
             _onHoverExit?.Invoke();
         }
 
@@ -34,7 +34,10 @@ namespace UI.Dialog{
             string tooltipText = null,
             Action<Vector2, string> onHoverEnter = null,
             Action onHoverExit = null){
+            if (!textMesh) textMesh = GetComponent<TextMeshProUGUI>();
+            textMesh.raycastTarget = true;
             textMesh.text = text;
+            textMesh.ForceMeshUpdate();
             _onClick = onClick;
             _isInteractable = isInteractable;
             _tooltipText = tooltipText;
@@ -44,25 +47,23 @@ namespace UI.Dialog{
 
         /// Adds underline formatting if interactable and dispatches tooltip event on hover.
         public void OnPointerEnter(PointerEventData eventData){
-            if (_isInteractable)
-                textMesh.fontStyle |= FontStyles.Underline;
-
-            if (!string.IsNullOrEmpty(_tooltipText))
-                _onHoverEnter?.Invoke(eventData.position, _tooltipText);
+            if (!_isInteractable) return;
+            if (textMesh) textMesh.fontStyle |= FontStyles.Underline;
+            if (!string.IsNullOrEmpty(_tooltipText)) _onHoverEnter?.Invoke(eventData.position, _tooltipText);
         }
 
         /// Removes underline formatting and clears tooltip on pointer exit.
         public void OnPointerExit(PointerEventData eventData){
-            textMesh.fontStyle &= ~FontStyles.Underline;
+            if (textMesh) textMesh.fontStyle &= ~FontStyles.Underline;
             _onHoverExit?.Invoke();
         }
 
         /// Invokes the registered choice callback when clicked.
         public void OnPointerClick(PointerEventData eventData){
-            if (!_isInteractable)
-                return;
+            if (!_isInteractable) return;
+            if (eventData.button != PointerEventData.InputButton.Left) return;
             _onHoverExit?.Invoke();
-            _onClick();
+            _onClick?.Invoke();
         }
     }
 }

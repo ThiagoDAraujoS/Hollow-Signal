@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -70,9 +70,7 @@ namespace UI.Shared.Transitions{
         }
 
         /// Cleans up created material instances.
-        private void OnDestroy(){
-            if (_instantiatedMaterial) Destroy(_instantiatedMaterial);
-        }
+        private void OnDestroy() => Destroy(_instantiatedMaterial);
 
         /// Reveals background shader and fades in the parent text canvas for the designated hero slot.
         public void ShowHero(int heroIndex, Action onComplete = null){
