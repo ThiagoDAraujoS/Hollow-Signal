@@ -5,7 +5,6 @@ using Narrative.Dialog;
 using UI.Dialog;
 using UI.Shared.Transitions;
 using UnityEngine;
-using World;
 using World.Actors.Player;
 using World.Interactables;
 using World.Tactical;
@@ -68,7 +67,8 @@ namespace World.Actors.Brains{
             PlayerGestureController.OnCycleLeader           += HandleCycleLeader;
             PlayerGestureController.OnSelectSlot            += SelectSlot;
             PlayerGestureController.OnStop                  += StopSelectedUnits;
-            PlayerGestureController.OnCommandInteractable   += HandleClickInteractable;
+            PlayerGestureController.OnCommandSlot           += HandleClickSlot;
+            PlayerGestureController.OnCommandGoHere         += HandleClickGoHere;
             PlayerGestureController.OnCommandCharacter      += HandleCommandCharacter;
             PlayerGestureController.OnCommandMove           += HandleMoveCommand;
             PlayerGestureController.OnContinuousCommandMove += HandleMoveCommand;
@@ -88,7 +88,8 @@ namespace World.Actors.Brains{
             PlayerGestureController.OnCycleLeader           -= HandleCycleLeader;
             PlayerGestureController.OnSelectSlot            -= SelectSlot;
             PlayerGestureController.OnStop                  -= StopSelectedUnits;
-            PlayerGestureController.OnCommandInteractable   -= HandleClickInteractable;
+            PlayerGestureController.OnCommandSlot           -= HandleClickSlot;
+            PlayerGestureController.OnCommandGoHere         -= HandleClickGoHere;
             PlayerGestureController.OnCommandCharacter      -= HandleCommandCharacter;
             PlayerGestureController.OnCommandMove           -= HandleMoveCommand;
             PlayerGestureController.OnContinuousCommandMove -= HandleMoveCommand;
@@ -128,17 +129,16 @@ namespace World.Actors.Brains{
         /// Cycles lead unit among active party members.
         private void HandleCycleLeader() => _selection.CycleLeader(activePartyMembers);
 
-        /// Directs lead character to move to and use the interactable object.
-        private void HandleClickInteractable(IUsable usable){
+        /// Directs lead character to move to and use the slot.
+        private void HandleClickSlot(AreaSlot slot){
             Character lead = Lead;
             if (!lead) return;
-            if (usable is DialogueBehaviour db && db.IsInUse && db.CurrentUser != lead) return;
-            if (usable is AreaSlot slot){
-                if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
-                if (slot.LinkedUsable is DialogueBehaviour slotDb && slotDb.IsInUse && slotDb.CurrentUser != lead) return;
-            }
-            lead.movement.MoveToAndUse(usable, lead.sheet);
+            if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
+            lead.movement.MoveToAndUse(slot, lead.sheet);
         }
+
+        /// Dispatches party formation movement on GoHere click.
+        private void HandleClickGoHere(GoHere goHere) => goHere.Send();
 
         /// Dispatches move order to selected units in formation.
         private void HandleMoveCommand(Vector3 destinationPoint){

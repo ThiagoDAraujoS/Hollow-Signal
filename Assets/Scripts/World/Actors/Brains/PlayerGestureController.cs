@@ -5,10 +5,10 @@ using Core.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using World;
 using World.Actors.Player;
 using World.Anchors;
 using World.Interactables;
+using World.Tactical;
 
 namespace World.Actors.Brains{
     /// Processes pointer inputs, hover, scrolling, hotkeys, and gestures into game events.
@@ -38,7 +38,8 @@ namespace World.Actors.Brains{
         public static event Action<Vector2, Vector2, bool>   OnMarqueeSelect;
         public static event Action                           OnDeselect, OnSelectAll, OnCycleLeader, OnStop;
         public static event Action<int>                      OnSelectSlot;
-        public static event Action<IUsable>                  OnCommandInteractable;
+        public static event Action<AreaSlot>                 OnCommandSlot;
+        public static event Action<GoHere>                   OnCommandGoHere;
         public static event Action<Character, bool>          OnCommandCharacter;
         public static event Action<Vector3>                  OnCommandMove, OnContinuousCommandMove;
         public static event Action<Vector2>                  OnContextMenuRequested;
@@ -176,8 +177,11 @@ namespace World.Actors.Brains{
             if (hit){ OnCommandCharacter?.Invoke(hit, IsAppendPressed); return; }
 
             if (!Physics.Raycast(ActiveCam.ScreenPointToRay(pos), out RaycastHit rayHit, 300f, groundLayer)) return;
-            IUsable usable = rayHit.collider.GetComponentInParent<IUsable>();
-            if (usable != null){ OnCommandInteractable?.Invoke(usable); return; }
+            AreaSlot slot = rayHit.collider.GetComponentInParent<AreaSlot>();
+            if (slot != null){ OnCommandSlot?.Invoke(slot); return; }
+
+            GoHere goHere = rayHit.collider.GetComponentInParent<GoHere>();
+            if (goHere != null){ OnCommandGoHere?.Invoke(goHere); return; }
 
             _isCommandHeld = true;
             _lastContinuousCommandTime = Time.unscaledTime;

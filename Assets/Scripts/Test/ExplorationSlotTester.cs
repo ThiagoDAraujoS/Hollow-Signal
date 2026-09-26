@@ -1,30 +1,19 @@
-﻿using UnityEngine;
-using World;
-using World.Actors.Player;
-using World.Tactical;
+﻿using Data.Effects;
+using UnityEngine;
 
 namespace Test{
-    /// Simple test interactable to verify ExplorationSlot pathing, rotation, and arrival handshake.
-    [DisallowMultipleComponent]
-    public class ExplorationSlotTester : MonoBehaviour, IUsable{
-        [Header("Slot Reference")]
-        [SerializeField] private ExplorationSlot slot;
-
+    /// Simple test effect to verify ExplorationSlot arrival and execution handshake.
+    [CreateAssetMenu(fileName = "ExplorationSlotTestEffect", menuName = "CRPG/Test/Exploration Slot Test Effect")]
+    public class ExplorationSlotTester : EffectNode{
         [Header("Debug State")]
         [SerializeField] private int interactionCount;
         [SerializeField] private string lastInteractedBy;
 
-        public Vector3    UsePosition => slot != null ? slot.Position : transform.position;
-        public Quaternion UseRotation => slot != null ? slot.Rotation : transform.rotation;
-
-        /// Resolves sibling ExplorationSlot reference on reset.
-        private void Reset() => slot = GetComponent<ExplorationSlot>();
-
-        /// Logs arrival and increments interaction count when used by a character.
-        public void Use(CharacterSheet whosUsing){
+        /// Logs arrival and increments interaction count when executed.
+        public override void Run(EffectContext context){
             interactionCount++;
-            lastInteractedBy = whosUsing.name;
-            Debug.Log($"[ExplorationSlotTester] {lastInteractedBy} interacted with '{gameObject.name}'! (Total: {interactionCount})");
+            lastInteractedBy = context.Character != null ? context.Character.name : "Unknown";
+            Debug.Log($"[ExplorationSlotTester] {lastInteractedBy} interacted! (Total: {interactionCount})");
         }
     }
 }

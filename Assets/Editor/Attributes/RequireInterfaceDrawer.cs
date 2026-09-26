@@ -15,13 +15,20 @@ namespace CRPG.Editor.Attributes{
             EditorGUI.BeginChangeCheck();
 
             Object currentObject = property.objectReferenceValue;
-            Object newObject = EditorGUI.ObjectField(position, label, currentObject, typeof(MonoBehaviour), true);
+            Object newObject = EditorGUI.ObjectField(position, label, currentObject, typeof(Object), true);
 
             if (EditorGUI.EndChangeCheck()){
                 if (newObject == null)
                     property.objectReferenceValue = null;
                 else if (requireInterface.InterfaceType.IsAssignableFrom(newObject.GetType()))
                     property.objectReferenceValue = newObject;
+                else if (newObject is GameObject go){
+                    Component targetComp = go.GetComponent(requireInterface.InterfaceType);
+                    if (targetComp != null)
+                        property.objectReferenceValue = targetComp;
+                    else
+                        Debug.LogError($"[RequireInterface] '{newObject.name}' does not implement {requireInterface.InterfaceType.Name}!");
+                }
                 else if (newObject is Component comp){
                     Component targetComp = comp.GetComponent(requireInterface.InterfaceType);
                     if (targetComp != null)
@@ -29,6 +36,8 @@ namespace CRPG.Editor.Attributes{
                     else
                         Debug.LogError($"[RequireInterface] '{newObject.name}' does not implement {requireInterface.InterfaceType.Name}!");
                 }
+                else
+                    Debug.LogError($"[RequireInterface] '{newObject.name}' does not implement {requireInterface.InterfaceType.Name}!");
             }
 
             EditorGUI.EndProperty();

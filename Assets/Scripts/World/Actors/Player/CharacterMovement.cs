@@ -1,4 +1,3 @@
-using Narrative.Dialog;
 using UnityEngine;
 using UnityEngine.AI;
 using World.Tactical;
@@ -20,9 +19,6 @@ namespace World.Actors.Player{
 
         /// Active phase of pending interaction workflow.
         private InteractionState _interactionState = InteractionState.None;
-
-        /// Pending interaction target when moving to use an object.
-        private IUsable _pendingTarget;
 
         /// Pending user character sheet executing the interaction.
         private CharacterSheet _pendingUserSheet;
@@ -114,14 +110,9 @@ namespace World.Actors.Player{
             Agent.Warp(position);
         }
 
-        /// Navigates the character to an IUsable object and triggers interaction upon arrival.
-        public void MoveToAndUse(IUsable target, CharacterSheet userSheet){
-            if (target is DialogueBehaviour db && db.IsInUse && db.CurrentUser != _character) return;
-            AreaSlot slot = target as AreaSlot ?? (target is Component comp ? comp.GetComponent<AreaSlot>() : null);
-            if (slot != null){
-                if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
-                if (slot.LinkedUsable is DialogueBehaviour slotDb && slotDb.IsInUse && slotDb.CurrentUser != _character) return;
-            }
+        /// Navigates the character to an AreaSlot and triggers interaction upon arrival.
+        public void MoveToAndUse(AreaSlot slot, CharacterSheet userSheet){
+            if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
 
             CancelInteraction();
             _character.LeaveSlot();
@@ -129,14 +120,11 @@ namespace World.Actors.Player{
             if (Agent.hasPath)
                 Agent.ResetPath();
 
-            _pendingTarget    = target;
             _pendingUserSheet = userSheet;
             _pendingSlot      = slot;
+            _pendingSlot.Reserve(_character);
 
-            if (_pendingSlot != null)
-                _pendingSlot.Reserve(_character);
-
-            Vector3 destination = target.UsePosition;
+            Vector3 destination = slot.Position;
             if (NavMesh.SamplePosition(destination, out NavMeshHit navHit, 3f, NavMesh.AllAreas))
                 destination = navHit.position;
 
@@ -166,11 +154,11 @@ namespace World.Actors.Player{
             }
 
             if (_interactionState == InteractionState.Aligning){
-                Vector3 fwd = _pendingTarget.UseRotation * Vector3.forward;
+                Vector3 fwd = _pendingSlot.Rotation * Vector3.forward;
                 fwd.y = 0f;
                 Quaternion targetRot = fwd.sqrMagnitude > 0.001f
                     ? Quaternion.LookRotation(fwd.normalized, Vector3.up)
-                    : Quaternion.Euler(0f, _pendingTarget.UseRotation.eulerAngles.y, 0f);
+                    : Quaternion.Euler(0f, _pendingSlot.Rotation.eulerAngles.y, 0f);
 
                 bool angleAligned = Quaternion.Angle(Body.rotation, targetRot) <= 0.5f;
                 bool posAligned   = Vector3.Distance(Body.position, _pendingDestination) <= 0.02f;
@@ -205,23 +193,17 @@ namespace World.Actors.Player{
             Agent.updateRotation = true;
             _interactionState    = InteractionState.None;
 
-            IUsable        target    = _pendingTarget;
             CharacterSheet userSheet = _pendingUserSheet;
             AreaSlot       slot      = _pendingSlot;
 
-            _pendingTarget    = null;
             _pendingUserSheet = null;
             _pendingSlot      = null;
 
-            if (target is DialogueBehaviour db && db.IsInUse && db.CurrentUser != _character) return;
-            if (slot != null && !slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
+            if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character) return;
 
-            if (slot != null){
-                slot.Claim(_character);
-                _character.CurrentSlot = slot;
-            }
-
-            target.Use(userSheet);
+            slot.Claim(_character);
+            _character.CurrentSlot = slot;
+            slot.Use(userSheet);
         }
 
         /// Cancels any active pending interaction and releases reserved slot.
@@ -235,7 +217,6 @@ namespace World.Actors.Player{
                 _pendingSlot = null;
             }
 
-            _pendingTarget    = null;
             _pendingUserSheet = null;
         }
     }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace Data.Effects{
-    public abstract class EffectNode : ScriptableObject{
+    public abstract class EffectNode : ScriptableObject, IEffect{
         [SerializeField] private string id;
 
         public string Id => id;

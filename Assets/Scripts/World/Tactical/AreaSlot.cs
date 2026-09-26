@@ -1,5 +1,6 @@
 ﻿using Core.Attributes;
 using Core.State;
+using Data.Effects;
 using UnityEngine;
 using UnityEngine.AI;
 using World.Actors.Player;
@@ -14,9 +15,9 @@ namespace World.Tactical{
         [Header("Identity")]
         [SerializeField] protected string slotDisplayName;
 
-        [Header("Attached Interactable (Optional)")]
-        [SerializeField, RequireInterface(typeof(IUsable))]
-        protected MonoBehaviour linkedInteractable;
+        [Header("Attached Effect (Optional)")]
+        [RequireInterface(typeof(IEffect))]
+        [SerializeField] protected Object linkedEffect;
 
         [Header("Visual Indicator (Optional)")]
         [SerializeField] protected GameObject visualRing;
@@ -27,7 +28,7 @@ namespace World.Tactical{
         public SpatialPose AnchorPose      => anchorPose;
         public string      SlotDisplayName => slotDisplayName;
         public bool        IsAvailable     => Occupant == null && ReservedBy == null;
-        public IUsable     LinkedUsable    => (IUsable)linkedInteractable;
+        public IEffect     LinkedEffect    => linkedEffect as IEffect;
         public Vector3     Position        => anchorPose.GetWorldPosition(transform);
 
         /// Evaluates world rotation locked strictly to world UP (Y-axis yaw only).
@@ -50,13 +51,8 @@ namespace World.Tactical{
                 SetAnchorPoseFromWorld(hit.position, Rotation);
         }
 
-        /// Sets default anchor pose and auto-links sibling IUsable on reset.
-        private void Reset(){
-            anchorPose = SpatialPose.Default;
-            foreach (IUsable comp in GetComponents<IUsable>())
-                if (!ReferenceEquals(comp, this))
-                    linkedInteractable = (MonoBehaviour)comp;
-        }
+        /// Sets default anchor pose on reset.
+        private void Reset() => anchorPose = SpatialPose.Default;
 
         /// Sets anchor pose coordinates from world position and rotation.
         public void SetAnchorPoseFromWorld(Vector3 worldPos, Quaternion worldRot) =>
@@ -79,6 +75,9 @@ namespace World.Tactical{
             Occupant   = null;
             ReservedBy = null;
         }
+
+        /// Executes the linked effect on this slot.
+        public virtual void Use(CharacterSheet whosUsing) => LinkedEffect?.Run(new EffectContext(whosUsing));
 
         /// Toggles the visual ring indicator for this slot if assigned.
         public virtual void SetVisualActive(bool active){

@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using Core.State;
+using Data.Effects;
 using Narrative.Localization;
 using UnityEngine;
 using World;
+using World.Actors.Brains;
 using World.Actors.Player;
 
 namespace Narrative.Dialog{
     /// Base class for all auto-generated dialogue state machines.
-    /// Inherits from TrackedBehaviour and implements IUsable to directly start dialogue when interacted with.
+    /// Inherits from TrackedBehaviour and implements IEffect to execute dialogue interactions.
     [DisallowMultipleComponent]
-    public abstract class DialogueBehaviour : TrackedBehaviour, IUsable{
+    public abstract class DialogueBehaviour : TrackedBehaviour, IEffect{
         [Header("Dialogue Interaction")]
         [SerializeField] private string startingKnot = "Main";
 
@@ -30,16 +32,17 @@ namespace Narrative.Dialog{
             set => startingKnot = value;
         }
 
-        public virtual Vector3    UsePosition => transform.position;
-        public virtual Quaternion UseRotation => transform.rotation;
+        /// Executes this dialogue as an IEffect.
+        public void Run(EffectContext context) => Use(context.Character != null ? context.Character : PlayerBrain.Lead.sheet);
 
         /// Starts dialogue session on the interacting character if not already in use by another character.
         public virtual void Use(CharacterSheet whosUsing){
-            Character character = whosUsing.GetComponent<Character>();
+            Character character = whosUsing ? whosUsing.GetComponent<Character>() : null;
             if (CurrentUser != null && CurrentUser != character)
                 return;
             CurrentUser = character;
-            character.dialogueSession.StartDialogue(this, startingKnot);
+            if (character != null && character.dialogueSession != null)
+                character.dialogueSession.StartDialogue(this, startingKnot);
         }
 
         /// Releases the currently occupying user from this dialogue.

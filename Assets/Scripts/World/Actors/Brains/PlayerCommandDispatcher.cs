@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Narrative.Dialog;
 using UnityEngine;
 using World.Actors.Player;
 using World.Tactical;
@@ -39,17 +38,20 @@ namespace World.Actors.Brains{
             Ray ray = _camera.ScreenPointToRay(screenPos);
             if (!Physics.Raycast(ray, out RaycastHit hit, RayDistance, _groundLayer)) return;
 
-            IUsable usable = hit.collider.GetComponentInParent<IUsable>();
-            if (usable != null){
+            AreaSlot slot = hit.collider.GetComponentInParent<AreaSlot>();
+            if (slot != null){
                 IsCommandHeld = false;
                 if (lead != null){
-                    if (usable is DialogueBehaviour db && db.IsInUse && db.CurrentUser != lead) return;
-                    if (usable is AreaSlot slot){
-                        if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
-                        if (slot.LinkedUsable is DialogueBehaviour slotDb && slotDb.IsInUse && slotDb.CurrentUser != lead) return;
-                    }
-                    lead.movement.MoveToAndUse(usable, lead.sheet);
+                    if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
+                    lead.movement.MoveToAndUse(slot, lead.sheet);
                 }
+                return;
+            }
+
+            GoHere goHere = hit.collider.GetComponentInParent<GoHere>();
+            if (goHere != null){
+                IsCommandHeld = false;
+                goHere.Send();
                 return;
             }
 

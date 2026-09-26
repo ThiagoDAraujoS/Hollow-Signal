@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Core.Attributes;
+using Data.Effects;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
@@ -7,7 +9,7 @@ using World.Actors.Player;
 using World.Anchors;
 
 namespace World.Actors.Brains{
-    public class GoHere : MonoBehaviour{
+    public class GoHere : MonoBehaviour, IEffect{
         [Header("Target Heroes")]
         [SerializeField] private bool sendLeader    = true;
         [SerializeField] private bool sendBrute     = true;
@@ -16,13 +18,20 @@ namespace World.Actors.Brains{
         [SerializeField] private bool sendMage      = true;
 
         [Header("Camera & Completion")]
-        [SerializeField] private bool trackTarget   = true;
+        [SerializeField] private bool trackTarget = true;
+        [RequireInterface(typeof(IEffect))]
+        [SerializeField] private List<Object> onArrivedEffects = new();
         [SerializeField] private UnityEvent onArrived;
 
         [Header("Editor Visuals")]
         [SerializeField] private bool showGizmo = true;
 
         private Vector3 _destination;
+
+        public List<Object> OnArrivedEffects => onArrivedEffects;
+
+        /// Executes GoHere party movement when invoked as an IEffect.
+        public void Run(EffectContext context) => Send();
 
         /// Samples and caches valid NavMesh point on start.
         private void Start(){
@@ -84,6 +93,9 @@ namespace World.Actors.Brains{
 
             CameraAnchor.StopFollow();
             PlayerBrain.TurnControlsOn();
+            foreach (Object obj in onArrivedEffects)
+                if (obj is IEffect effect)
+                    effect.Run(new EffectContext(PlayerBrain.Lead.sheet));
             onArrived.Invoke();
         }
 
