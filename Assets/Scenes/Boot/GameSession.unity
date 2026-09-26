@@ -780,7 +780,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.28}
-  m_AnchoredPosition: {x: -5, y: 109.14302}
+  m_AnchoredPosition: {x: -5, y: 109.143036}
   m_SizeDelta: {x: -340, y: -71.715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &130263387
@@ -1628,7 +1628,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.28}
-  m_AnchoredPosition: {x: -5, y: 109.14302}
+  m_AnchoredPosition: {x: -5, y: 109.143036}
   m_SizeDelta: {x: -340, y: -71.715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &520823427
@@ -1820,6 +1820,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 618887494}
   m_CullTransparentMesh: 1
+--- !u!1 &627153389 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3465722771813093654, guid: 09a1729e264fd294b9e05ae7a974a1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 6774079608150515089}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &646234626
 GameObject:
   m_ObjectHideFlags: 0
@@ -4546,7 +4552,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.28}
-  m_AnchoredPosition: {x: -5, y: 109.14302}
+  m_AnchoredPosition: {x: -5, y: 109.143036}
   m_SizeDelta: {x: -340, y: -71.715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1451718706
@@ -5014,7 +5020,7 @@ MonoBehaviour:
   mainCharacterName:
     value: Lucca
   currentMapName:
-    value: TestMap
+    value: GameStart
   heroesContainer: {fileID: 2457432}
   activeCharacterIds:
   - 7ae2f656-4d59-4126-a2d1-8aaa45dc4aeb
@@ -6078,6 +6084,7 @@ GameObject:
   - component: {fileID: 2020796626}
   - component: {fileID: 2020796625}
   - component: {fileID: 2020796627}
+  - component: {fileID: 2020796628}
   m_Layer: 0
   m_Name: PlayerBrain
   m_TagString: Untagged
@@ -6150,14 +6157,31 @@ MonoBehaviour:
   - {fileID: 668250574}
   - {fileID: 367614428}
   - {fileID: 219232080}
-  sharedDialogueBackground: {fileID: 0}
+  sharedDialogueBackground: {fileID: 627153389}
+--- !u!114 &2020796628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020796624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171e0f63fe7c4e20aef3f8906c36644c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.Actors.Brains.PlayerGestureController
   commandActionRef: {fileID: 1089124775975016854, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
   primarySelectActionRef: {fileID: 6275837312433506808, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
   pointActionRef: {fileID: -7946184764314150804, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
-  scrollActionRef: {fileID: 0}
+  scrollActionRef: {fileID: 1445565860821183909, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
+  modifierAppendActionRef: {fileID: 6164044915562399720, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
+  modifierAltActionRef: {fileID: -8731917063288300195, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
   selectAllActionRef: {fileID: 4316077599155866452, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
   cycleLeaderActionRef: {fileID: -3299145404904223400, guid: e281ab66cb328ed44952e7778f41ed5a,
@@ -6174,15 +6198,13 @@ MonoBehaviour:
     type: 3}
   slot4ActionRef: {fileID: -3951140834591987041, guid: e281ab66cb328ed44952e7778f41ed5a,
     type: 3}
-  modifierAppendActionRef: {fileID: 0}
-  modifierAltActionRef: {fileID: 0}
+  targetCamera: {fileID: 107251106}
   characterLayer:
     serializedVersion: 2
     m_Bits: 512
   groundLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
-  mainCamera: {fileID: 0}
+    m_Bits: 64
   dragThreshold: 10
   holdThreshold: 0.35
   continuousRepathInterval: 0.08
@@ -6705,7 +6727,7 @@ PrefabInstance:
     - target: {fileID: 1893623671664334028, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 109.14296
+      value: 109.142975
       objectReference: {fileID: 0}
     - target: {fileID: 2634204679738336112, guid: 09a1729e264fd294b9e05ae7a974a1dd,
         type: 3}

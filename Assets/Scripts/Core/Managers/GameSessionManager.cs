@@ -17,7 +17,7 @@ namespace Core.Managers{
 
         [SerializeField] private SceneDependencyDatabase dependencyDatabase;
         public                   Tracked<string>         mainCharacterName = new("mainCharacterName", "Lucca");
-        public                   Tracked<string>         currentMapName    = new("CurrentMapName", "test_map");
+        public                   Tracked<string>         currentMapName    = new("CurrentMapName", "GameStart");
 
         [Header("Party Heroes Roster")] [Tooltip("The parent transform containing all persistent playable hero GameObjects.")] [SerializeField]
         private Transform heroesContainer;
@@ -40,32 +40,27 @@ namespace Core.Managers{
 
         /// Enforces singleton instance across scene loads.
         protected override void OnAwake(){
-            if (Instance != null && Instance != this){
+            if (Instance && Instance != this){
                 Destroy(gameObject);
                 return;
             }
-
             Instance = this;
         }
 
         /// Cleans up singleton instance reference on destroy.
         private void OnDestroy(){
-            if (Instance == this)
-                Instance = null;
+            if (Instance == this) Instance = null;
         }
 
         /// Asynchronously loads save dependencies and additively loads the active map scene.
         private async void Start(){
-            try{
-                List<string> deps = dependencyDatabase.GetSceneDependencies(currentMapName);
-                await SaveSystem.LoadFiles(deps, _ => { });
+            List<string> deps = dependencyDatabase.GetSceneDependencies(currentMapName);
+            await SaveSystem.LoadFiles(deps, _ => { });
 
-                SceneCoordinator.Instance.ActiveMapScene = currentMapName.Value;
-                await SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
-                Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
-            } catch (Exception e){
-                Debug.LogError($"[GameSessionManager] Startup failed: {e.Message}");
-            }
+            if (SceneCoordinator.Instance) SceneCoordinator.Instance.ActiveMapScene = currentMapName.Value;
+            var op = SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
+            if (op != null) await op;
+            Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
         }
 
         /// Finds a hero character instance by its unique identifier string.
@@ -73,9 +68,7 @@ namespace Core.Managers{
             if (string.IsNullOrEmpty(id)) return null;
             Character[] heroes = heroesContainer.GetComponentsInChildren<Character>(includeInactive: true);
             foreach (Character hero in heroes)
-                if (hero.TryGetComponent<UniqueId>(out var uniqueId) && uniqueId.Id == id)
-                    return hero;
-
+                if (hero.TryGetComponent<UniqueId>(out var uniqueId) && uniqueId.Id == id) return hero;
             return null;
         }
 

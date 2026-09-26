@@ -18,76 +18,55 @@ namespace World.Interactables{
         [Header("Fade Tuning")] [SerializeField]
         private float fadeDuration = 0.15f;
 
-        private static readonly int                   HIGHLIGHT_PROP_ID = Shader.PropertyToID("_HighlightAmount");
-        private static          InteractableHighlight _currentHovered;
+        private static readonly int HIGHLIGHT_PROP_ID = Shader.PropertyToID("_HighlightAmount");
+        private static InteractableHighlight _currentHovered;
 
         private MaterialPropertyBlock _mpb;
-        private Coroutine             _fadeRoutine;
-        private float                 _currentAmount;
-        private bool                  _isHovered;
-        private bool                  _isAltRevealed;
+        private Coroutine _fadeRoutine;
+        private float _currentAmount;
+        private bool _isHovered;
+        private bool _isAltRevealed;
 
-        /// Globally sets the active hovered instance from input coordinator.
+        /// Globally sets the active hovered instance from gesture coordinator.
         public static void SetHoveredInstance(InteractableHighlight target){
             if (_currentHovered == target) return;
-            if (_currentHovered != null)
-                _currentHovered.SetHovered(false);
+            if (_currentHovered) _currentHovered.SetHovered(false);
             _currentHovered = target;
-            if (_currentHovered != null)
-                _currentHovered.SetHovered(true);
+            if (_currentHovered) _currentHovered.SetHovered(true);
         }
 
         /// Clears global hover state.
         public static void ClearHover(){
-            if (_currentHovered != null){
-                _currentHovered.SetHovered(false);
-                _currentHovered = null;
-            }
+            if (!_currentHovered) return;
+            _currentHovered.SetHovered(false);
+            _currentHovered = null;
         }
 
         /// Initializes property block and resolves default renderers and linked slot.
         private void Awake(){
             _mpb = new MaterialPropertyBlock();
-            if (targetRenderers.Count == 0)
-                targetRenderers.AddRange(GetComponentsInChildren<Renderer>());
-            if (linkedSlot == null)
-                linkedSlot = GetComponentInChildren<AreaSlot>();
+            if (targetRenderers.Count == 0) targetRenderers.AddRange(GetComponentsInChildren<Renderer>());
+            if (!linkedSlot) linkedSlot = GetComponentInChildren<AreaSlot>();
         }
 
         /// Subscribes to Alt-modifier change events.
         private void OnEnable(){
-            PlayerBrain.OnAltModifierChanged += HandleAltChanged;
-            if (PlayerBrain.Instance != null && PlayerBrain.IsAltPressed)
-                HandleAltChanged(true);
+            PlayerGestureController.OnAltModifierChanged += HandleAltChanged;
+            if (PlayerGestureController.Instance && PlayerGestureController.IsAltPressed) HandleAltChanged(true);
         }
 
         /// Unsubscribes from Alt-modifier events and resets highlight.
         private void OnDisable(){
-            PlayerBrain.OnAltModifierChanged -= HandleAltChanged;
-            if (_currentHovered == this)
-                _currentHovered = null;
+            PlayerGestureController.OnAltModifierChanged -= HandleAltChanged;
+            if (_currentHovered == this) _currentHovered = null;
             SetInstant(0f);
         }
 
-        /// Monitors keyboard Alt state and standalone hover fallback if PlayerBrain is not driving.
+        /// Monitors keyboard Alt state directly as input fallback.
         private void Update(){
-            // Read direct hardware Alt key in New Input System as safety net
-            if (Keyboard.current != null){
-                bool altPressed = Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed;
-                if (altPressed != _isAltRevealed)
-                    HandleAltChanged(altPressed);
-            }
-
-            // Standalone scene fallback when PlayerBrain is not present in scene
-            if (PlayerBrain.Instance == null && Camera.main != null && Mouse.current != null){
-                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                if (Physics.Raycast(ray, out RaycastHit hit, 300f)){
-                    bool isHit = hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform));
-                    SetHovered(isHit);
-                } else{
-                    SetHovered(false);
-                }
-            }
+            if (Keyboard.current == null) return;
+            bool altPressed = Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed;
+            if (altPressed != _isAltRevealed) HandleAltChanged(altPressed);
         }
 
         /// Sets hover state and triggers highlight fade.
@@ -106,14 +85,11 @@ namespace World.Interactables{
 
         /// Evaluates active hover/alt state and starts fade coroutine.
         private void UpdateHighlightTarget(){
-            bool  shouldHighlight = _isHovered || _isAltRevealed;
-            float target          = shouldHighlight ? 1f : 0f;
+            bool shouldHighlight = _isHovered || _isAltRevealed;
+            float target = shouldHighlight ? 1f : 0f;
 
-            if (linkedSlot != null)
-                linkedSlot.SetVisualActive(shouldHighlight);
-
-            if (_fadeRoutine != null)
-                StopCoroutine(_fadeRoutine);
+            if (linkedSlot) linkedSlot.SetVisualActive(shouldHighlight);
+            if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
 
             if (isActiveAndEnabled && gameObject.activeInHierarchy)
                 _fadeRoutine = StartCoroutine(FadeTo(target));
@@ -123,7 +99,7 @@ namespace World.Interactables{
 
         /// Smoothly interpolates highlight property over duration.
         private IEnumerator FadeTo(float target){
-            float start   = _currentAmount;
+            float start = _currentAmount;
             float elapsed = 0f;
 
             while (elapsed < fadeDuration){
@@ -149,7 +125,6 @@ namespace World.Interactables{
         private void ApplyAmount(float amount){
             _currentAmount = amount;
             foreach (Renderer r in targetRenderers){
-                if (r == null) continue;
                 r.GetPropertyBlock(_mpb);
                 _mpb.SetFloat(HIGHLIGHT_PROP_ID, amount);
                 r.SetPropertyBlock(_mpb);

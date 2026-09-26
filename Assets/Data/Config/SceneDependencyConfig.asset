@@ -19,3 +19,6 @@ MonoBehaviour:
   - sceneName: test_map
     requiredFiles:
     - PlayTest
+
+  - sceneName: GameStart
+    requiredFiles: []

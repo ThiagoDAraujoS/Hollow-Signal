@@ -5,21 +5,16 @@ using World.Anchors;
 
 namespace Core.Managers{
     public class MapManager : TrackedBehaviour{
-        [Header("Spawn Settings")]
         [SerializeField] private List<Transform> spawnPoints = new();
-
-        [Header("Camera Bounds")]
         [SerializeField] private World.Anchors.Bounds cameraBounds = new();
-
-        [Header("Editor Visuals")]
         [SerializeField] private bool showGizmos = true;
 
         public Transform DefaultSpawnPoint => GetSpawnPoint(0);
         public World.Anchors.Bounds CameraBounds => cameraBounds;
 
-        /// Returns the spawn point at the specified index, defaulting to index 0.
+        /// Returns the spawn point at the specified index, defaulting to index 0 or local transform if empty.
         public Transform GetSpawnPoint(int index = 0) =>
-            index >= 0 && index < spawnPoints.Count ? spawnPoints[index] : spawnPoints[0];
+            spawnPoints.Count > 0 ? (index >= 0 && index < spawnPoints.Count ? spawnPoints[index] : spawnPoints[0]) : transform;
 
         private void Start() => GameSessionManager.LoadingMapFinished(this);
 
@@ -27,8 +22,7 @@ namespace Core.Managers{
         private void OnDrawGizmos(){
             if (!showGizmos) return;
             foreach (Transform pt in spawnPoints)
-                if (pt != null)
-                    Gizmos.DrawIcon(pt.position + Vector3.up * 1.5f, "SpawnPointIcon.png", true);
+                if (pt) Gizmos.DrawIcon(pt.position + Vector3.up * 1.5f, "SpawnPointIcon.png", true);
 
             if (cameraBounds == null) return;
             Gizmos.color = Color.yellow;
