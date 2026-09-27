@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cameras;
-using Narrative.Dialog;
 using UI.Dialog;
 using UI.Shared.Transitions;
 using UnityEngine;
@@ -14,20 +13,20 @@ namespace World.Actors.Brains{
     public class PlayerBrain : MonoBehaviour{
         private static PlayerBrain _instance;
 
-        [SerializeField] private List<Character> activePartyMembers = new();
-        [SerializeField] private DialogueController[] dialogueScreens = new DialogueController[4];
-        [SerializeField] private GameObject sharedDialogueBackground;
+        [SerializeField] private List<Character>            activePartyMembers = new();
+        [SerializeField] private DialogueController[]       dialogueScreens    = new DialogueController[4];
+        [SerializeField] private GameObject                 sharedDialogueBackground;
         [SerializeField] private CanvasTransitionController dialogueTransition;
 
         private readonly PartySelection _selection = new();
 
-        public static PlayerBrain Instance => _instance;
-        public static PartySelection Selection => _instance._selection;
-        public static Character Lead => _instance._selection.Lead;
+        public static PlayerBrain        Instance           => _instance;
+        public static PartySelection     Selection          => _instance._selection;
+        public static Character          Lead               => _instance._selection.Lead;
         public static HashSet<Character> SelectedCharacters => _instance._selection.Selected;
-        public static List<Character> ActivePartyMembers => _instance.activePartyMembers;
+        public static List<Character>    ActivePartyMembers => _instance.activePartyMembers;
 
-        public static Sheet CurrentInspectedSheet{ get; private set; }
+        public static Sheet               CurrentInspectedSheet{ get; private set; }
         public static event Action<Sheet> OnSheetInspected;
 
         public static bool IsShiftPressed => PlayerGestureController.IsAppendPressed;
@@ -36,7 +35,10 @@ namespace World.Actors.Brains{
         /// Initializes singleton instance and registers selection listeners.
         private void Awake(){
             if (!_instance) _instance = this;
-            else if (_instance != this){ Destroy(gameObject); return; }
+            else if (_instance != this){
+                Destroy(gameObject);
+                return;
+            }
 
             _selection.OnSelectionChanged += UpdateSelectionCircles;
             _selection.OnSelectionChanged += UpdateDialogueScreens;
@@ -48,7 +50,7 @@ namespace World.Actors.Brains{
             if (_instance != this) return;
             _selection.OnSelectionChanged -= UpdateSelectionCircles;
             _selection.OnSelectionChanged -= UpdateDialogueScreens;
-            _instance = null;
+            _instance                     =  null;
         }
 
         /// Synchronizes dialogue screens on start.
@@ -106,7 +108,7 @@ namespace World.Actors.Brains{
 
         /// Handles marquee box selection of candidate party members.
         private void HandleMarqueeSelect(Vector2 startPos, Vector2 endPos, bool isAdditive){
-            Camera cam = CameraStackCoordinator.ActiveBaseCamera ? CameraStackCoordinator.ActiveBaseCamera : Camera.main;
+            Camera          cam      = CameraStackCoordinator.ActiveBaseCamera ? CameraStackCoordinator.ActiveBaseCamera : Camera.main;
             List<Character> enclosed = SelectionScanner.GetCharactersInScreenRect(cam, startPos, endPos, activePartyMembers);
             if (enclosed.Count == 0) return;
             if (isAdditive) _selection.AdditiveBoxSelect(enclosed);
@@ -198,10 +200,11 @@ namespace World.Actors.Brains{
         public void SyncDialogueScreens(){
             if (dialogueScreens == null || dialogueScreens.Length == 0) dialogueScreens = new DialogueController[4];
             if (!dialogueScreens[0]){
-                DialogueController[] controllers = FindObjectsByType<DialogueController>(FindObjectsInactive.Include);
+                DialogueController[] controllers                                                              = FindObjectsByType<DialogueController>(FindObjectsInactive.Include);
                 for (int i = 0; i < controllers.Length && i < dialogueScreens.Length; i++) dialogueScreens[i] = controllers[i];
             }
-            if (!dialogueTransition) dialogueTransition = FindFirstObjectByType<CanvasTransitionController>(FindObjectsInactive.Include);
+
+            if (!dialogueTransition) dialogueTransition = FindAnyObjectByType<CanvasTransitionController>(FindObjectsInactive.Include);
             if (!sharedDialogueBackground && dialogueScreens.Length > 0 && dialogueScreens[0] && dialogueScreens[0].DialogRoot)
                 sharedDialogueBackground = dialogueScreens[0].DialogRoot;
 
@@ -214,8 +217,8 @@ namespace World.Actors.Brains{
 
         /// Synchronizes visibility of dialogue screens with the selected lead hero.
         public void UpdateDialogueScreens(){
-            Character lead = Lead;
-            bool hasActiveDialogue = lead && lead.dialogueSession && lead.dialogueSession.HasActiveDialogue;
+            Character lead              = Lead;
+            bool      hasActiveDialogue = lead && lead.dialogueSession && lead.dialogueSession.HasActiveDialogue;
 
             if (dialogueTransition){
                 if (hasActiveDialogue) dialogueTransition.ShowHero(lead.dialogueSession.ScreenIndex);

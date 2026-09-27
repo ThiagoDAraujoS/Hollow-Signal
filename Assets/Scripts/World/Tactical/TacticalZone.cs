@@ -6,18 +6,27 @@ namespace World.Tactical{
     /// Represents a tactical area node grouping standing slots and defining combat traversal.
     [SelectionBase]
     public class TacticalZone : MonoBehaviour{
-        [Header("Identity")]
-        [SerializeField] private string zoneDisplayName;
+        public static readonly List<TacticalZone> AllZones = new();
 
-        [Header("Adjacency Graph")]
-        [SerializeField] private List<TacticalZone> adjacentZones = new();
+        [Header("Identity")] [SerializeField] private string zoneDisplayName;
 
-        [Header("Slots")]
-        [SerializeField] private List<TacticalSlot> childSlots = new();
+        [Header("Adjacency Graph")] [SerializeField]
+        private List<TacticalZone> adjacentZones = new();
 
-        public string ZoneDisplayName => zoneDisplayName;
-        public IReadOnlyList<TacticalZone> AdjacentZones => adjacentZones;
-        public IReadOnlyList<TacticalSlot> ChildSlots => childSlots;
+        [Header("Slots")] [SerializeField] private List<TacticalSlot> childSlots = new();
+
+        public string                      ZoneDisplayName => zoneDisplayName;
+        public IReadOnlyList<TacticalZone> AdjacentZones   => adjacentZones;
+        public IReadOnlyList<TacticalSlot> ChildSlots      => childSlots;
+
+        /// Registers active zone instance in global registry.
+        private void OnEnable(){
+            if (!AllZones.Contains(this))
+                AllZones.Add(this);
+        }
+
+        /// Unregisters active zone instance from global registry.
+        private void OnDisable() => AllZones.Remove(this);
 
         /// Discovers and registers child slots on awake.
         private void Awake() => RegisterChildSlots();

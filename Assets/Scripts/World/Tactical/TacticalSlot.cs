@@ -1,4 +1,5 @@
-﻿using Core.Attributes;
+﻿using System.Collections.Generic;
+using Core.Attributes;
 using Data;
 using Data.Effects;
 using UnityEngine;
@@ -7,6 +8,8 @@ using World.Actors.Player;
 namespace World.Tactical{
     /// Represents a discrete standing spot and tactical anchor in the world used during turn-based Crisis combat.
     public class TacticalSlot : AreaSlot{
+        public static readonly List<TacticalSlot> AllSlots = new();
+
         [Header("Usability Phase")]
         [SerializeField] private TacticalUsabilityMode usabilityMode = TacticalUsabilityMode.AlwaysAvailable;
 
@@ -29,6 +32,15 @@ namespace World.Tactical{
         public IEffect OnCommitEffect => onCommitEffect as IEffect;
         public IEffect OnVacateEffect => onVacateEffect as IEffect;
         public bool IsFeatured => isManuallyFeatured || grantedMasteryOnCommit != null || linkedEffect != null || onCommitEffect != null;
+
+        /// Registers active slot in global registry.
+        private void OnEnable(){
+            if (!AllSlots.Contains(this))
+                AllSlots.Add(this);
+        }
+
+        /// Unregisters active slot from global registry.
+        private void OnDisable() => AllSlots.Remove(this);
 
         /// Evaluates whether this slot is available in the current game state.
         public bool IsUsableInCurrentState(bool isCrisis) => usabilityMode switch{
