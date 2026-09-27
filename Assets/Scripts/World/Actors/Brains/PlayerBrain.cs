@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cameras;
+using Core.Crisis;
 using UI.Dialog;
 using UI.Shared.Transitions;
 using UnityEngine;
@@ -18,7 +19,10 @@ namespace World.Actors.Brains{
         [SerializeField] private GameObject                 sharedDialogueBackground;
         [SerializeField] private CanvasTransitionController dialogueTransition;
 
-        private readonly PartySelection _selection = new();
+        private readonly PartySelection            _selection = new();
+        private          ExplorationCommandPipeline _explorationPipeline;
+        private          CrisisCommandPipeline      _crisisPipeline;
+        private          ICommandPipeline           _activePipeline;
 
         public static PlayerBrain        Instance           => _instance;
         public static PartySelection     Selection          => _instance._selection;
@@ -32,7 +36,7 @@ namespace World.Actors.Brains{
         public static bool IsShiftPressed => PlayerGestureController.IsAppendPressed;
         public static bool IsAltPressed   => PlayerGestureController.IsAltPressed;
 
-        /// Initializes singleton instance and registers selection listeners.
+        /// Initializes singleton instance, command pipelines, and registers selection listeners.
         private void Awake(){
             if (!_instance) _instance = this;
             else if (_instance != this){
@@ -40,16 +44,25 @@ namespace World.Actors.Brains{
                 return;
             }
 
+            _explorationPipeline = new ExplorationCommandPipeline(_selection, activePartyMembers);
+            _crisisPipeline      = new CrisisCommandPipeline(_selection, activePartyMembers);
+            _activePipeline      = _explorationPipeline;
+
             _selection.OnSelectionChanged += UpdateSelectionCircles;
             _selection.OnSelectionChanged += UpdateDialogueScreens;
+            CrisisManager.OnCrisisStarted += HandleCrisisStarted;
+            CrisisManager.OnCrisisEnded   += HandleCrisisEnded;
+
             SyncDialogueScreens();
         }
 
-        /// Cleans up selection event listeners and singleton instance.
+        /// Cleans up selection event listeners, crisis listeners, and singleton instance.
         private void OnDestroy(){
             if (_instance != this) return;
             _selection.OnSelectionChanged -= UpdateSelectionCircles;
             _selection.OnSelectionChanged -= UpdateDialogueScreens;
+            CrisisManager.OnCrisisStarted -= HandleCrisisStarted;
+            CrisisManager.OnCrisisEnded   -= HandleCrisisEnded;
             _instance                     =  null;
         }
 
@@ -73,7 +86,7 @@ namespace World.Actors.Brains{
             PlayerGestureController.OnCommandGoHere         += HandleClickGoHere;
             PlayerGestureController.OnCommandCharacter      += HandleCommandCharacter;
             PlayerGestureController.OnCommandMove           += HandleMoveCommand;
-            PlayerGestureController.OnContinuousCommandMove += HandleMoveCommand;
+            PlayerGestureController.OnContinuousCommandMove += HandleContinuousMoveCommand;
             DialogueController.OnDialogueActiveChanged      += HandleDialogueActiveChanged;
 
             UpdateSelectionCircles();
@@ -94,30 +107,31 @@ namespace World.Actors.Brains{
             PlayerGestureController.OnCommandGoHere         -= HandleClickGoHere;
             PlayerGestureController.OnCommandCharacter      -= HandleCommandCharacter;
             PlayerGestureController.OnCommandMove           -= HandleMoveCommand;
-            PlayerGestureController.OnContinuousCommandMove -= HandleMoveCommand;
+            PlayerGestureController.OnContinuousCommandMove -= HandleContinuousMoveCommand;
             DialogueController.OnDialogueActiveChanged      -= HandleDialogueActiveChanged;
         }
 
-        /// Handles single unit selection or lead promotion.
-        private void HandleSelectCharacter(Character character, bool isAdditive){
-            if (!activePartyMembers.Contains(character)) return;
-            if (isAdditive) _selection.AddUnitSelect(character);
-            else if (_selection.Contains(character) && _selection.Count > 1) _selection.SetLead(character);
-            else _selection.SingleUnitSelect(character);
-        }
+        /// Switches active pipeline to turn-based Crisis mode.
+        private void HandleCrisisStarted() => _activePipeline = _crisisPipeline;
 
-        /// Handles marquee box selection of candidate party members.
+        /// Switches active pipeline back to real-time Exploration mode.
+        private void HandleCrisisEnded() => _activePipeline = _explorationPipeline;
+
+        /// Routes single unit selection to active pipeline.
+        private void HandleSelectCharacter(Character character, bool isAdditive) =>
+            _activePipeline.HandleCharacterClicked(character, isAdditive);
+
+        /// Routes marquee box selection of candidate party members to active pipeline.
         private void HandleMarqueeSelect(Vector2 startPos, Vector2 endPos, bool isAdditive){
             Camera          cam      = CameraStackCoordinator.ActiveBaseCamera ? CameraStackCoordinator.ActiveBaseCamera : Camera.main;
             List<Character> enclosed = SelectionScanner.GetCharactersInScreenRect(cam, startPos, endPos, activePartyMembers);
-            if (enclosed.Count == 0) return;
-            if (isAdditive) _selection.AdditiveBoxSelect(enclosed);
-            else _selection.DragboxSelect(enclosed);
+            _activePipeline.HandleMarqueeSelect(enclosed, isAdditive);
         }
 
-        /// Handles right-click command on a character (selecting party member or interaction).
+        /// Routes character command clicks to active pipeline.
         private void HandleCommandCharacter(Character character, bool isAdditive){
-            if (IsPartyMember(character)) HandleSelectCharacter(character, isAdditive);
+            if (IsPartyMember(character))
+                _activePipeline.HandleCharacterClicked(character, isAdditive);
         }
 
         /// Clears active selection if lead is not in active dialogue.
@@ -131,22 +145,17 @@ namespace World.Actors.Brains{
         /// Cycles lead unit among active party members.
         private void HandleCycleLeader() => _selection.CycleLeader(activePartyMembers);
 
-        /// Directs lead character to move to and use the slot.
-        private void HandleClickSlot(AreaSlot slot){
-            Character lead = Lead;
-            if (!lead) return;
-            if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
-            lead.movement.MoveToSlot(slot, () => slot.Use(lead.sheet));
-        }
+        /// Routes slot click command to active pipeline.
+        private void HandleClickSlot(AreaSlot slot) => _activePipeline.HandleSlotClicked(slot);
 
-        /// Dispatches party formation movement on GoHere click.
-        private void HandleClickGoHere(GoHere goHere) => goHere.Send();
+        /// Routes GoHere command click to active pipeline.
+        private void HandleClickGoHere(GoHere goHere) => _activePipeline.HandleGoHereClicked(goHere);
 
-        /// Dispatches move order to selected units in formation.
-        private void HandleMoveCommand(Vector3 destinationPoint){
-            if (Lead && Lead.dialogueSession && Lead.dialogueSession.HasActiveDialogue) return;
-            PlayerCommandDispatcher.MoveSelectedTo(destinationPoint, Lead, _selection.Selected);
-        }
+        /// Routes ground click move order to active pipeline.
+        private void HandleMoveCommand(Vector3 destinationPoint) => _activePipeline.HandleGroundClicked(destinationPoint);
+
+        /// Routes continuous hold move order to active pipeline.
+        private void HandleContinuousMoveCommand(Vector3 destinationPoint) => _activePipeline.HandleContinuousMove(destinationPoint);
 
         /// Appends character to active party roster if not already present.
         public static void AddPartyMember(Character character){
@@ -193,8 +202,8 @@ namespace World.Actors.Brains{
             OnSheetInspected?.Invoke(CurrentInspectedSheet);
         }
 
-        /// Commands all currently selected units to halt movement.
-        public static void StopSelectedUnits() => PlayerCommandDispatcher.StopUnits(_instance._selection.Selected);
+        /// Commands all currently selected units to halt movement via active pipeline.
+        public static void StopSelectedUnits() => _instance._activePipeline.HandleStop();
 
         /// Synchronizes screen index and controller references across active party members.
         public void SyncDialogueScreens(){
@@ -226,12 +235,14 @@ namespace World.Actors.Brains{
                 return;
             }
 
-            for (int i = 0; i < dialogueScreens.Length; i++){\n                if (!dialogueScreens[i]) continue;
+            for (int i = 0; i < dialogueScreens.Length; i++){
+                if (!dialogueScreens[i]) continue;
                 bool shouldShow = hasActiveDialogue && (lead.dialogueSession.ScreenIndex == i || lead.dialogueSession.Controller == dialogueScreens[i]);
                 dialogueScreens[i].SetVisible(shouldShow);
             }
 
-            foreach (Character member in activePartyMembers){\n                if (!member || !member.dialogueSession || !member.dialogueSession.Controller) continue;
+            foreach (Character member in activePartyMembers){
+                if (!member || !member.dialogueSession || !member.dialogueSession.Controller) continue;
                 if (member != lead) member.dialogueSession.Controller.SetVisible(false);
             }
 
