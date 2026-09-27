@@ -1,6 +1,9 @@
 ﻿using System;
 using Data.Effects;
 using UnityEngine;
+using World.Actors.Brains;
+using World.Actors.Player;
+using World.Tactical;
 
 namespace Core.Crisis{
     /// Coordinates turn phases, round progression, combat state, and the unified world clock.
@@ -43,14 +46,29 @@ namespace Core.Crisis{
         public static CustomYieldInstruction WaitForPlayerPhase() =>
             new WaitUntil(() => Instance == null || Instance.CurrentPhase == CrisisPhase.PlayerPhase || Instance.CurrentPhase == CrisisPhase.Exploration);
 
-        /// Initiates tactical crisis combat mode and begins the first round.
+        /// Initiates tactical crisis combat mode, docks party into closest slots, and begins the first round.
         [ContextMenu("Start Crisis")]
         public void StartCrisis(){
             CurrentPhase = CrisisPhase.PlayerPhase;
             RoundNumber  = 1;
             AdvanceTime(roundDurationInSeconds);
+
+            DockPartyToClosestSlots();
+
             OnCrisisStarted?.Invoke();
             OnPlayerPhaseStarted?.Invoke(RoundNumber);
+        }
+
+        /// Navigates active party members to their closest available tactical slots.
+        private void DockPartyToClosestSlots(){
+            foreach (Character hero in PlayerBrain.ActivePartyMembers){
+                if (!hero)
+                    continue;
+
+                TacticalSlot closestSlot = TacticalSpatialResolver.FindClosestSlot(hero.WorldPosition);
+                if (closestSlot != null)
+                    hero.movement.MoveToSlot(closestSlot);
+            }
         }
 
         /// Starts a new player turn phase, increments round counter, and advances world clock by one round.
