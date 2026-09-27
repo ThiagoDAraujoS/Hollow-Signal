@@ -12,8 +12,6 @@ namespace World.Tactical{
     public class TacticalZone : MonoBehaviour{
         public static readonly List<TacticalZone> AllZones = new();
 
-        [Header("Identity")] [SerializeField] private string zoneDisplayName;
-
         [Header("Adjacency Graph (Auto-Cooked)")] [SerializeField]
         private List<TacticalZone> adjacentZones = new();
 
@@ -29,7 +27,6 @@ namespace World.Tactical{
         [Header("Gizmos")]
         [SerializeField] private static bool showVoronoiGizmos = true;
 
-        public string                      ZoneDisplayName => zoneDisplayName;
         public IReadOnlyList<TacticalZone> AdjacentZones   => adjacentZones;
         public IReadOnlyList<TacticalSlot> ChildSlots      => childSlots;
         public IReadOnlyList<Object>       OnEnterEffects  => onEnterEffects;
@@ -55,8 +52,11 @@ namespace World.Tactical{
         /// Snaps zone epicenter to NavMesh on start.
         private void Start() => SnapToNavMesh();
 
-        /// Automatically finds all zones and slots, binds slots to their closest zone, and builds the adjacency graph.
+        /// Context menu trigger for cooking zones and slots from the inspector.
         [ContextMenu("Cook Tactical Zones & Slots")]
+        public void CookFromContextMenu() => CookAllZones();
+
+        /// Automatically finds all zones and slots, binds slots to their closest zone, and builds the adjacency graph.
         public static void CookAllZones(){
             TacticalZone[] zones = FindObjectsByType<TacticalZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             TacticalSlot[] slots = FindObjectsByType<TacticalSlot>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -105,6 +105,14 @@ namespace World.Tactical{
                     if (!zone.adjacentZones.Contains(neighbor))
                         zone.adjacentZones.Add(neighbor);
             }
+
+#if UNITY_EDITOR
+            foreach (TacticalZone zone in zones)
+                UnityEditor.EditorUtility.SetDirty(zone);
+            foreach (TacticalSlot slot in slots)
+                UnityEditor.EditorUtility.SetDirty(slot);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+#endif
         }
 
         /// Snaps zone epicenter transform position to the nearest valid point on the NavMesh.
