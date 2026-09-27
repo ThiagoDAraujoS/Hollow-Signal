@@ -156,33 +156,63 @@ When building cinematic sequences, opening locked obstacles, or shifting cameras
 
 ---
 
-### 3.8 Tactical Crisis Turn Modifiers (`<!>`, `<!!>`, `<M>`)
-In Hollow Signal, dialogue can occur seamlessly during **Crisis Mode (turn-based tactical combat)**. Choices can declare tactical budget costs directly in the bracketed option text:
+### 3.8 Tactical Crisis Turn & Spatial Modifiers (`<!>`, `<!!>`, `<M>`, `<F>`)
+In Hollow Signal, dialogue can occur seamlessly during **Crisis Mode (turn-based tactical combat)**. Choices can declare tactical turn budget costs and physical slot disengagement behaviors directly in the bracketed option text:
 
-| Tag | Tactical Resource Cost | Crisis Presentation & Hover Tooltip |
+| Tag | Tactical / Spatial Behavior | Crisis Presentation & Hover Tooltip |
 | :--- | :--- | :--- |
 | `<!>` | **Consumes Major Action** | Rendered in **Bold Orange** (`DialogueColorTheme.ActionCostColor`). Tooltip: *"Consumes Major Action"* |
 | `<!!>` | **Ends Character Turn** (consumes Action, Move, and Dash) | Rendered in **Bold Red** (`DialogueColorTheme.EndTurnCostColor`). Tooltip: *"Ends Turn (Consumes Action, Move, and Dash)"* |
 | `<M>` | **Consumes Move & Burns Sprint** | Rendered in **Bold Blue** (`DialogueColorTheme.MoveCostColor`). Tooltip: *"Consumes Movement (Dash / Double Move disabled)"* |
+| `<F>` | **Frees Slot & Relocates to Fallback** | Vacates current workstation slot and pathfinds to nearest free idle slot in zone. |
+| `<!F>` | **Consumes Action + Frees Slot** | Consumes 1 action and immediately steps away to free the workstation for teammates. |
+| `<!!F>` | **Ends Turn + Frees Slot** | Concludes character's turn and steps back to an idle cover/fallback slot. |
 
 #### Tactical Integration Rules:
-1. **Symbol Stripping**: Raw modifier tags (`<!>`, `<!!>`, `<M>`) are parsed by the compiler/UI and **never** appear in the visible choice text.
+1. **Symbol Stripping**: Raw modifier tags (`<!>`, `<!!>`, `<M>`, `<F>`, `<!F>`, `<!!F>`) are parsed by the compiler/UI and **never** appear in the visible choice text.
 2. **Crisis Availability & Budget Gating**:
-   - If a character has already acted (`turn.HasActed == true`), `<!>` and `<!!>` choices are **disabled** (grayed out with `DialogueColorTheme.DisabledChoiceColor`, unclickable, with a tooltip explaining unavailable action).
+   - If a character has already acted (`turn.HasActed == true`), `<!>`, `<!F>`, `<!!>`, and `<!!F>` choices are **disabled** (grayed out with `DialogueColorTheme.DisabledChoiceColor`, unclickable, with a tooltip explaining unavailable action).
    - If a character has already moved (`turn.HasMoved == true`), `<M>` choices are **disabled** (grayed out and unclickable).
 3. **Dash / Sprint Lockout (`<M>`)**:
    - Marking a choice `<M>` is agnostic of the double-move dash mechanic: picking it burns **both** the movement and the ability to roll an athletics sprint test for a second move this round (`canSprint = false`).
 4. **Real-Time Exploration Mode**:
-   - When outside Crisis mode (`CrisisManager.Instance.IsCrisis == false`), all choices are freely selectable, styled in normal weight and default colors, without special tactical badges or cost restrictions.
+   - When outside Crisis mode (`CrisisManager.Instance.IsCrisis == false`), tactical resource lockouts are bypassed, but spatial relocation (`<F>`) still executes to cleanly move characters away from interactable consoles upon disengaging.
 5. **Color Compendium**:
    - All visual colors and styling are configured in [`DialogueColorTheme.cs`](file:///C:/Users/Thiago/Desktop/Personal%20Projects/Horror%20Room/Hollow%20Signal/Hollow%20Signal/Assets/Scripts/UI/Dialog/DialogueColorTheme.cs).
 
-Syntax:
-```text
-* [<!> Brute force the jammed manual bypass] -> ForceOpenNode
-* [<!!> Lock down the bulkhead doors and seal the sector] -> LockdownNode
-+ [<M> Scavenge the nearby control panel for wiring] -> ScavengeNode
-```
+---
+
+### 3.8.1 Workstation Disengage & Teammate Freeing (`<F>`)
+When an interactable object (such as a medical console, security terminal, door switch, or enemy problem knot) has only **one physical tactical slot**, a character who docks there will occupy it. If they remain docked, no other party member can interact with that object.
+
+The `<F>` tag solves this by causing the character to immediately disengage:
+1. Calls `character.LeaveSlot()`, marking the workstation slot available.
+2. Calls `zone.GetBestAvailableFallbackSlot(worldPos)`, finding the closest free non-featured slot in the current tactical zone.
+3. Orders `character.movement.MoveToSlot(fallback)`, automatically rotating the character toward the open room when they reach cover.
+
+#### Typical Design Patterns:
+- **Action & Step Aside (`<!F>`)**:
+  Character clicks a terminal, downloads data, spends 1 action, and immediately vacates the terminal:
+  ```text
+  * [<!F> Download core logs and step aside] -> DataRetrieved
+  ```
+  *Result*: A second character with remaining actions can now walk up to the terminal on the exact same round to perform a different task (e.g. upload a virus).
+
+- **End Turn In Front vs. End Turn & Clear Workstation**:
+  - `<!!>`: Character performs an operation that requires holding the console until next turn (stays docked at the console):
+    ```text
+    * [<!!> Begin system reboot sequence] -> RebootPending
+    ```
+  - `<!!F>`: Character triggers the sequence and retreats to defensive posture:
+    ```text
+    * [<!!F> Overload capacitor and retreat to cover] -> OverloadTriggered
+    ```
+
+- **Free Disconnect (`<F>`)**:
+  At any point in a multi-step conversation, stepping away without spending actions frees the slot:
+  ```text
+  + [<F> Disconnect and step back] -> END
+  ```
 
 ---
 
@@ -236,8 +266,9 @@ VAR global bool G_QuarantineActive = false
 TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power required.
 * {!is_terminal_hacked} [<!> Bypass terminal security (item: Keycard_Blue x1)](OnTerminalHacked) -> HackNode
 + {generator_power == true} [<M> Access patient logs and telemetry] -> LogsNode
-* [<!!> Initiate emergency containment lockdown](OnEmergencyLockdownTriggered) -> LockdownNode
-+ [Step away] -> END
+* [<!F> Purge coolant valves and step back] -> PurgeDone
+* [<!!F> Initiate emergency lockdown and retreat to cover](OnEmergencyLockdownTriggered) -> LockdownNode
++ [<F> Disconnect from terminal] -> END
 
 === KNOT: HackNode ===
 ~ SkillCheck(HackCircuits, 12)
@@ -248,6 +279,10 @@ TERMINAL [portrait: alert]: Medical containment console online. Auxiliary power 
 - FAILURE ->
     TERMINAL: Access denied. Alarm triggered.
     -> Main
+
+=== KNOT: PurgeDone ===
+TERMINAL: Coolant purged. Console cooling down.
++ [<F> Step away] -> END
 
 === KNOT: LogsNode ===
 TERMINAL: Dr. Vance report: Subject 07 escaped quarantine.

@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using World.Actors.Player;
 
 namespace World.Tactical{
     /// Spatial query helper evaluating shallow distance followed by NavMesh path distance.
@@ -74,6 +75,20 @@ namespace World.Tactical{
             TacticalSlot slotInZone = targetZone != null ? targetZone.GetBestAvailableFallbackSlot(samplePoint) : null;
 
             return slotInZone != null ? slotInZone : FindClosestSlot(samplePoint, true, candidateCount);
+        }
+
+        /// Relocates character to the best available non-featured slot within their current zone.
+        public static void RelocateToFallbackSlot(Character character){
+            TacticalZone zone = character.CurrentSlot is TacticalSlot ts && ts.ParentZone
+                ? ts.ParentZone
+                : TacticalZone.GetZoneAt(character.WorldPosition);
+
+            if (!zone) return;
+            TacticalSlot fallback = zone.GetBestAvailableFallbackSlot(character.WorldPosition);
+            if (!fallback || fallback == character.CurrentSlot) return;
+
+            character.LeaveSlot();
+            character.movement.MoveToSlot(fallback);
         }
 
         /// Calculates cumulative linear distance across all corner segments of a NavMeshPath.

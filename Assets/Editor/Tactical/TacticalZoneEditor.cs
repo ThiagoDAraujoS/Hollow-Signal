@@ -21,8 +21,13 @@ namespace CRPG.Editor.Tactical{
             EditorGUILayout.Space(8);
 
             GUI.backgroundColor = new Color(0.2f, 0.85f, 0.4f);
-            if (GUILayout.Button("Cook Tactical Zones & Slots", GUILayout.Height(30))){
+            if (GUILayout.Button("Cook Tactical Zones & Slots (All)", GUILayout.Height(30))){
                 TacticalZone.CookAllZones();
+            }
+
+            GUI.backgroundColor = new Color(0.35f, 0.75f, 1.0f);
+            if (GUILayout.Button("Align & Nudge Slots (This Zone Only)", GUILayout.Height(24))){
+                TacticalSlotCooker.CookSingleZone(zone);
             }
 
             GUI.backgroundColor = Color.white;

@@ -28,6 +28,7 @@ namespace World.Tactical{
         [SerializeField] private static bool showVoronoiGizmos = true;
 
 #if UNITY_EDITOR
+        public static System.Action<TacticalZone[], TacticalSlot[]> OnEditorCook;
         private static bool                                                  _navMeshCacheDirty = true;
         private static readonly List<(Color color, List<Vector3[]> polygons)> _cachedZonePolygons = new();
         private static readonly List<(Vector3 start, Vector3 end)>           _cachedBoundaryEdges = new();
@@ -90,13 +91,15 @@ namespace World.Tactical{
 
             foreach (TacticalSlot slot in slots){
                 slot.SnapToNavMesh();
-                TacticalZone closestZone = null;
-                float shortestDistSqr    = float.MaxValue;
-                foreach (TacticalZone zone in zones){
-                    float distSqr = (zone.Center - slot.Position).sqrMagnitude;
-                    if (distSqr < shortestDistSqr){
-                        shortestDistSqr = distSqr;
-                        closestZone     = zone;
+                TacticalZone closestZone = slot.GetComponentInParent<TacticalZone>();
+                if (closestZone == null){
+                    float shortestDistSqr = float.MaxValue;
+                    foreach (TacticalZone zone in zones){
+                        float distSqr = (zone.Center - slot.Position).sqrMagnitude;
+                        if (distSqr < shortestDistSqr){
+                            shortestDistSqr = distSqr;
+                            closestZone     = zone;
+                        }
                     }
                 }
 
@@ -126,6 +129,7 @@ namespace World.Tactical{
             }
 
 #if UNITY_EDITOR
+            OnEditorCook?.Invoke(zones, slots);
             _navMeshCacheDirty = true;
             foreach (TacticalZone zone in zones)
                 UnityEditor.EditorUtility.SetDirty(zone);

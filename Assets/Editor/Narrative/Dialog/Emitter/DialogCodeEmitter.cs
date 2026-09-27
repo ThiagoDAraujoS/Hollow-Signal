@@ -169,6 +169,8 @@ namespace Editor.Dialog.Emitter{
                         sb.AppendLine("                        endsTurn = true,");
                     if (choice.consumesMove)
                         sb.AppendLine("                        consumesMove = true,");
+                    if (choice.freesSlot)
+                        sb.AppendLine("                        freesSlot = true,");
 
                     string visibilityExpr = BuildVisibilityExpression(choice, ast);
                     sb.AppendLine($"                        isVisible = () => {visibilityExpr},");

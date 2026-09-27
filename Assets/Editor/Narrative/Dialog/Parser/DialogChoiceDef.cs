@@ -1,17 +1,17 @@
 ﻿namespace Editor.Dialog.Parser{
-    /// Represents a parsed choice option within a conversation knot.
+    /// Structural AST representation of a choice option belonging to a dialogue knot.
     public class DialogChoiceDef{
-        /// Stable deterministic identifier used to track consumption of this choice.
+        /// Stable identifier assigned during compilation (e.g. KNOTNAME_C00).
         public string choiceId;
 
-        /// True if this choice can only be picked once and disappears (*), false if sticky (+).
-        public bool isOneShot;
+        /// Raw display text before tag stripping.
+        public string text;
 
-        /// Raw conditional expression string governing visibility (e.g. "!is_door_open.Value").
+        /// Raw conditional expression guarding visibility (e.g. !is_locked).
         public string condition;
 
-        /// Localized text string displayed on the choice button.
-        public string text;
+        /// True if this choice is consumed and disappears after first selection.
+        public bool isOneShot;
 
         /// Optional event name emitted when selected (e.g. [Option](OnEventName) -> Knot).
         public string eventName;
@@ -33,5 +33,8 @@
 
         /// True if this choice consumes movement and burns sprint/dash (<M>).
         public bool consumesMove;
+
+        /// True if this choice frees the workstation slot and relocates to a fallback slot (<F>).
+        public bool freesSlot;
     }
 }

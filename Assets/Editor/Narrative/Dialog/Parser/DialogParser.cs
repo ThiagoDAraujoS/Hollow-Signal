@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Data;
@@ -229,14 +229,28 @@ namespace Editor.Dialog.Parser{
             bool endsTurn = false;
             bool consumesAction = false;
             bool consumesMove = false;
+            bool freesSlot = false;
 
-            if (rawText.Contains("<!!>")){
+            if (Regex.IsMatch(rawText, @"<!![fF]>|<!!>.*<[fF]>|<[fF]>.*<!!>")){
+                endsTurn = freesSlot = true;
+                rawText = Regex.Replace(rawText, @"<!![fF]>|<!!>|<[fF]>", "").Trim();
+            }
+            else if (Regex.IsMatch(rawText, @"<![fF]>|<!>.*<[fF]>|<[fF]>.*<!>")){
+                consumesAction = freesSlot = true;
+                rawText = Regex.Replace(rawText, @"<![fF]>|<!>|<[fF]>", "").Trim();
+            }
+            else if (rawText.Contains("<!!>")){
                 endsTurn = true;
                 rawText = rawText.Replace("<!!>", "").Trim();
             }
             else if (rawText.Contains("<!>")){
                 consumesAction = true;
                 rawText = rawText.Replace("<!>", "").Trim();
+            }
+
+            if (Regex.IsMatch(rawText, @"<[fF]>")){
+                freesSlot = true;
+                rawText = Regex.Replace(rawText, @"<[fF]>", "").Trim();
             }
 
             Match moveMatch = Regex.Match(rawText, @"<[mM]>");
@@ -258,7 +272,8 @@ namespace Editor.Dialog.Parser{
                 targetKnot = targetKnot,
                 consumesAction = consumesAction,
                 endsTurn = endsTurn,
-                consumesMove = consumesMove
+                consumesMove = consumesMove,
+                freesSlot = freesSlot
             });
         }
 
@@ -302,10 +317,9 @@ namespace Editor.Dialog.Parser{
                 throw new FormatException($"[{ast.scriptName}] Script does not define any knots. Must contain at least one '=== KNOT: KnotName ===' block.");
 
             HashSet<string> definedKnotIds = new(StringComparer.Ordinal);
-            foreach (DialogKnotDef knot in ast.knots){
+            foreach (DialogKnotDef knot in ast.knots)
                 if (!definedKnotIds.Add(knot.knotId))
                     throw new FormatException($"[{ast.scriptName}] Duplicate knot ID detected: '{knot.knotId}'. Knot names must be unique.");
-            }
 
             foreach (DialogKnotDef knot in ast.knots){
                 foreach (DialogChoiceDef choice in knot.choices)

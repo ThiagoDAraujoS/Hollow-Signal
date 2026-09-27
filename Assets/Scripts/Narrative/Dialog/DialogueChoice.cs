@@ -42,5 +42,8 @@ namespace Narrative.Dialog{
 
         /// When selected during a tactical Crisis, consumes movement and burns double-move/sprint opportunity (<M> tag).
         public bool consumesMove;
+
+        /// When selected, vacates the workstation slot and relocates character to a fallback slot (<F> tag).
+        public bool freesSlot;
     }
 }

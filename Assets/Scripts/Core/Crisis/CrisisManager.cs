@@ -4,6 +4,7 @@ using UnityEngine;
 using World.Actors.Brains;
 using World.Actors.Player;
 using World.Tactical;
+using World.Threats;
 
 namespace Core.Crisis{
     /// Coordinates turn phases, round progression, combat state, and the unified world clock.
@@ -17,10 +18,14 @@ namespace Core.Crisis{
         [Header("Scheduler")] [SerializeField] private EffectDatabase  effectDatabase;
         [SerializeField]                       private CrisisScheduler scheduler = new();
 
+        [Header("Threat Management")]
+        [SerializeField] private ThreatSheet activeThreat;
+
         public CrisisPhase     CurrentPhase    { get; private set; } = CrisisPhase.Exploration;
         public int             RoundNumber     { get; private set; }
         public float           ElapsedWorldTime{ get; private set; }
         public CrisisScheduler Scheduler       => scheduler;
+        public ThreatSheet     ActiveThreat    => activeThreat;
 
         public bool IsCrisis => CurrentPhase != CrisisPhase.Exploration;
 
@@ -44,6 +49,22 @@ namespace Core.Crisis{
         /// Yields execution until combat enters player phase or returns to exploration.
         public static CustomYieldInstruction WaitForPlayerPhase() =>
             new WaitUntil(() => Instance == null || Instance.CurrentPhase == CrisisPhase.PlayerPhase || Instance.CurrentPhase == CrisisPhase.Exploration);
+
+        /// Registers an active encounter threat and enters crisis combat if exploring.
+        public void EngageThreat(ThreatSheet threat){
+            activeThreat = threat;
+            if (!IsCrisis)
+                StartCrisis();
+        }
+
+        /// Disengages an active encounter threat and restores exploration if no threats remain.
+        public void DisengageThreat(ThreatSheet threat = null){
+            if (threat == null || activeThreat == threat){
+                activeThreat = null;
+                if (IsCrisis)
+                    EndCrisis();
+            }
+        }
 
         /// Initiates tactical crisis combat mode, docks party into the closest slots, and begins the first round.
         [ContextMenu("Start Crisis")]
@@ -101,10 +122,20 @@ namespace Core.Crisis{
             StartEnemyPhase();
         }
 
-        /// Starts enemy turn phase and notifies AI listeners.
+        /// Starts enemy turn phase and executes active threat turn.
         public void StartEnemyPhase(){
             CurrentPhase = CrisisPhase.EnemyPhase;
             OnEnemyPhaseStarted?.Invoke();
+
+            if (activeThreat && activeThreat.Brain && !activeThreat.Integrity.IsDead)
+                activeThreat.Brain.ExecuteTurn(() => {
+                    if (activeThreat.Integrity.IsDead)
+                        DisengageThreat(activeThreat);
+                    else
+                        EndEnemyPhase();
+                });
+            else
+                EndEnemyPhase();
         }
 
         /// Concludes enemy turn phase and advances round to the next player phase.
@@ -119,6 +150,7 @@ namespace Core.Crisis{
         public void EndCrisis(){
             CurrentPhase = CrisisPhase.Exploration;
             RoundNumber  = 0;
+            activeThreat = null;
             OnCrisisEnded?.Invoke();
         }
 

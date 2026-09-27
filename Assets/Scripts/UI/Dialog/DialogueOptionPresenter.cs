@@ -53,13 +53,15 @@ namespace UI.Dialog{
                 bool choiceConsumesAction = choice.consumesAction;
                 bool choiceEndsTurn = choice.endsTurn;
                 bool choiceConsumesMove = choice.consumesMove;
+                bool choiceFreesSlot = choice.freesSlot;
 
                 string cleanText = rawText;
-                ExtractTags(ref cleanText, ref choiceConsumesAction, ref choiceEndsTurn, ref choiceConsumesMove);
+                ExtractTags(ref cleanText, ref choiceConsumesAction, ref choiceEndsTurn, ref choiceConsumesMove, ref choiceFreesSlot);
 
                 choice.consumesAction = choiceConsumesAction;
                 choice.endsTurn = choiceEndsTurn;
                 choice.consumesMove = choiceConsumesMove;
+                choice.freesSlot = choiceFreesSlot;
 
                 bool isInteractable = true;
                 string label;
@@ -171,9 +173,8 @@ namespace UI.Dialog{
         /// Destroys all current option GameObjects.
         public void Clear(){
             HideTooltip();
-            if (optionsContent){
+            if (optionsContent)
                 foreach (Transform child in optionsContent) Destroy(child.gameObject);
-            }
         }
 
         /// Displays hover tooltip.
@@ -186,23 +187,36 @@ namespace UI.Dialog{
             if (tooltip) tooltip.Hide();
         }
 
-        /// Extracts tactical gameplay tags (<!>, <!!>, <M>) from raw choice text.
-        public static void ExtractTags(ref string text, ref bool consumesAction, ref bool endsTurn, ref bool consumesMove){
+        /// Extracts tactical gameplay tags (<!>, <!!>, <M>, <F>) from raw choice text.
+        public static void ExtractTags(ref string text, ref bool consumesAction, ref bool endsTurn, ref bool consumesMove, ref bool freesSlot){
             if (string.IsNullOrEmpty(text)) return;
 
-            if (text.Contains("<!!>")){
+            if (Regex.IsMatch(text, @"<!![fF]>|<!!>.*<[fF]>|<[fF]>.*<!!>")){
+                endsTurn = freesSlot = true;
+                text = Regex.Replace(text, @"<!![fF]>|<!!>|<[fF]>", "").Trim();
+            }
+            else if (Regex.IsMatch(text, @"<![fF]>|<!>.*<[fF]>|<[fF]>.*<!>")){
+                consumesAction = freesSlot = true;
+                text = Regex.Replace(text, @"<![fF]>|<!>|<[fF]>", "").Trim();
+            }
+            else if (text.Contains("<!!>")){
                 endsTurn = true;
-                text     = text.Replace("<!!>", "").Trim();
+                text = text.Replace("<!!>", "").Trim();
             }
             else if (text.Contains("<!>")){
                 consumesAction = true;
-                text           = text.Replace("<!>", "").Trim();
+                text = text.Replace("<!>", "").Trim();
+            }
+
+            if (Regex.IsMatch(text, @"<[fF]>")){
+                freesSlot = true;
+                text = Regex.Replace(text, @"<[fF]>", "").Trim();
             }
 
             Match moveMatch = Regex.Match(text, @"<[mM]>");
             if (moveMatch.Success){
                 consumesMove = true;
-                text         = Regex.Replace(text, @"<[mM]>", "").Trim();
+                text = Regex.Replace(text, @"<[mM]>", "").Trim();
             }
         }
     }

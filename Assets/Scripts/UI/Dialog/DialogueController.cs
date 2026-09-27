@@ -6,6 +6,7 @@ using Narrative.Skills;
 using UI.Shared.Transitions;
 using UnityEngine;
 using World.Actors.Player;
+using World.Tactical;
 
 namespace UI.Dialog{
     /// Orchestrates dialogue graph navigation, screen presentation, and challenge evaluation.
@@ -216,6 +217,9 @@ namespace UI.Dialog{
                     if (choice.consumesMove && !choice.endsTurn) turn.ConsumeMoveAndBurnSprint();
                 }
             }
+
+            if (choice.freesSlot && _characterSession && _characterSession.Character)
+                TacticalSpatialResolver.RelocateToFallbackSlot(_characterSession.Character);
 
             choice.onSelect?.Invoke();
             GoToKnot(choice.targetKnot);
