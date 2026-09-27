@@ -70,6 +70,22 @@ namespace Core.Crisis{
             }
         }
 
+        /// Commits the planned ghost turn, dismisses the ghost, and replays traversal on the real hero.
+        [ContextMenu("Commit Turn")]
+        public void CommitTurn(Action onReplayComplete = null){
+            GhostActor ghost = GhostActor.Instance;
+            if (!ghost || !ghost.ChannelingHero || ghost.PlanTrack.TargetSlot == null){
+                onReplayComplete?.Invoke();
+                return;
+            }
+
+            Character     hero = ghost.ChannelingHero;
+            TurnPlanTrack plan = ghost.PlanTrack;
+            ghost.Dismiss();
+
+            hero.movement.ReplayPlan(plan, onReplayComplete);
+        }
+
         /// Starts a new player turn phase, increments round counter, and advances world clock by one round.
         public void StartPlayerPhase(){
             CurrentPhase = CrisisPhase.PlayerPhase;

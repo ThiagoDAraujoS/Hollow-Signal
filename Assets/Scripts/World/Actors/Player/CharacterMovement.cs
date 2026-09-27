@@ -13,11 +13,13 @@ namespace World.Actors.Player{
         private Animator     Animator => _character.animator;
         private Transform    Body     => _character.body.transform;
 
-        private DockingState _dockingState = DockingState.None;
-        private AreaSlot     _pendingSlot;
-        private Vector3      _pendingDestination;
-        private Action       _onDockedCallback;
-        private Character    _character;
+        private DockingState  _dockingState = DockingState.None;
+        private AreaSlot      _pendingSlot;
+        private Vector3       _pendingDestination;
+        private Action        _onDockedCallback;
+        private Character     _character;
+        private TurnPlanTrack _activeReplayPlan;
+        private int           _nextMilestoneIndex;
 
         private static readonly int INPUT_FORWARD_PARAM = Animator.StringToHash("InputForward");
         private static readonly int INPUT_SIDE_PARAM    = Animator.StringToHash("InputSide");
@@ -34,7 +36,7 @@ namespace World.Actors.Player{
             _previousYRotation = Body.eulerAngles.y;
         }
 
-        /// Updates movement and turning animation blend parameters every frame.
+        /// Updates movement, animation blend parameters, and turn plan milestones every frame.
         private void Update(){
             Vector3 localVelocity = Body.InverseTransformDirection(Agent.velocity);
             float   forward       = localVelocity.z;
@@ -55,6 +57,7 @@ namespace World.Actors.Player{
             Animator.SetFloat(INPUT_FORWARD_PARAM, forward);
             Animator.SetFloat(INPUT_SIDE_PARAM,    _currentSide);
 
+            UpdateReplayMilestones();
             UpdateDocking();
         }
 
@@ -105,6 +108,25 @@ namespace World.Actors.Player{
             _pendingDestination = destination;
             _dockingState       = DockingState.Moving;
             Agent.destination   = destination;
+        }
+
+        /// Executes a planned turn track, navigating to the target slot and triggering effect milestones along the way.
+        public void ReplayPlan(TurnPlanTrack plan, Action onCompleted = null){
+            _activeReplayPlan   = plan;
+            _nextMilestoneIndex = 0;
+            MoveToSlot(plan.TargetSlot, onCompleted);
+        }
+
+        /// Checks distance to upcoming effect milestones along the active turn plan.
+        private void UpdateReplayMilestones(){
+            if (_activeReplayPlan == null || _nextMilestoneIndex >= _activeReplayPlan.Milestones.Count)
+                return;
+
+            PlannedEffectMilestone milestone = _activeReplayPlan.Milestones[_nextMilestoneIndex];
+            if (Vector3.Distance(Body.position, milestone.Position) <= 1.0f){
+                _nextMilestoneIndex++;
+                milestone.Effect.Run(milestone.Context);
+            }
         }
 
         /// Handles navigation arrival and facing alignment towards the slot orientation.
@@ -163,8 +185,10 @@ namespace World.Actors.Player{
             AreaSlot slot     = _pendingSlot;
             Action   callback = _onDockedCallback;
 
-            _pendingSlot      = null;
-            _onDockedCallback = null;
+            _pendingSlot        = null;
+            _onDockedCallback   = null;
+            _activeReplayPlan   = null;
+            _nextMilestoneIndex = 0;
 
             if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character)
                 return;
@@ -184,7 +208,9 @@ namespace World.Actors.Player{
                 _pendingSlot = null;
             }
 
-            _onDockedCallback = null;
+            _onDockedCallback   = null;
+            _activeReplayPlan   = null;
+            _nextMilestoneIndex = 0;
         }
     }
 }
