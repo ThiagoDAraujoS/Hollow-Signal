@@ -11,17 +11,16 @@ namespace Core.Crisis{
     public class CrisisManager : MonoBehaviour{
         public static CrisisManager Instance{ get; private set; }
 
-        [Header("Time Economy")]
-        [SerializeField] private float roundDurationInSeconds = 60f;
+        [Header("Time Economy")] [SerializeField]
+        private float roundDurationInSeconds = 60f;
 
-        [Header("Scheduler")]
-        [SerializeField] private EffectDatabase effectDatabase;
-        [SerializeField] private CrisisScheduler scheduler = new();
+        [Header("Scheduler")] [SerializeField] private EffectDatabase  effectDatabase;
+        [SerializeField]                       private CrisisScheduler scheduler = new();
 
-        public CrisisPhase CurrentPhase{ get; private set; } = CrisisPhase.Exploration;
-        public int         RoundNumber { get; private set; }
-        public float       ElapsedWorldTime{ get; private set; }
-        public CrisisScheduler Scheduler => scheduler;
+        public CrisisPhase     CurrentPhase    { get; private set; } = CrisisPhase.Exploration;
+        public int             RoundNumber     { get; private set; }
+        public float           ElapsedWorldTime{ get; private set; }
+        public CrisisScheduler Scheduler       => scheduler;
 
         public bool IsCrisis => CurrentPhase != CrisisPhase.Exploration;
 
@@ -46,7 +45,7 @@ namespace Core.Crisis{
         public static CustomYieldInstruction WaitForPlayerPhase() =>
             new WaitUntil(() => Instance == null || Instance.CurrentPhase == CrisisPhase.PlayerPhase || Instance.CurrentPhase == CrisisPhase.Exploration);
 
-        /// Initiates tactical crisis combat mode, docks party into closest slots, and begins the first round.
+        /// Initiates tactical crisis combat mode, docks party into the closest slots, and begins the first round.
         [ContextMenu("Start Crisis")]
         public void StartCrisis(){
             CurrentPhase = CrisisPhase.PlayerPhase;
