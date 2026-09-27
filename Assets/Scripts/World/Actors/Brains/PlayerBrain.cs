@@ -136,7 +136,7 @@ namespace World.Actors.Brains{
             Character lead = Lead;
             if (!lead) return;
             if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
-            lead.movement.MoveToAndUse(slot, lead.sheet);
+            lead.movement.MoveToSlot(slot, () => slot.Use(lead.sheet));
         }
 
         /// Dispatches party formation movement on GoHere click.
@@ -226,14 +226,12 @@ namespace World.Actors.Brains{
                 return;
             }
 
-            for (int i = 0; i < dialogueScreens.Length; i++){
-                if (!dialogueScreens[i]) continue;
+            for (int i = 0; i < dialogueScreens.Length; i++){\n                if (!dialogueScreens[i]) continue;
                 bool shouldShow = hasActiveDialogue && (lead.dialogueSession.ScreenIndex == i || lead.dialogueSession.Controller == dialogueScreens[i]);
                 dialogueScreens[i].SetVisible(shouldShow);
             }
 
-            foreach (Character member in activePartyMembers){
-                if (!member || !member.dialogueSession || !member.dialogueSession.Controller) continue;
+            foreach (Character member in activePartyMembers){\n                if (!member || !member.dialogueSession || !member.dialogueSession.Controller) continue;
                 if (member != lead) member.dialogueSession.Controller.SetVisible(false);
             }
 

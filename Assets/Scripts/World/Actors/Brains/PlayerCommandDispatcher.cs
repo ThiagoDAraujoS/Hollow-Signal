@@ -43,7 +43,7 @@ namespace World.Actors.Brains{
                 IsCommandHeld = false;
                 if (lead != null){
                     if (!slot.IsAvailable && slot.Occupant != lead && slot.ReservedBy != lead) return;
-                    lead.movement.MoveToAndUse(slot, lead.sheet);
+                    lead.movement.MoveToSlot(slot, () => slot.Use(lead.sheet));
                 }
                 return;
             }

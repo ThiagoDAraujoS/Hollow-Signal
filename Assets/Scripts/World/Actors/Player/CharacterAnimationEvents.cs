@@ -1,15 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace World.Actors.Player{
-    /// Relays Unity animation events from Animator to CharacterMovement.
-    [RequireComponent(typeof(CharacterMovement))]
+    /// Relays Unity animation events from Animator to gameplay listeners.
     public class CharacterAnimationEvents : MonoBehaviour{
-        private CharacterMovement _movement;
-
-        /// Caches movement reference on awake.
-        private void Awake() => _movement = GetComponent<CharacterMovement>();
+        public event Action OnUse;
 
         /// Animation event callback when the Use animation reaches its activation point.
-        public void Use() => _movement.TriggerAnimationUse();
+        public void Use() => OnUse?.Invoke();
     }
 }
