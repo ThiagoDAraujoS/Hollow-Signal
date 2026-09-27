@@ -58,13 +58,14 @@ namespace World.Tactical{
         }
 
         /// Reverts defensive masteries and executes vacate effects when leaving this slot.
-        public void Vacate(Character character){
-            if (grantedMasteryOnCommit != null)
-                character.sheet.TemporaryConditions.TryRemove(grantedMasteryOnCommit);
-
-            OnVacateEffect?.Run(new EffectContext(character.sheet));
-
-            Release();
+        public override void Vacate(){
+            Character character = Occupant;
+            if (character != null){
+                if (grantedMasteryOnCommit != null)
+                    character.sheet.TemporaryConditions.TryRemove(grantedMasteryOnCommit);
+                OnVacateEffect?.Run(new EffectContext(character.sheet));
+            }
+            base.Vacate();
         }
 
         /// Draws editor gizmo representing tactical slot position and facing direction.

@@ -63,11 +63,9 @@ namespace World.Actors.Player{
         /// Vacates and releases any currently occupied area slot.
         public void LeaveSlot(){
             if (CurrentSlot == null) return;
-            if (CurrentSlot is TacticalSlot tactical)
-                tactical.Vacate(this);
-            else
-                CurrentSlot.Release();
+            AreaSlot slot = CurrentSlot;
             CurrentSlot = null;
+            slot.Vacate();
         }
 
         /// Toggles visual body active state and disables movement components if inactive.

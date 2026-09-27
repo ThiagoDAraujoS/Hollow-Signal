@@ -6,6 +6,9 @@ using UnityEngine.AI;
 using World.Actors.Player;
 
 namespace World.Tactical{
+    /// Discrete occupancy states of a spatial standing slot.
+    public enum SlotOccupancyState { Vacant, Reserved, Occupied }
+
     /// Master base class representing a discrete standing spot and spatial anchor in the world.
     [SelectionBase]
     public abstract class AreaSlot : TrackedBehaviour{
@@ -22,14 +25,15 @@ namespace World.Tactical{
         [Header("Visual Indicator (Optional)")]
         [SerializeField] protected GameObject visualRing;
 
-        public Character Occupant{ get; protected set; }
-        public Character ReservedBy{ get; protected set; }
+        public Character Occupant   { get; protected set; }
+        public Character ReservedBy { get; protected set; }
 
-        public SpatialPose AnchorPose      => anchorPose;
-        public string      SlotDisplayName => slotDisplayName;
-        public bool        IsAvailable     => Occupant == null && ReservedBy == null;
-        public IEffect     LinkedEffect    => linkedEffect as IEffect;
-        public Vector3     Position        => anchorPose.GetWorldPosition(transform);
+        public SpatialPose        AnchorPose      => anchorPose;
+        public string             SlotDisplayName => slotDisplayName;
+        public IEffect            LinkedEffect    => linkedEffect as IEffect;
+        public Vector3            Position        => anchorPose.GetWorldPosition(transform);
+        public SlotOccupancyState State           => Occupant != null ? SlotOccupancyState.Occupied : (ReservedBy != null ? SlotOccupancyState.Reserved : SlotOccupancyState.Vacant);
+        public bool               IsAvailable     => State == SlotOccupancyState.Vacant;
 
         /// Evaluates world rotation locked strictly to world UP (Y-axis yaw only).
         public Quaternion Rotation{
@@ -58,20 +62,22 @@ namespace World.Tactical{
         public void SetAnchorPoseFromWorld(Vector3 worldPos, Quaternion worldRot) =>
             anchorPose.SetFromWorld(transform, worldPos, worldRot);
 
-        /// Reserves this slot for an approaching character if available.
+        /// Reserves this slot for an approaching character.
         public virtual void Reserve(Character character){
-            if (!IsAvailable && Occupant != character && ReservedBy != character) return;
+            if (!IsAvailable && Occupant != character && ReservedBy != character)
+                return;
             ReservedBy = character;
         }
 
-        /// Claims this slot when the character arrives.
-        public virtual void Claim(Character character){
-            Occupant   = character;
-            ReservedBy = null;
+        /// Docks character into slot, updates reciprocal references, and clears reservations.
+        public virtual void Dock(Character character){
+            Occupant              = character;
+            ReservedBy            = null;
+            character.CurrentSlot = this;
         }
 
-        /// Releases any reservation or occupancy on this slot.
-        public virtual void Release(){
+        /// Vacates slot, clearing occupant and reservation references.
+        public virtual void Vacate(){
             Occupant   = null;
             ReservedBy = null;
         }

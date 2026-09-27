@@ -169,9 +169,7 @@ namespace World.Actors.Player{
             if (!slot.IsAvailable && slot.Occupant != _character && slot.ReservedBy != _character)
                 return;
 
-            slot.Claim(_character);
-            _character.CurrentSlot = slot;
-
+            slot.Dock(_character);
             callback?.Invoke();
         }
 
@@ -181,8 +179,8 @@ namespace World.Actors.Player{
             Agent.updateRotation = true;
             _dockingState        = DockingState.None;
 
-            if (_pendingSlot != null){
-                _pendingSlot.Release();
+            if (_pendingSlot != null && _pendingSlot.ReservedBy == _character){
+                _pendingSlot.Vacate();
                 _pendingSlot = null;
             }
 
