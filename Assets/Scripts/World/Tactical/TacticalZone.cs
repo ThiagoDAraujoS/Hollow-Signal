@@ -113,6 +113,20 @@ namespace World.Tactical{
                 transform.position = hit.position;
         }
 
+        /// Finds the tactical zone whose Voronoi epicenter is closest to the given world point.
+        public static TacticalZone GetZoneAt(Vector3 worldPoint){
+            TacticalZone bestZone       = null;
+            float        closestDistSqr = float.MaxValue;
+            foreach (TacticalZone zone in AllZones){
+                float distSqr = (zone.Center - worldPoint).sqrMagnitude;
+                if (distSqr < closestDistSqr){
+                    closestDistSqr = distSqr;
+                    bestZone       = zone;
+                }
+            }
+            return bestZone;
+        }
+
         /// Appends zone enter effects into a turn plan at the specified world coordinate.
         public void AddEnterEffectsToPlan(TurnPlanTrack plan, Vector3 position, CharacterSheet userSheet){
             EffectContext context = new(userSheet);

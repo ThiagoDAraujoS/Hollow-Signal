@@ -111,11 +111,19 @@ namespace World.Actors.Brains{
             DialogueController.OnDialogueActiveChanged      -= HandleDialogueActiveChanged;
         }
 
-        /// Switches active pipeline to turn-based Crisis mode.
-        private void HandleCrisisStarted() => _activePipeline = _crisisPipeline;
+        /// Switches active pipeline to turn-based Crisis mode and channels Ghost planner.
+        private void HandleCrisisStarted(){
+            _activePipeline = _crisisPipeline;
+            if (Lead && GhostActor.Instance)
+                GhostActor.Instance.Channel(Lead);
+        }
 
-        /// Switches active pipeline back to real-time Exploration mode.
-        private void HandleCrisisEnded() => _activePipeline = _explorationPipeline;
+        /// Switches active pipeline back to real-time Exploration mode and dismisses Ghost.
+        private void HandleCrisisEnded(){
+            _activePipeline = _explorationPipeline;
+            if (GhostActor.Instance)
+                GhostActor.Instance.Dismiss();
+        }
 
         /// Routes single unit selection to active pipeline.
         private void HandleSelectCharacter(Character character, bool isAdditive) =>
