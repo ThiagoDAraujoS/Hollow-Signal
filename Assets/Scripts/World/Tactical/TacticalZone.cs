@@ -181,7 +181,7 @@ namespace World.Tactical{
         [ContextMenu("Toggle Voronoi Gizmos")]
         public void ToggleVoronoiGizmos() => showVoronoiGizmos = !showVoronoiGizmos;
 
-        /// Draws editor gizmos showing zone center, slot ownership, and 2D Voronoi boundary dividers at all times.
+        /// Draws editor gizmos showing zone center, slot ownership, and closed 2D Voronoi cell boundaries.
         private void OnDrawGizmos(){
             if (!showVoronoiGizmos)
                 return;
@@ -196,34 +196,76 @@ namespace World.Tactical{
                 if (slot != null)
                     Gizmos.DrawLine(center, slot.Position);
 
-            foreach (TacticalZone neighbor in adjacentZones){
-                if (neighbor == null)
+            DrawVoronoiCell(center);
+        }
+
+        /// Computes and renders a closed convex Voronoi cell polygon on the horizontal plane.
+        private void DrawVoronoiCell(Vector3 center){
+            const float maxRadius            = 25f;
+            const float floorHeightTolerance = 2.5f;
+
+            List<Vector2> polygon = new(){
+                new(center.x - maxRadius, center.z - maxRadius),
+                new(center.x + maxRadius, center.z - maxRadius),
+                new(center.x + maxRadius, center.z + maxRadius),
+                new(center.x - maxRadius, center.z + maxRadius)
+            };
+
+            Vector2 c2D = new(center.x, center.z);
+            IEnumerable<TacticalZone> zones = Application.isPlaying ? AllZones : FindObjectsByType<TacticalZone>(FindObjectsSortMode.None);
+
+            foreach (TacticalZone other in zones){
+                if (other == null || other == this)
                     continue;
 
-                Vector3 neighborCenter = neighbor.Center;
-                if (neighborCenter.x < center.x || (Mathf.Approximately(neighborCenter.x, center.x) && neighborCenter.z < center.z))
+                Vector3 otherCenter = other.Center;
+                if (Mathf.Abs(otherCenter.y - center.y) > floorHeightTolerance)
                     continue;
 
-                Vector3 toNeighbor = neighborCenter - center;
-                Vector3 flatDir    = new Vector3(toNeighbor.x, 0f, toNeighbor.z);
-                float   distance   = flatDir.magnitude;
-
-                if (distance < 0.01f)
+                Vector2 o2D = new(otherCenter.x, otherCenter.z);
+                Vector2 dir = o2D - c2D;
+                if (dir.sqrMagnitude < 0.01f)
                     continue;
 
-                Gizmos.color = new Color(1f, 0.92f, 0.016f, 0.35f);
-                Gizmos.DrawLine(center, neighborCenter);
-
-                Vector3 midpoint  = (center + neighborCenter) * 0.5f;
-                Vector3 perp      = new Vector3(-flatDir.z, 0f, flatDir.x).normalized;
-                float   halfSpan  = distance * 0.5f;
-                Vector3 lineStart = midpoint - perp * halfSpan;
-                Vector3 lineEnd   = midpoint + perp * halfSpan;
-
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(lineStart, lineEnd);
-                Gizmos.DrawWireSphere(midpoint, 0.12f);
+                Vector2 midpoint = (c2D + o2D) * 0.5f;
+                polygon = ClipPolygonHalfPlane(polygon, midpoint, dir);
+                if (polygon.Count < 3)
+                    break;
             }
+
+            if (polygon.Count < 3)
+                return;
+
+            Gizmos.color = Color.cyan;
+            for (int i = 0; i < polygon.Count; i++){
+                Vector2 p1 = polygon[i];
+                Vector2 p2 = polygon[(i + 1) % polygon.Count];
+                Gizmos.DrawLine(new Vector3(p1.x, center.y + 0.05f, p1.y), new Vector3(p2.x, center.y + 0.05f, p2.y));
+            }
+        }
+
+        /// Clips a 2D convex polygon against a half-plane defined by a point on the line and outward normal direction.
+        private static List<Vector2> ClipPolygonHalfPlane(List<Vector2> poly, Vector2 pointOnLine, Vector2 normal){
+            List<Vector2> output = new();
+            for (int i = 0; i < poly.Count; i++){
+                Vector2 current = poly[i];
+                Vector2 next    = poly[(i + 1) % poly.Count];
+                bool    currIn  = Vector2.Dot(current - pointOnLine, normal) <= 0f;
+                bool    nextIn  = Vector2.Dot(next - pointOnLine, normal) <= 0f;
+
+                if (currIn)
+                    output.Add(current);
+
+                if (currIn != nextIn){
+                    Vector2 edge  = next - current;
+                    float   denom = Vector2.Dot(edge, normal);
+                    if (Mathf.Abs(denom) > 1e-5f){
+                        float t = Vector2.Dot(pointOnLine - current, normal) / denom;
+                        output.Add(current + edge * Mathf.Clamp01(t));
+                    }
+                }
+            }
+            return output;
         }
     }
 }
