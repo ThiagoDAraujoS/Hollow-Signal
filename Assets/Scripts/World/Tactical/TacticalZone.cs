@@ -26,6 +26,9 @@ namespace World.Tactical{
         [RequireInterface(typeof(IEffect))]
         [SerializeField] private List<Object> onExitEffects  = new();
 
+        [Header("Gizmos")]
+        [SerializeField] private static bool showVoronoiGizmos = true;
+
         public string                      ZoneDisplayName => zoneDisplayName;
         public IReadOnlyList<TacticalZone> AdjacentZones   => adjacentZones;
         public IReadOnlyList<TacticalSlot> ChildSlots      => childSlots;
@@ -152,13 +155,53 @@ namespace World.Tactical{
                 slot.SetVisualActive(false);
         }
 
-        /// Draws editor gizmos showing zone center and adjacency connections.
-        private void OnDrawGizmosSelected(){
-            Gizmos.color = Color.yellow;
-            Vector3 center = transform.position;
-            foreach (TacticalZone neighbor in adjacentZones)
-                if (neighbor != null)
-                    Gizmos.DrawLine(center, neighbor.transform.position);
+        /// Toggles display of Voronoi cell gizmos globally.
+        [ContextMenu("Toggle Voronoi Gizmos")]
+        public void ToggleVoronoiGizmos() => showVoronoiGizmos = !showVoronoiGizmos;
+
+        /// Draws editor gizmos showing zone center, slot ownership, and 2D Voronoi boundary dividers at all times.
+        private void OnDrawGizmos(){
+            if (!showVoronoiGizmos)
+                return;
+
+            Vector3 center = Center;
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(center, 0.4f);
+
+            Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.25f);
+            foreach (TacticalSlot slot in childSlots)
+                if (slot != null)
+                    Gizmos.DrawLine(center, slot.Position);
+
+            foreach (TacticalZone neighbor in adjacentZones){
+                if (neighbor == null)
+                    continue;
+
+                Vector3 neighborCenter = neighbor.Center;
+                if (neighborCenter.x < center.x || (Mathf.Approximately(neighborCenter.x, center.x) && neighborCenter.z < center.z))
+                    continue;
+
+                Vector3 toNeighbor = neighborCenter - center;
+                Vector3 flatDir    = new Vector3(toNeighbor.x, 0f, toNeighbor.z);
+                float   distance   = flatDir.magnitude;
+
+                if (distance < 0.01f)
+                    continue;
+
+                Gizmos.color = new Color(1f, 0.92f, 0.016f, 0.35f);
+                Gizmos.DrawLine(center, neighborCenter);
+
+                Vector3 midpoint  = (center + neighborCenter) * 0.5f;
+                Vector3 perp      = new Vector3(-flatDir.z, 0f, flatDir.x).normalized;
+                float   halfSpan  = distance * 0.5f;
+                Vector3 lineStart = midpoint - perp * halfSpan;
+                Vector3 lineEnd   = midpoint + perp * halfSpan;
+
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawLine(lineStart, lineEnd);
+                Gizmos.DrawWireSphere(midpoint, 0.12f);
+            }
         }
     }
 }
