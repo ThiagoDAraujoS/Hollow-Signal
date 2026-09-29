@@ -26,6 +26,7 @@ namespace World.Actors.Player{
 
         private const float TurnSpeedDegPerSec    = 360f;
         private const float AlignSpeedMetersPerSec = 2.5f;
+        private const float ForwardDampTime        = 0.15f;
 
         private float _previousYRotation;
         private float _currentSide;
@@ -54,7 +55,7 @@ namespace World.Actors.Player{
 
             _currentSide = Mathf.MoveTowards(_currentSide, targetSide, Time.deltaTime * 6f);
 
-            Animator.SetFloat(INPUT_FORWARD_PARAM, forward);
+            Animator.SetFloat(INPUT_FORWARD_PARAM, forward, ForwardDampTime, Time.deltaTime);
             Animator.SetFloat(INPUT_SIDE_PARAM,    _currentSide);
 
             UpdateReplayMilestones();
@@ -198,16 +199,18 @@ namespace World.Actors.Player{
         }
 
         /// Cancels any active pending docking and releases the reserved slot.
-        private void CancelDocking(){
+        public void CancelDocking(){
+            if (_dockingState == DockingState.None)
+                return;
+
             Agent.updatePosition = true;
             Agent.updateRotation = true;
             _dockingState        = DockingState.None;
 
-            if (_pendingSlot != null && _pendingSlot.ReservedBy == _character){
+            if (_pendingSlot != null && _pendingSlot.ReservedBy == _character)
                 _pendingSlot.Vacate();
-                _pendingSlot = null;
-            }
 
+            _pendingSlot        = null;
             _onDockedCallback   = null;
             _activeReplayPlan   = null;
             _nextMilestoneIndex = 0;

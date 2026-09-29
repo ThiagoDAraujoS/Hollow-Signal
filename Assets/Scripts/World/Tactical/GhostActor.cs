@@ -42,9 +42,14 @@ namespace World.Tactical{
 
         /// Toggles ghost model and movement components.
         public void SetVisualsActive(bool active){
-            GhostCharacter.body.SetActive(active);
-            GhostCharacter.nmAgent.enabled  = active;
-            GhostCharacter.movement.enabled = active;
+            if (GhostCharacter.body != null)
+                GhostCharacter.body.SetActive(active);
+
+            if (GhostCharacter.nmAgent != null)
+                GhostCharacter.nmAgent.enabled = active;
+
+            if (GhostCharacter.movement != null)
+                GhostCharacter.movement.enabled = active;
         }
     }
 }

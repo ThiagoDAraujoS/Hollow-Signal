@@ -1,4 +1,5 @@
-﻿using Core.Managers;
+﻿﻿using System;
+using Core.Managers;
 using Core.State;
 using Narrative.Dialog;
 using UnityEngine;
@@ -11,11 +12,11 @@ namespace World.Actors.Player{
     [RequireComponent(typeof(CharacterMovement))]
     [RequireComponent(typeof(CharacterDialogueSession))]
     public class Character : MonoBehaviour, ISelectable{
-        [HideInInspector] public CharacterMovement       movement;
-        [HideInInspector] public CharacterSheet          sheet;
-        [HideInInspector] public CharacterDialogueSession dialogueSession;
-        [HideInInspector] public NavMeshAgent            nmAgent;
-        [HideInInspector] public Animator                animator;
+        [NonSerialized] public CharacterMovement        movement;
+        [NonSerialized] public CharacterSheet           sheet;
+        [NonSerialized] public CharacterDialogueSession dialogueSession;
+        [NonSerialized] public NavMeshAgent             nmAgent;
+        [NonSerialized] public Animator                 animator;
 
         [Header("Hero Identity")]
         [SerializeField] public HeroEnum heroType;
@@ -31,12 +32,25 @@ namespace World.Actors.Player{
 
         /// Caches required component references across awake and edit-time calls.
         public void EnsureInitialized(){
-            _uniqueId       ??= GetComponent<UniqueId>();
-            movement        ??= GetComponent<CharacterMovement>();
-            sheet           ??= GetComponent<CharacterSheet>();
-            dialogueSession ??= GetComponent<CharacterDialogueSession>();
-            nmAgent         ??= GetComponentInChildren<NavMeshAgent>(true);
-            animator        ??= GetComponentInChildren<Animator>(true);
+            _uniqueId       = GetComponent<UniqueId>();
+            movement        = GetComponent<CharacterMovement>();
+            sheet           = GetComponent<CharacterSheet>();
+            dialogueSession = GetComponent<CharacterDialogueSession>();
+
+            // Animator is on the root Character object (or fallback to children)
+            animator = GetComponent<Animator>();
+            if (animator == null)
+                animator = GetComponentInChildren<Animator>(true);
+
+            // NavMeshAgent is on the Body child (or fallback to root/children)
+            if (body != null)
+                nmAgent = body.GetComponent<NavMeshAgent>();
+
+            if (nmAgent == null)
+                nmAgent = GetComponentInChildren<NavMeshAgent>(true);
+
+            if (nmAgent == null)
+                nmAgent = GetComponent<NavMeshAgent>();
         }
 
         /// Caches references and disables default standalone movement.
@@ -50,7 +64,7 @@ namespace World.Actors.Player{
 
         public Sheet      Sheet           => sheet;
         public Transform  SelectionCircle => selectionCircle;
-        public Transform  BodyTransform   => body.transform;
+        public Transform  BodyTransform   => body != null ? body.transform : transform;
         public Vector3    WorldPosition   => BodyTransform.position;
         public Quaternion WorldRotation   => BodyTransform.rotation;
 
@@ -70,11 +84,11 @@ namespace World.Actors.Player{
 
         /// Toggles visual body active state and disables movement components if inactive.
         public void SetVisualsActive(bool active){
-            body.SetActive(active);
+            if (body != null) body.SetActive(active);
 
             if (active) return;
-            movement.enabled = false;
-            nmAgent.enabled  = false;
+            if (movement != null) movement.enabled = false;
+            if (nmAgent != null) nmAgent.enabled  = false;
         }
 
         /// Registers character with the session party, activates visuals, and warps to spawn.
@@ -84,20 +98,11 @@ namespace World.Actors.Player{
             SetVisualsActive(true);
             PlayerBrain.AddPartyMember(this);
 
-            nmAgent.enabled = true;
-            nmAgent.Warp(GameSessionManager.CurrentMapManager.DefaultSpawnPoint.position);
-            movement.enabled = true;
-        }
-
-        /// Deregisters character from session party, deselects, and deactivates visuals.
-        public void LeaveParty(){
-            LeaveSlot();
-            EnsureInitialized();
-            GameSessionManager.Instance.SetCharacterActive(_uniqueId.Id, false);
-            PlayerBrain.RemovePartyMember(this);
-            PlayerBrain.Deselect(this);
-            TurnSelectionCircleOff();
-            SetVisualsActive(false);
+            if (nmAgent != null){
+                nmAgent.enabled = true;
+                nmAgent.Warp(GameSessionManager.CurrentMapManager.DefaultSpawnPoint.position);
+            }
+            if (movement != null) movement.enabled = true;
         }
     }
 }

@@ -9,7 +9,7 @@ using World.Actors;
 namespace Core.Crisis{
     [Serializable]
     public class CrisisScheduler : ITracked{
-        [SerializeField] private string key = "crisis_scheduler";
+        [SerializeField] private string key;
         [SerializeField] private List<ScheduledEntry> heap = new();
 
         public string Key => key;
