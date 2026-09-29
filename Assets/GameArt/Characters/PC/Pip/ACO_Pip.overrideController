@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ACO_Pip
+  m_Controller: {fileID: 9100000, guid: bff425834f491354f90cd4ee6976bcb3, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: -203655887218126122, guid: 61d5a01921eb52a4698f39401a1f0c96,
+      type: 3}
+    m_OverrideClip: {fileID: -203655887218126122, guid: 29af6dcd8db0f6d49a41c4fbd1e2fb51,
+      type: 3}
