@@ -5,8 +5,6 @@
         _LUTTex ("Discrete LUT Texture", 2D) = "white" {}
         _CubeResolution ("Cube Resolution", Float) = 64.0
         _TileLayout ("Tile Layout (Cols X, Rows Y)", Vector) = (8, 8, 0, 0)
-        _DitherSpread ("Dither Spread / Strength", Range(0.0, 1.0)) = 0.25
-        _DitherMatrixSize ("Dither Matrix (0 = 4x4, 1 = 8x8)", Float) = 1.0
         _PixelSize ("Pixelation Scale", Range(1.0, 16.0)) = 2.0
         _ColorFragmentation ("Pre-LUT Quantization (0 = Off)", Float) = 0.0
         _ColorSpaceCorrection ("Linear to sRGB Processing", Float) = 1.0
@@ -38,8 +36,6 @@
             CBUFFER_START(UnityPerMaterial)
                 float4 _TileLayout;
                 float _CubeResolution;
-                float _DitherSpread;
-                float _DitherMatrixSize;
                 float _PixelSize;
                 float _ColorFragmentation;
                 float _ColorSpaceCorrection;
@@ -60,16 +56,11 @@
                 half4 sceneColor = LOAD_TEXTURE2D_X(_BlitTexture, sampleCoord);
                 float3 c = sceneColor.rgb;
 
-                // Convert Linear camera input to sRGB for perceptually uniform dither and 0-255 LUT lookup
+                // Convert Linear camera input to sRGB for perceptually uniform 0-255 LUT lookup
                 if (_ColorSpaceCorrection > 0.5)
                 {
                     c = LinearToSRGB(c);
                 }
-
-                // Bayer Dither: Exact integer indexing from the virtual retro pixel (no floating-point jitter)
-                uint2 ditherCoord = virtualPixel;
-                float dither = GetBayerDitherOffset(ditherCoord, _DitherMatrixSize > 0.5);
-                c += dither * _DitherSpread;
 
                 // Optional pre-quantization
                 if (_ColorFragmentation > 1.0)

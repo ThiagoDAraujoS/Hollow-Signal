@@ -33,8 +33,6 @@ Material:
     - _ColorFragmentation: 12
     - _ColorSpaceCorrection: 1
     - _CubeResolution: 64
-    - _DitherMatrixSize: 1
-    - _DitherSpread: 0.015
     - _PixelSize: 2
     m_Colors:
     - _TileLayout: {r: 8, g: 8, b: 0, a: 0}
