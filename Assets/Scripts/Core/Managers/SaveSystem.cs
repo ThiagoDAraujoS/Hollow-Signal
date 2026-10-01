@@ -23,6 +23,13 @@ namespace Core.Managers{
         [SerializeField] private string defaultSaveTemplate = "template";
         public static            string DefaultSaveTemplate => Instance.defaultSaveTemplate;
 
+        [Header("Editor & Template Generation")]
+        [SerializeField] private string targetSaveSlotName = "Template_GameStart";
+        public string TargetSaveSlotName{
+            get => targetSaveSlotName;
+            set => targetSaveSlotName = value;
+        }
+
         private const string TempDirectoryName          = "temp";
         private const string ActiveSessionDirectoryName = "_active_session";
 
@@ -261,6 +268,16 @@ namespace Core.Managers{
 
         [ContextMenu("Save")]
         public void Save() => _ = SaveGame("TestSave");
+
+        [ContextMenu("Save Target Slot")]
+        public void SaveTargetSlot(){
+            if (string.IsNullOrWhiteSpace(targetSaveSlotName)){
+                Debug.LogWarning("[SaveSystem] Cannot save: TargetSaveSlotName is empty.");
+                return;
+            }
+            Debug.Log($"[SaveSystem] Saving current session to target slot: '{targetSaveSlotName}'");
+            _ = SaveGame(targetSaveSlotName);
+        }
 
         [ContextMenu("AutoSave")]
         public void AutoSave() => _ = AutosaveAsync();

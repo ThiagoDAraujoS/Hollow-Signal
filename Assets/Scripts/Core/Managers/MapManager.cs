@@ -11,6 +11,8 @@ namespace Core.Managers{
 
         public Transform DefaultSpawnPoint => GetSpawnPoint(0);
         public World.Anchors.Bounds CameraBounds => cameraBounds;
+        public IReadOnlyList<Transform> SpawnPoints => spawnPoints;
+        public int SpawnPointCount => spawnPoints?.Count ?? 0;
 
         /// Returns the spawn point at the specified index, defaulting to index 0 or local transform if empty.
         public Transform GetSpawnPoint(int index = 0) =>
