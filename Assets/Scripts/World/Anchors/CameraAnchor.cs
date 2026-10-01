@@ -161,6 +161,14 @@ namespace World.Anchors{
 
             transform.position = bounds.Clamp(newPosition);
         }
+
+        /// Draws camera boundary wirecube gizmo in the editor.
+        private void OnDrawGizmos(){
+            if (bounds == null) return;
+            Gizmos.color = Color.yellow;
+            (Vector3 center, Vector3 size) = bounds.GetCenterAndSize(transform.position.y);
+            Gizmos.DrawWireCube(center, size);
+        }
     }
 
     [Serializable]

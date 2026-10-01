@@ -448,6 +448,7 @@ MonoBehaviour:
   - core
   currentSaveSlot: 
   defaultSaveTemplate: template
+  targetSaveSlotName: Template_GameStart
 --- !u!114 &1261711582
 MonoBehaviour:
   m_ObjectHideFlags: 0

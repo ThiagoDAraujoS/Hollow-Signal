@@ -410,7 +410,7 @@ Transform:
   m_GameObject: {fileID: 107251102}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
+  m_LocalPosition: {x: -86.399994, y: 60.00001, z: -56.76151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4120,7 +4120,7 @@ Transform:
   m_GameObject: {fileID: 1107584218}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22414392, y: 0.48296294, z: -0.12940955, w: 0.8365163}
-  m_LocalPosition: {x: -89.99999, y: 60.00001, z: -51.96151}
+  m_LocalPosition: {x: -86.399994, y: 60.00001, z: -56.76151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4757,6 +4757,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1395956214}
   - component: {fileID: 1395956213}
+  - component: {fileID: 1395956215}
   m_Layer: 0
   m_Name: CameraAnchor
   m_TagString: Untagged
@@ -4785,8 +4786,8 @@ MonoBehaviour:
   renderingCamera: {fileID: 107251106}
   cinemachineCamera: {fileID: 1107584219}
   bounds:
-    min: {x: -4.8, y: -19.5}
-    max: {x: 20.7, y: 5.6}
+    min: {x: -9.73, y: -18.6}
+    max: {x: 20.7, y: 9.26}
 --- !u!4 &1395956214
 Transform:
   m_ObjectHideFlags: 0
@@ -4796,12 +4797,35 @@ Transform:
   m_GameObject: {fileID: 1395956212}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3.6, y: 0, z: -4.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1302544443}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1395956215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1395956212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d74c9c5fdc486184459b1895872010, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Runtime::World.CameraController
+  moveActionRef: {fileID: -859263077873593557, guid: e281ab66cb328ed44952e7778f41ed5a,
+    type: 3}
+  moveSpeed: 10
+  zoomSpeed: 0.4
+  minZoom: 1.75
+  maxZoom: 7
+  renderingCamera: {fileID: 0}
+  cinemachineCamera: {fileID: 0}
+  bounds:
+    min: {x: 0, y: -13.1}
+    max: {x: 11.9, y: 1.7}
 --- !u!1 &1497920010
 GameObject:
   m_ObjectHideFlags: 0
