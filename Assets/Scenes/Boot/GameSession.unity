@@ -4061,7 +4061,6 @@ GameObject:
   - component: {fileID: 1107584220}
   - component: {fileID: 1107584219}
   - component: {fileID: 1107584221}
-  - component: {fileID: 1107584222}
   m_Layer: 0
   m_Name: IsometricCamera
   m_TagString: Untagged
@@ -4158,21 +4157,6 @@ MonoBehaviour:
     Time: 0.627
     Smoothing: 7.4
     IgnoreY: 0
---- !u!114 &1107584222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1107584218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44d3212527844eefa921ee31eb355d47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CRPG.Runtime::World.Anchors.CinemachineRetroHardStop
-  minSpeedThreshold: 2
-  snapToPixelGrid: 1
-  pixelSize: 2
 --- !u!1 &1110014261
 GameObject:
   m_ObjectHideFlags: 0

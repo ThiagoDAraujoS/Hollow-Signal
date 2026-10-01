@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestMaps/VerticalMaps/VerticalCrisis/VerticalCrisis.unity
     guid: 7f1f0b3328be51a4aa342f35b29a3d7a
+  - enabled: 1
+    path: Assets/Scenes/Maps/AbandonedHouse/OutsideAbandonedHouse.unity
+    guid: 7bdc1187cd730dc458d080f5dd2fca22
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 332d9f72535bedd4faff017ed59b2d3e,
       type: 2}
