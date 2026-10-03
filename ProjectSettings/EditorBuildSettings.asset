@@ -38,6 +38,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Maps/AbandonedHouse/OutsideAbandonedHouse.unity
     guid: 7bdc1187cd730dc458d080f5dd2fca22
+  - enabled: 1
+    path: Assets/Scenes/Maps/AbandonedHouse/InsideAbandonedHouse.unity
+    guid: ea455b47c3d42744d8754197f89e3a68
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 332d9f72535bedd4faff017ed59b2d3e,
       type: 2}

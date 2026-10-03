@@ -112,7 +112,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightGradMaxY: 13.03
+    - _HeightGradMaxY: 11.74
     - _HeightGradMinY: 0
     - _HeightGradStrength: 0.62
     - _Metallic: 0
@@ -141,7 +141,7 @@ Material:
     - _CavityTint: {r: 0.15, g: 0.15, b: 0.18, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HeightGradColor: {r: 0.4056604, g: 0.26214847, b: 0.2277056, a: 1}
+    - _HeightGradColor: {r: 0.5188679, g: 0.117479555, b: 0.01713244, a: 1}
     - _OcclusionTint: {r: 0.2, g: 0.22, b: 0.25, a: 1}
     - _RidgeTint: {r: 2.1185474, g: 2.1185474, b: 2.1185474, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

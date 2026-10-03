@@ -188,19 +188,6 @@ namespace World.Tactical{
             return available.OrderBy(s => Vector3.Distance(s.Position, worldClickPosition)).First();
         }
 
-        /// Activates visual rings on all featured child slots when hovering this zone.
-        public void OnZoneHoverEnter(){
-            foreach (TacticalSlot slot in childSlots)
-                if (slot.IsFeatured && slot.IsAvailable)
-                    slot.SetVisualActive(true);
-        }
-
-        /// Deactivates visual rings on all child slots when leaving this zone.
-        public void OnZoneHoverExit(){
-            foreach (TacticalSlot slot in childSlots)
-                slot.SetVisualActive(false);
-        }
-
         /// Toggles display of Voronoi cell gizmos globally.
         [ContextMenu("Toggle Voronoi Gizmos")]
         public void ToggleVoronoiGizmos(){
@@ -249,112 +236,37 @@ namespace World.Tactical{
                 if (triangulation.vertices == null || triangulation.indices == null || triangulation.indices.Length == 0)
                     return;
 
-                Vector3[] vertices = triangulation.vertices;
-                int[]     indices  = triangulation.indices;
-                int       triCount = indices.Length / 3;
+                for (int i = 0; i < triangulation.indices.Length; i += 3){
+                    Vector3 v0 = triangulation.vertices[triangulation.indices[i]];
+                    Vector3 v1 = triangulation.vertices[triangulation.indices[i + 1]];
+                    Vector3 v2 = triangulation.vertices[triangulation.indices[i + 2]];
+                    Vector3 triCenter = (v0 + v1 + v2) / 3f;
 
-                for (int z = 0; z < zones.Count; z++){
-                    TacticalZone currentZone = zones[z];
-                    if (currentZone == null)
-                        continue;
-
-                    Color zoneColor = Color.HSVToRGB((z * 0.61803398875f) % 1f, 0.65f, 0.95f);
-                    zoneColor.a = 0.28f;
-                    List<Vector3[]> zonePolys = new();
-                    Vector3         zCenter   = currentZone.Center;
-
-                    for (int t = 0; t < triCount; t++){
-                        Vector3 v0 = vertices[indices[t * 3]];
-                        Vector3 v1 = vertices[indices[t * 3 + 1]];
-                        Vector3 v2 = vertices[indices[t * 3 + 2]];
-
-                        Vector3 triCenter = (v0 + v1 + v2) / 3f;
-                        if ((triCenter - zCenter).sqrMagnitude > 2500f)
-                            continue;
-
-                        List<Vector3> poly = new(){ v0, v1, v2 };
-
-                        foreach (TacticalZone other in zones){
-                            if (other == null || other == currentZone)
-                                continue;
-
-                            Vector3 oCenter    = other.Center;
-                            Vector3 planePoint = (zCenter + oCenter) * 0.5f;
-                            Vector3 normal     = oCenter - zCenter;
-
-                            poly = ClipPolygon3D(poly, planePoint, normal);
-                            if (poly.Count < 3)
-                                break;
-                        }
-
-                        if (poly.Count < 3)
-                            continue;
-
-                        Vector3 normal3D = Vector3.Cross(v1 - v0, v2 - v0).normalized;
-                        if (normal3D.y < 0f)
-                            normal3D = -normal3D;
-                        Vector3 lift = (normal3D.sqrMagnitude > 0.01f ? normal3D : Vector3.up) * 0.02f;
-
-                        Vector3[] liftedPoly = new Vector3[poly.Count];
-                        for (int p = 0; p < poly.Count; p++)
-                            liftedPoly[p] = poly[p] + lift;
-
-                        zonePolys.Add(liftedPoly);
-
-                        for (int p = 0; p < liftedPoly.Length; p++){
-                            Vector3 p1 = liftedPoly[p];
-                            Vector3 p2 = liftedPoly[(p + 1) % liftedPoly.Length];
-                            Vector3 mid = (p1 + p2) * 0.5f;
-
-                            float dCurrent = Vector3.Distance(mid, zCenter);
-                            foreach (TacticalZone other in zones){
-                                if (other == null || other == currentZone)
-                                    continue;
-                                float dOther = Vector3.Distance(mid, other.Center);
-                                if (Mathf.Abs(dCurrent - dOther) < 0.15f){
-                                    _cachedBoundaryEdges.Add((p1, p2));
-                                    break;
-                                }
-                            }
-                        }
+                    TacticalZone ownerZone = zones.OrderBy(z => (z.Center - triCenter).sqrMagnitude).First();
+                    int zoneIndex = zones.IndexOf(ownerZone);
+                    while (_cachedZonePolygons.Count <= zoneIndex){
+                        Color zoneColor = Color.HSVToRGB((_cachedZonePolygons.Count * 0.23f) % 1f, 0.7f, 0.85f);
+                        zoneColor.a = 0.15f;
+                        _cachedZonePolygons.Add((zoneColor, new List<Vector3[]>()));
                     }
 
-                    _cachedZonePolygons.Add((zoneColor, zonePolys));
+                    _cachedZonePolygons[zoneIndex].polygons.Add(new[] { v0, v1, v2 });
                 }
             }
 
-            foreach ((Color color, List<Vector3[]> polys) in _cachedZonePolygons){
-                UnityEditor.Handles.color = color;
-                foreach (Vector3[] poly in polys)
-                    UnityEditor.Handles.DrawAAConvexPolygon(poly);
+            foreach ((Color color, List<Vector3[]> polygons) in _cachedZonePolygons){
+                Gizmos.color = color;
+                foreach (Vector3[] tri in polygons)
+                    Gizmos.DrawMesh(CreateTriangleMesh(tri[0], tri[1], tri[2]));
             }
-
-            Gizmos.color = Color.cyan;
-            foreach ((Vector3 start, Vector3 end) in _cachedBoundaryEdges)
-                Gizmos.DrawLine(start, end);
         }
 
-        /// Clips a 3D convex polygon against a half-plane defined by a point on the plane and outward normal direction.
-        private static List<Vector3> ClipPolygon3D(List<Vector3> poly, Vector3 planePoint, Vector3 normal){
-            List<Vector3> output = new();
-            for (int i = 0; i < poly.Count; i++){
-                Vector3 current = poly[i];
-                Vector3 next    = poly[(i + 1) % poly.Count];
-                float   dCurr   = Vector3.Dot(current - planePoint, normal);
-                float   dNext   = Vector3.Dot(next - planePoint, normal);
-                bool    currIn  = dCurr <= 0.001f;
-                bool    nextIn  = dNext <= 0.001f;
-
-                if (currIn)
-                    output.Add(current);
-
-                if (currIn != nextIn){
-                    float diff = dCurr - dNext;
-                    float t    = Mathf.Abs(diff) > 1e-6f ? Mathf.Clamp01(dCurr / diff) : 0.5f;
-                    output.Add(Vector3.Lerp(current, next, t));
-                }
-            }
-            return output;
+        private static Mesh CreateTriangleMesh(Vector3 v0, Vector3 v1, Vector3 v2){
+            Mesh mesh = new();
+            mesh.vertices = new[] { v0, v1, v2 };
+            mesh.triangles = new[] { 0, 1, 2 };
+            mesh.RecalculateNormals();
+            return mesh;
         }
 #endif
     }

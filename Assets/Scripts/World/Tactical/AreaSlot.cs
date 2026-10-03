@@ -22,9 +22,6 @@ namespace World.Tactical{
         [RequireInterface(typeof(IEffect))]
         [SerializeField] protected Object linkedEffect;
 
-        [Header("Visual Indicator (Optional)")]
-        [SerializeField] protected GameObject visualRing;
-
         public Character Occupant   { get; protected set; }
         public Character ReservedBy { get; protected set; }
 
@@ -64,8 +61,7 @@ namespace World.Tactical{
 
         /// Reserves this slot for an approaching character.
         public virtual void Reserve(Character character){
-            if (!IsAvailable && Occupant != character && ReservedBy != character)
-                return;
+            if (!IsAvailable && Occupant != character && ReservedBy != character) return;
             ReservedBy = character;
         }
 
@@ -84,12 +80,6 @@ namespace World.Tactical{
 
         /// Executes the linked effect on this slot.
         public virtual void Use(CharacterSheet whosUsing) => LinkedEffect?.Run(new EffectContext(whosUsing));
-
-        /// Toggles the visual ring indicator for this slot if assigned.
-        public virtual void SetVisualActive(bool active){
-            if (visualRing != null)
-                visualRing.SetActive(active);
-        }
 
         /// Draws editor gizmo representing slot position and facing direction.
         protected virtual void OnDrawGizmos(){

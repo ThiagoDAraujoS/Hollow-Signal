@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AOC_FreezerChest
+  m_Controller: {fileID: 9100000, guid: 54c076cc4a6674a429a5f5014a9bb8d3, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 2557867160910797097, guid: 7146df06a41858446ac1cae2e704c75e,
+      type: 3}
+    m_OverrideClip: {fileID: 2557867160910797097, guid: 7146df06a41858446ac1cae2e704c75e,
+      type: 3}
+  - m_OriginalClip: {fileID: -3746147591025515786, guid: 7146df06a41858446ac1cae2e704c75e,
+      type: 3}
+    m_OverrideClip: {fileID: -3746147591025515786, guid: 7146df06a41858446ac1cae2e704c75e,
+      type: 3}

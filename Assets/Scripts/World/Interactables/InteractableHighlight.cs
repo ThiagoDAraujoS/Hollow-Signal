@@ -1,33 +1,51 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using World.Actors.Brains;
-using World.Tactical;
 
 namespace World.Interactables{
-    /// Controls shader highlight amount on renderers via MaterialPropertyBlock for hover and Alt-reveal.
+    /// Manages transient layer swapping and per-object outline coloring during hover and Alt reveal.
     [DisallowMultipleComponent]
     public class InteractableHighlight : MonoBehaviour{
-        [Header("Renderers to Highlight")] [SerializeField]
-        private List<Renderer> targetRenderers = new();
+        [Tooltip("Semantic highlight color category or Custom for arbitrary color.")]
+        [SerializeField] private HighlightCategory category = HighlightCategory.Pickup;
 
-        [Header("Optional Linked Slot Indicator")] [SerializeField]
-        private AreaSlot linkedSlot;
+        [Tooltip("Used when category is set to Custom.")]
+        [SerializeField] private Color customColor = new(1f, 0.9f, 0.2f, 1f);
 
-        [Header("Fade Tuning")] [SerializeField]
-        private float fadeDuration = 0.15f;
+        [SerializeField] private List<Renderer> targetRenderers = new();
 
-        private static readonly int HIGHLIGHT_PROP_ID = Shader.PropertyToID("_HighlightAmount");
         private static InteractableHighlight _currentHovered;
+        private static readonly HashSet<InteractableHighlight> _allRegistered = new();
+        private static readonly int SILHOUETTE_PROP_ID = Shader.PropertyToID("_SilhouetteColor");
+        private static bool _isAltHeld;
+        private static int _highlightLayer = -1;
 
+        private readonly List<int> _cachedLayers = new();
         private MaterialPropertyBlock _mpb;
-        private Coroutine _fadeRoutine;
-        private float _currentAmount;
         private bool _isHovered;
-        private bool _isAltRevealed;
+        private bool _isHighlighted;
 
-        /// Globally sets the active hovered instance from gesture coordinator.
+        public HighlightCategory Category{
+            get => category;
+            set{
+                category = value;
+                if (_isHighlighted) ApplyHighlightState();
+            }
+        }
+
+        public Color CustomColor{
+            get => customColor;
+            set{
+                customColor = value;
+                if (_isHighlighted && category == HighlightCategory.Custom) ApplyHighlightState();
+            }
+        }
+
+        public Color ActiveColor => category == HighlightCategory.Custom ? customColor : InteractableOutlineFeature.GetCategoryColor(category);
+        public IReadOnlyList<Renderer> TargetRenderers => targetRenderers;
+        public static int HighlightLayer => _highlightLayer != -1 ? _highlightLayer : _highlightLayer = LayerMask.NameToLayer("Highlight");
+
+        /// Sets or clears the active hovered instance from cursor raycasts.
         public static void SetHoveredInstance(InteractableHighlight target){
             if (_currentHovered == target) return;
             if (_currentHovered) _currentHovered.SetHovered(false);
@@ -35,99 +53,85 @@ namespace World.Interactables{
             if (_currentHovered) _currentHovered.SetHovered(true);
         }
 
-        /// Clears global hover state.
-        public static void ClearHover(){
-            if (!_currentHovered) return;
-            _currentHovered.SetHovered(false);
-            _currentHovered = null;
+        /// Clears the global hover state.
+        public static void ClearHover() => SetHoveredInstance(null);
+
+        /// Globally toggles highlight state for all registered interactables when Alt modifier changes.
+        public static void SetAltHeld(bool isHeld){
+            if (_isAltHeld == isHeld) return;
+            _isAltHeld = isHeld;
+            foreach (InteractableHighlight item in _allRegistered)
+                item.RefreshHighlightState();
         }
 
-        /// Initializes property block and resolves default renderers and linked slot.
+        /// Populates target renderers, caches baseline layers, and initializes property block.
         private void Awake(){
             _mpb = new MaterialPropertyBlock();
-            if (targetRenderers.Count == 0) targetRenderers.AddRange(GetComponentsInChildren<Renderer>());
-            if (!linkedSlot) linkedSlot = GetComponentInChildren<AreaSlot>();
+            if (targetRenderers.Count == 0)
+                targetRenderers.AddRange(GetComponentsInChildren<Renderer>(true));
+
+            CacheLayers();
         }
 
-        /// Subscribes to Alt-modifier change events.
+        /// Registers instance with global registry and hooks into Alt modifier input events.
         private void OnEnable(){
+            _allRegistered.Add(this);
             PlayerGestureController.OnAltModifierChanged += HandleAltChanged;
-            if (PlayerGestureController.Instance && PlayerGestureController.IsAltPressed) HandleAltChanged(true);
+            if (PlayerGestureController.Instance && PlayerGestureController.IsAltPressed)
+                SetAltHeld(true);
+            RefreshHighlightState();
         }
 
-        /// Unsubscribes from Alt-modifier events and resets highlight.
+        /// Unregisters instance and restores baseline renderer layers.
         private void OnDisable(){
+            _allRegistered.Remove(this);
             PlayerGestureController.OnAltModifierChanged -= HandleAltChanged;
             if (_currentHovered == this) _currentHovered = null;
-            SetInstant(0f);
+            RevertState();
         }
 
-        /// Monitors keyboard Alt state directly as input fallback.
-        private void Update(){
-            if (Keyboard.current == null) return;
-            bool altPressed = Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed;
-            if (altPressed != _isAltRevealed) HandleAltChanged(altPressed);
+        /// Caches the baseline layer of each target renderer GameObject.
+        private void CacheLayers(){
+            _cachedLayers.Clear();
+            for (int i = 0; i < targetRenderers.Count; i++)
+                _cachedLayers.Add(targetRenderers[i].gameObject.layer);
         }
 
-        /// Sets hover state and triggers highlight fade.
+        /// Updates hover state and triggers highlight refresh.
         public void SetHovered(bool hovered){
             if (_isHovered == hovered) return;
             _isHovered = hovered;
-            UpdateHighlightTarget();
+            RefreshHighlightState();
         }
 
-        /// Updates Alt-reveal state from input coordinator.
-        private void HandleAltChanged(bool isPressed){
-            if (_isAltRevealed == isPressed) return;
-            _isAltRevealed = isPressed;
-            UpdateHighlightTarget();
+        /// Relays Alt modifier input state changes to global registry.
+        private void HandleAltChanged(bool altPressed) => SetAltHeld(altPressed);
+
+        /// Evaluates whether this object should currently be rendered on the highlight layer.
+        private void RefreshHighlightState(){
+            bool shouldHighlight = _isHovered || _isAltHeld;
+            if (_isHighlighted == shouldHighlight) return;
+            _isHighlighted = shouldHighlight;
+
+            if (_isHighlighted) ApplyHighlightState();
+            else RevertState();
         }
 
-        /// Evaluates active hover/alt state and starts fade coroutine.
-        private void UpdateHighlightTarget(){
-            bool shouldHighlight = _isHovered || _isAltRevealed;
-            float target = shouldHighlight ? 1f : 0f;
-
-            if (linkedSlot) linkedSlot.SetVisualActive(shouldHighlight);
-            if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
-
-            if (isActiveAndEnabled && gameObject.activeInHierarchy)
-                _fadeRoutine = StartCoroutine(FadeTo(target));
-            else
-                SetInstant(target);
-        }
-
-        /// Smoothly interpolates highlight property over duration.
-        private IEnumerator FadeTo(float target){
-            float start = _currentAmount;
-            float elapsed = 0f;
-
-            while (elapsed < fadeDuration){
-                elapsed += Time.unscaledDeltaTime;
-                ApplyAmount(Mathf.Lerp(start, target, elapsed / fadeDuration));
-                yield return null;
+        /// Swaps target renderers to the highlight layer and applies the instanced outline color.
+        private void ApplyHighlightState(){
+            int layer = HighlightLayer;
+            _mpb.SetColor(SILHOUETTE_PROP_ID, ActiveColor);
+            for (int i = 0; i < targetRenderers.Count; i++){
+                targetRenderers[i].gameObject.layer = layer;
+                targetRenderers[i].SetPropertyBlock(_mpb);
             }
-
-            ApplyAmount(target);
-            _fadeRoutine = null;
         }
 
-        /// Immediately sets highlight amount without transition.
-        public void SetInstant(float amount){
-            if (_fadeRoutine != null){
-                StopCoroutine(_fadeRoutine);
-                _fadeRoutine = null;
-            }
-            ApplyAmount(amount);
-        }
-
-        /// Writes float property to renderers via MaterialPropertyBlock.
-        private void ApplyAmount(float amount){
-            _currentAmount = amount;
-            foreach (Renderer r in targetRenderers){
-                r.GetPropertyBlock(_mpb);
-                _mpb.SetFloat(HIGHLIGHT_PROP_ID, amount);
-                r.SetPropertyBlock(_mpb);
+        /// Restores target renderers to their cached baseline layers and clears property block.
+        private void RevertState(){
+            for (int i = 0; i < targetRenderers.Count; i++){
+                targetRenderers[i].gameObject.layer = _cachedLayers[i];
+                targetRenderers[i].SetPropertyBlock(null);
             }
         }
     }

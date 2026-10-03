@@ -51,10 +51,10 @@ Always prefix files so they can be identified immediately in search:
 
 | Prefix | Asset Type | Example |
 | :--- | :--- | :--- |
-| `SM_` | Static Mesh | `SM_Wall_4m_Riveted.fbx`, `SM_Valve_HighPressure.fbx` |
+| `MESH_` | Static Mesh | `MESH_Wall_4m_Riveted.fbx`, `MESH_Valve_HighPressure.fbx` |
 | `SK_` | Skeletal Mesh / Rig | `SK_Hero_Brute.fbx`, `SK_Sentry_Vane.fbx` |
-| `M_` | Material | `M_Industrial_Trim_01.mat`, `M_ToxicCanal_Water.mat` |
-| `T_` | Texture | `T_Industrial_Trim_01_BaseColor.png` |
+| `MAT_` | Material | `MAT_Industrial_Trim_01.mat`, `MAT_ToxicCanal_Water.mat` |
+| `TEX_` | Texture | `TEX_Industrial_Trim_01_BaseColor.png` |
 | `A_` | Animation Clip | `A_Walk_Forward.anim` |
 | `AC_` | Animator Controller | `AC_Humanoid_Locomotion.controller` |
 | `VFX_` | Visual Effect Prefab | `VFX_Steam_PressureLeak.prefab` |
