@@ -103,18 +103,24 @@ namespace Core.Managers{
 
         /// Transitions between two map zones to a target spawn index, committing memory and streaming new scene.
         public async Task TransitionToMapAsync(string newMapName, int spawnIndex = 0){
-            GameSessionManager.PendingSpawnIndex                   = spawnIndex;
+            GameSessionManager.PendingSpawnIndex             = spawnIndex;
             GameSessionManager.Instance.currentMapName.Value = newMapName;
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
 
-            // 1. Unload old map scene, commit partitions to disk, and purge its RAM tables
+            List<string>    newDeps   = dependencyDatabase.GetSceneDependencies(newMapName);
+            HashSet<string> newDepSet = new(newDeps, StringComparer.OrdinalIgnoreCase);
+
+            // 1. Unload old map scene, commit outgoing partitions to disk, and release only unneeded partitions
             if (!string.IsNullOrEmpty(ActiveMapScene) && SceneManager.GetSceneByName(ActiveMapScene).isLoaded){
                 await SceneManager.UnloadSceneAsync(ActiveMapScene);
 
                 List<string> oldDeps = dependencyDatabase.GetSceneDependencies(ActiveMapScene);
-                foreach (string file in oldDeps)
-                    await SaveSystem.CommitAndReleaseFileAsync(file);
+                foreach (string file in oldDeps){
+                    await SaveSystem.CommitFileAsync(file);
+                    if (!newDepSet.Contains(file))
+                        SaveSystem.ReleaseFile(file);
+                }
 
                 await SaveSystem.AutosaveAsync();
 
@@ -128,9 +134,13 @@ namespace Core.Managers{
             if (loadOp != null){
                 loadOp.allowSceneActivation = false;
 
-                // 3. Read and parse incoming save data from active session
-                List<string> newDeps = dependencyDatabase.GetSceneDependencies(newMapName);
-                await SaveSystem.LoadFiles(newDeps);
+                // 3. Load only incoming partitions that are not already present in memory
+                List<string> filesToLoad = new();
+                foreach (string file in newDeps)
+                    if (!SaveSystem.Blackboard.Contains(file))
+                        filesToLoad.Add(file);
+
+                await SaveSystem.LoadFiles(filesToLoad);
 
                 // 4. Blackboard is ready! Allow map to activate and wake up entities
                 loadOp.allowSceneActivation = true;

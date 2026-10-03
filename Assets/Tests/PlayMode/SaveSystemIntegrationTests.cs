@@ -56,7 +56,7 @@ namespace CRPG.Tests.PlayMode{
         /// Tests entity RAII: populates initial values on spawn and flushes mutated Tracked values on despawn.
         [UnityTest]
         [Description("Verifies entity RAII: BlackboardClient loads state on Enable and flushes state to Blackboard on Disable.")]
-        public IEnumerator Entity_SpawnAndDespawn_SynchronizesWithBlackboard(){
+        public IEnumerator Entity_SpawnAndDespawn_SynchronizesWithBlackboard() {
             GameObject entityObj = new("TestEntity");
             entityObj.SetActive(false);
 
@@ -117,7 +117,7 @@ namespace CRPG.Tests.PlayMode{
 
         /// Tests scene RAII: loads scene partition files into RAM and releases/purges them on transition.
         [UnityTest]
-        [Description("Verifies scene partition loading into Blackboard RAM and purging via CommitAndReleaseFileAsync.")]
+        [Description("Verifies scene partition loading into Blackboard RAM and purging via CommitFileAsync and ReleaseFile.")]
         public IEnumerator SceneDependency_LoadsAndPurgesBlackboardFiles(){
             Task loadTask = SaveSystem.LoadFiles(new[]{ "custom_dungeon" });
             while (!loadTask.IsCompleted)
@@ -128,9 +128,11 @@ namespace CRPG.Tests.PlayMode{
             var dungeonPart = SaveSystem.Blackboard.GetPartition("custom_dungeon", "chest-01");
             dungeonPart["IsOpen"] = true;
 
-            Task releaseTask = SaveSystem.CommitAndReleaseFileAsync("custom_dungeon");
-            while (!releaseTask.IsCompleted)
+            Task commitTask = SaveSystem.CommitFileAsync("custom_dungeon");
+            while (!commitTask.IsCompleted)
                 yield return null;
+
+            SaveSystem.ReleaseFile("custom_dungeon");
 
             Assert.IsFalse(SaveSystem.Blackboard.Contains("custom_dungeon"));
 

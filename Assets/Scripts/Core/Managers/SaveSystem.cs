@@ -90,26 +90,20 @@ namespace Core.Managers{
             await Blackboard.SerializeBoard(onFailure);
         }
 
-        /// Serializes a specific partition to the active session folder on disk and purges it from RAM.
-        public static async Task CommitAndReleaseFileAsync(string fileName, Action<string> onFailure = null){
-            if (!Blackboard.Contains(fileName)) return;
-
+        /// Flushes active entities and serializes a specific partition to disk.
+        public static async Task CommitFileAsync(string fileName){
             foreach (BlackboardClient client in BlackboardClient.ActiveClients)
                 if (string.Equals(client.fileName, fileName, StringComparison.OrdinalIgnoreCase))
                     client.FlushStateToBlackboard();
 
-            await Blackboard.SerializeFile(fileName, onFailure);
-            Blackboard.ReleaseFile(fileName);
+            await Blackboard.SerializeFile(fileName);
         }
 
-        /// Cold Stop: Completely purges ALL loaded partitions from active memory.
+        /// Completely purges all loaded partitions from active memory.
         public static void ClearActiveMemory() => Blackboard.Clear();
 
-        /// Scene Transition: Unloads specific, non-persistent file partitions from active memory.
-        public static void ReleaseFile(string fileName){
-            if (Blackboard.Contains(fileName))
-                Blackboard.ReleaseFile(fileName);
-        }
+        /// Purges a specific partition from active memory.
+        public static void ReleaseFile(string fileName) => Blackboard.ReleaseFile(fileName);
 
         /// Commits active RAM state to the working session and copies the session folder to the target save slot.
         public static async Task SaveGame(string targetSlotName = null, Action<string> onFailure = null){
