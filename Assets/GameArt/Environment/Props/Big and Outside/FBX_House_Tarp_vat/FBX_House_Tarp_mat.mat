@@ -21,19 +21,20 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FBX_House_Tarp_mat
-  m_Shader: {fileID: -6465566751694194690, guid: feacd4ea3a0ce3f4d9383b5fa6537e86,
-    type: 3}
+  m_Shader: {fileID: 4800000, guid: 77678da617f344dfb636a015d32fafb5, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ENABLE_RIDGE_CAVITY
+  - _ENABLE_SHADOW_SHARPNESS
   - _RECEIVE_SHADOWS_OFF
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _USETIME_ON
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -41,6 +42,10 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo:
+        m_Texture: {fileID: 2800000, guid: 45bf23a08aed305459ef18091708ec43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
         m_Texture: {fileID: 2800000, guid: 45bf23a08aed305459ef18091708ec43, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -76,18 +81,38 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _AmbientBoost: 1
     - _Blend: 2
     - _BlendModePreserveSpecular: 1
     - _CastShadows: 1
+    - _CavityPower: 1.2
+    - _CavityRadius: 1.5
+    - _CavityStrength: 1.5
     - _Cull: 2
+    - _CurvatureBias: 1
+    - _DirectOcclusion: 0.35
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EnableHeightGrad: 0
+    - _EnableRidgeCavity: 1
+    - _EnableShadowSharpness: 1
     - _FPSA: 30
     - _FrameEndA: 63
     - _FrameStartA: 1
+    - _HeightGradMaxY: 15
+    - _HeightGradMinY: 0
+    - _HeightGradStrength: 0.5
+    - _OcclusionContrast: 1
+    - _OcclusionPower: 1
+    - _OcclusionStrength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 0
+    - _RidgePower: 2
+    - _RidgeStrength: 0.8
+    - _Saturation: 1
+    - _ShadowSoftness: 0.15
+    - _ShadowThreshold: 0.53
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
@@ -100,7 +125,12 @@ Material:
     - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
+    - _BaseColor: {r: 0.8705506, g: 0.8008159, b: 0.75967854, a: 1}
+    - _CavityTint: {r: 0.15, g: 0.15, b: 0.18, a: 1}
+    - _HeightGradColor: {r: 0.4, g: 0.4, b: 0.45, a: 1}
     - _MaxA: {r: 2.1, g: 0.2, b: 0.6, a: 0}
     - _MinA: {r: -0.4, g: -0.2, b: -0.5, a: 0}
+    - _OcclusionTint: {r: 0.2, g: 0.22, b: 0.25, a: 1}
+    - _RidgeTint: {r: 1.25, g: 1.25, b: 1.25, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

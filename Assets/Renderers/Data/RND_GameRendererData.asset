@@ -1,5 +1,34 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8192330610788911776
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7da25a028d44a6e9a37bbdef36e6503, type: 3}
+  m_Name: TiltShiftFeature
+  m_EditorClassIdentifier: CRPG.Runtime::Renderers.TiltShiftFeature
+  m_Active: 1
+  settings:
+    mode: 0
+    passEvent: 550
+    tiltShiftShader: {fileID: 4800000, guid: 6b0a1d7af2fe45689bed9b21c263fc1a, type: 3}
+    intensity: 1
+    focusCenter: 0.388
+    focusRange: 0.053
+    feather: 0.577
+    angle: 15
+    maxBlurRadius: 2
+    blurCurve: 1
+    chromaticAberration: 0.4
+    saturationBoost: 0.04
+    bokehThreshold: 0.7
+    bokehIntensity: 0.8
+    previewFocus: 0
 --- !u!114 &-2406634673306663693
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -105,9 +134,10 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
   - {fileID: -1878332245247344467}
+  - {fileID: -8192330610788911776}
   - {fileID: -2406634673306663693}
   - {fileID: -421123838815520934}
-  m_RendererFeatureMap: adc0de57c6d2eee5f3046bf983ea99de5ab7f38c19de27fa
+  m_RendererFeatureMap: adc0de57c6d2eee560355eddb6fe4e8ef3046bf983ea99de5ab7f38c19de27fa
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_AssetVersion: 3
