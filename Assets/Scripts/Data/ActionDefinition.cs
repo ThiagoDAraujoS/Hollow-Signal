@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Narrative.Localization;
+using LocalizationSystem;
 using UnityEngine;
 using World.Actors.Player;
 using Random = UnityEngine.Random;

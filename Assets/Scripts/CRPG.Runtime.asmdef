@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "BlackboardSaveSystem.Runtime",
+        "LocalizationSystem",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
         "Unity.Cinemachine",

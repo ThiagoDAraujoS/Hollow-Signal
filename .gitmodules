@@ -1,3 +1,6 @@
 [submodule "Assets/ImportedToolsAndLibraries/BlackboardSaveSystem"]
 	path = Assets/ImportedToolsAndLibraries/BlackboardSaveSystem
 	url = https://github.com/ThiagoDAraujoS/BlackboardSaveSystem.git
+[submodule "Assets/ImportedToolsAndLibraries/LocalizationSystem"]
+	path = Assets/ImportedToolsAndLibraries/LocalizationSystem
+	url = https://github.com/ThiagoDAraujoS/LocalizationSystem.git

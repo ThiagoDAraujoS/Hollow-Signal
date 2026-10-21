@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Narrative.Localization;
+using LocalizationSystem;
 
 namespace Data{
     /// Specifies an allowed action approach and its difficulty level offset relative to base problem level.

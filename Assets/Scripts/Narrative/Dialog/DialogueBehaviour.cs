@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BlackboardSaveSystem;
 using Data.Effects;
-using Narrative.Localization;
+using LocalizationSystem;
 using UnityEngine;
 using World.Actors.Brains;
 using World.Actors.Player;

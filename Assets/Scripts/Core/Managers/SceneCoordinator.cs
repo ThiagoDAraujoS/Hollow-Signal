@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Narrative.Localization;
 using UI.Shared.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using BlackboardSaveSystem;
+using LocalizationSystem;
 
 namespace Core.Managers{
     /// Central manager governing additive scene transitions across the application lifecycle.
@@ -151,7 +151,8 @@ namespace Core.Managers{
 
                 foreach (GameObject root in oldRoots){
                     if (root == null) continue;
-                    if (root.GetComponentInChildren<BlackboardScope>(includeInactive: false) != null) continue;
+                    if (root.GetComponentInChildren<BlackboardScope>(includeInactive: false) != null ||
+                        root.GetComponentInChildren<LocalizationScope>(includeInactive: false) != null) continue;
                     root.SetActive(false);
                 }
             }
@@ -199,12 +200,16 @@ namespace Core.Managers{
                 }
             }
 
-            // 2. Release all BlackboardScope components and await disk commit for any files hitting refCount == 0
+            // 2. Release all BlackboardScope and LocalizationScope components
             foreach (GameObject root in roots){
                 if (root == null) continue;
                 foreach (BlackboardScope scope in root.GetComponentsInChildren<BlackboardScope>(includeInactive: false)){
                     await scope.ReleaseScopeAsync();
                     scope.enabled = false;
+                }
+                foreach (LocalizationScope locScope in root.GetComponentsInChildren<LocalizationScope>(includeInactive: false)){
+                    locScope.UnloadAll();
+                    locScope.enabled = false;
                 }
             }
 

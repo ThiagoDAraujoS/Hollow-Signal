@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "BlackboardSaveSystem.Runtime",
+        "LocalizationSystem",
         "CRPG.Runtime"
     ],
     "includePlatforms": [],
