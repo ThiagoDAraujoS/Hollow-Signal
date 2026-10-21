@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Core.State;
+using BlackboardSaveSystem;
 using UnityEngine;
-using World.Anchors;
 
 namespace Core.Managers{
+    [RequireComponent(typeof(BlackboardScope))]
     public class MapManager : TrackedBehaviour{
         [SerializeField] private List<Transform> spawnPoints = new();
         [SerializeField] private World.Anchors.Bounds cameraBounds = new();

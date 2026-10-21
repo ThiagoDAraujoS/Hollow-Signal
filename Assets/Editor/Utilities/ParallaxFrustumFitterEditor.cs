@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Utilities;
 
-namespace CRPG.Editor.Tools
+namespace Editor.Utilities
 {
     [CustomEditor(typeof(ParallaxFrustumFitter))]
     public class ParallaxFrustumFitterEditor : UnityEditor.Editor

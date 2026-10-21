@@ -1,4 +1,4 @@
-﻿namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// Represents an individual variable definition declared at the top of a .dialog file.
     public class DialogVarDef{
         /// Scope of the variable:

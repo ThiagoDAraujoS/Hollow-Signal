@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.State;
 using UnityEngine;
+using BlackboardSaveSystem;
 
 namespace Core.Crisis{
     [Serializable]

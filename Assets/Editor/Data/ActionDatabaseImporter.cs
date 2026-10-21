@@ -6,7 +6,7 @@ using Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.DataBakers{
+namespace Editor.Data{
     /// Unity Editor Tool to parse Actions CSV directly, create/update ActionDefinition objects,
     /// compile English localization values for actions and quips, and supplant ActionDatabase.
     public static class ActionDatabaseImporter{

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEditor;
 
-namespace Editor.Dialog{
+namespace Editor.Narrative.Dialog{
     /// AssetPostprocessor that automatically watches for changes to .dialog files
     /// and invokes the DialogBaker upon asset import or save.
     public class DialogAssetPostprocessor : AssetPostprocessor{

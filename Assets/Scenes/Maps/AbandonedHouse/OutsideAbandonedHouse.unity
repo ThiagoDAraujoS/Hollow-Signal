@@ -3701,6 +3701,7 @@ GameObject:
   - component: {fileID: 1619191062}
   - component: {fileID: 1619191060}
   - component: {fileID: 1619191059}
+  - component: {fileID: 1619191065}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -3708,6 +3709,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1619191065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619191058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33a760976886e514181e6076056c8c68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackboardSaveSystem.Runtime::BlackboardSaveSystem.BlackboardScope
+  fileNames:
+  - AbandonedHouse
 --- !u!114 &1619191059
 MonoBehaviour:
   m_ObjectHideFlags: 0

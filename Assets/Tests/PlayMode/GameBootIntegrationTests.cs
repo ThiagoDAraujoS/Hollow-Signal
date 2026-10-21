@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace CRPG.Tests.PlayMode{
+namespace Tests.PlayMode{
     [TestFixture]
     [Description("Tests the full game boot sequence from cold start to BlankMap scene.")]
     public class GameBootIntegrationTests{
@@ -39,12 +39,14 @@ namespace CRPG.Tests.PlayMode{
             string coreJsonPath = Path.Combine(slotDirectory, "core.json");
             string coreJsonContent = "{\n" +
                                      "  \"bf3c39d7-8563-4864-a04b-2162e2838c61\": {\n" +
-                                     $"    \"CurrentMapName\": \"{targetMapName}\",\n" +
-                                     $"    \"MainCharacterName\": \"{mainHeroName}\",\n" +
-                                     "    \"ActiveParty\": [\n" +
-                                     "      \"7ae2f656-4d59-4126-a2d1-8aaa45dc4aeb\",\n" +
-                                     "      \"eda2a7af-4490-42d9-acca-ec54d72920de\"\n" +
-                                     "    ]\n" +
+                                     "    \"0\": {\n" +
+                                     $"      \"CurrentMapName\": \"{targetMapName}\",\n" +
+                                     $"      \"MainCharacterName\": \"{mainHeroName}\",\n" +
+                                     "      \"ActiveParty\": [\n" +
+                                     "        \"7ae2f656-4d59-4126-a2d1-8aaa45dc4aeb\",\n" +
+                                     "        \"eda2a7af-4490-42d9-acca-ec54d72920de\"\n" +
+                                     "      ]\n" +
+                                     "    }\n" +
                                      "  }\n" +
                                      "}";
             File.WriteAllText(coreJsonPath, coreJsonContent);

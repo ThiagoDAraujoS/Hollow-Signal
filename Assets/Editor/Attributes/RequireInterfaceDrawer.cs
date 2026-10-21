@@ -3,7 +3,7 @@ using Core.Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace CRPG.Editor.Attributes{
+namespace Editor.Attributes{
     /// Custom property drawer for RequireInterfaceAttribute that enforces interface implementation on assigned Object.
     [CustomPropertyDrawer(typeof(RequireInterfaceAttribute))]
     public sealed class RequireInterfaceDrawer : PropertyDrawer{

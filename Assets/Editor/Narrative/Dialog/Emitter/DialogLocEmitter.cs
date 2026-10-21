@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Editor.Dialog.Parser;
+using Editor.Narrative.Dialog.Parser;
 
-namespace Editor.Dialog.Emitter{
+namespace Editor.Narrative.Dialog.Emitter{
     /// Generates standard key-value localization text files matching the project's LocalizationManager format.
     /// Supports routing via LOC_FILE: <FileName> to batch multiple dialogues into the same file,
     /// with fallback to MAP: <MapName> (in Scenes/ folder) or script name (in root).

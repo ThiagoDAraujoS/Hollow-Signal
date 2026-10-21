@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using BlackboardSaveSystem;
 using Core.Managers;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM

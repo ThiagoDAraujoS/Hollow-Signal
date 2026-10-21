@@ -1,6 +1,6 @@
 ﻿﻿using System;
+using BlackboardSaveSystem;
 using Core.Managers;
-using Core.State;
 using Narrative.Dialog;
 using UnityEngine;
 using UnityEngine.AI;

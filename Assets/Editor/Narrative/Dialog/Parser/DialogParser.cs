@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Data;
 
-namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// High-performance recursive descent parser compiling raw .dialog script files into DialogScriptAst.
     public static class DialogParser{
         private static readonly Regex VarRegex = new(

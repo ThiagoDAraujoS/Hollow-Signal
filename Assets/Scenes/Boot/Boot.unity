@@ -505,7 +505,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Runtime::Core.Managers.SceneCoordinator
   autoLoadTitleOnStart: 1
-  dependencyDatabase: {fileID: 11400000, guid: 7fbba98f5f99f294f8620778fec87784, type: 2}
 --- !u!114 &1261711586
 MonoBehaviour:
   m_ObjectHideFlags: 0

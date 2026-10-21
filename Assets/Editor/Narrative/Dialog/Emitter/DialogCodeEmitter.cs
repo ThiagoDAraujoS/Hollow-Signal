@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Editor.Dialog.Parser;
+using Editor.Narrative.Dialog.Parser;
 
-namespace Editor.Dialog.Emitter{
+namespace Editor.Narrative.Dialog.Emitter{
     /// Generates strongly-typed C# classes inheriting from DialogueBehaviour for parsed DialogScriptAst trees.
     public static class DialogCodeEmitter{
         private const string DefaultGeneratedScriptsFolder = "Assets/Scripts/Generated/Dialogues";
@@ -31,8 +31,7 @@ namespace Editor.Dialog.Emitter{
             sb.AppendLine();
             sb.AppendLine("using System;");
             sb.AppendLine("using System.Collections.Generic;");
-            sb.AppendLine("using Core;");
-            sb.AppendLine("using Core.State;");
+            sb.AppendLine("using BlackboardSaveSystem;");
             sb.AppendLine("using Data;");
             sb.AppendLine("using Generated.Maps;");
             sb.AppendLine("using Narrative.Dialog;");

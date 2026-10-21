@@ -1,4 +1,4 @@
-﻿using Core.Managers;
+using Core.Managers;
 using UnityEngine;
 
 namespace Data.Effects.Leaves{

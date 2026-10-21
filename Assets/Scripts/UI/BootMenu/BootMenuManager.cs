@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Managers;
+using BlackboardSaveSystem;
 using TMPro;
 using UI.Shared.SaveLoad;
 using UnityEngine;

@@ -1,6 +1,6 @@
 ﻿using Data;
 
-namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// Outcome branch of a skill test defined within a dialogue knot.
     public class DialogOutcomeDef{
         /// Identifier of the speaker delivering this outcome line.

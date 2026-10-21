@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using World.Tactical;
 
-namespace CRPG.Editor.Tactical{
+namespace Editor.Tactical{
     /// Custom editor and tool menu items for cooking and visualizing tactical zones and slots.
     [CustomEditor(typeof(TacticalZone))]
     [CanEditMultipleObjects]

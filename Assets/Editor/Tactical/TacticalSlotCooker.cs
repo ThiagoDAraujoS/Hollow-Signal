@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using World.Tactical;
 
-namespace CRPG.Editor.Tactical{
+namespace Editor.Tactical{
     /// Editor-only utility that bakes wall clearance and NavMesh FOV orientation directly into TacticalSlots.
     [InitializeOnLoad]
     public static class TacticalSlotCooker{

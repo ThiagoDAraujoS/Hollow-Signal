@@ -5239,6 +5239,7 @@ GameObject:
   - component: {fileID: 1638821592}
   - component: {fileID: 1638821597}
   - component: {fileID: 1638821598}
+  - component: {fileID: 1638821599}
   m_Layer: 0
   m_Name: GameSessionManager
   m_TagString: Untagged
@@ -5258,7 +5259,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3c03553e4ad4b7088ccc56c43b5b263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Core.Managers.GameSessionManager
-  dependencyDatabase: {fileID: 11400000, guid: 7fbba98f5f99f294f8620778fec87784, type: 2}
   mainCharacterName:
     value: Lucca
   currentMapName:
@@ -5269,6 +5269,20 @@ MonoBehaviour:
   - 5127c9f8-bf4d-4995-b234-e98bae1ddb63
   - dea19619-bcdf-4c22-8e1e-7f16c0fbd479
   - 03d33d59-714d-4f0b-8120-cd1bbb1de0c1
+--- !u!114 &1638821599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638821591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33a760976886e514181e6076056c8c68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackboardSaveSystem.Runtime::BlackboardSaveSystem.BlackboardScope
+  fileNames:
+  - core
 --- !u!114 &1638821593
 MonoBehaviour:
   m_ObjectHideFlags: 0

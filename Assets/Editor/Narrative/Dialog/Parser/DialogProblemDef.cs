@@ -1,4 +1,4 @@
-﻿namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// AST representation of an archetype problem declaration in a dialogue knot.
     public class DialogProblemDef{
         /// Unique identifier of the ProblemArchetype to instantiate.

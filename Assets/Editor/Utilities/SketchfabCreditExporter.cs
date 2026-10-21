@@ -5,7 +5,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace HollowSignal.Editor.Utilities
+namespace Editor.Utilities
 {
     [Serializable]
     public class SketchfabCreditData

@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.Dialog{
+namespace Editor.Narrative.Dialog{
     /// Interactive editor window allowing developers to inspect, multi-select, and batch-bake specific .dialog files.
     public class DialogueBakerWindow : EditorWindow{
         private class DialogEntry{

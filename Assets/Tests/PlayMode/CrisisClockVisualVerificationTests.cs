@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace CRPG.Tests.PlayMode{
+namespace Tests.PlayMode{
     [TestFixture]
     [Description("Interactive visual verification of TurnTable Crisis Clock states, transitions, and extractions.")]
     public class CrisisClockVisualVerificationTests{

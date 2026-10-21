@@ -17,12 +17,12 @@ MonoBehaviour:
     mode: 0
     passEvent: 550
     tiltShiftShader: {fileID: 4800000, guid: 6b0a1d7af2fe45689bed9b21c263fc1a, type: 3}
-    intensity: 1
+    intensity: 0.754
     focusCenter: 0.388
     focusRange: 0.053
     feather: 0.577
     angle: 15
-    maxBlurRadius: 2
+    maxBlurRadius: 4
     blurCurve: 1
     chromaticAberration: 0.4
     saturationBoost: 0.04
@@ -86,7 +86,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b2d363cc61648fb88d14d42d3751dba, type: 3}
   m_Name: InteractableOutlineFeature
-  m_EditorClassIdentifier: CRPG.Runtime::InteractableOutlineFeature
+  m_EditorClassIdentifier: CRPG.Runtime::Renderers.InteractableOutlineFeature
   m_Active: 1
   settings:
     targetLayer:

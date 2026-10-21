@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Core.State;
 using Data.Effects;
 using UnityEngine;
 using World.Actors;
+using BlackboardSaveSystem;
 
 namespace Core.Crisis{
     [Serializable]

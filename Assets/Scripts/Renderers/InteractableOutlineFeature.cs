@@ -4,9 +4,11 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace World.Interactables{
+namespace Renderers{
     /// Preset semantic highlight color categories.
+    [MovedFrom(true, "World.Interactables")]
     public enum HighlightCategory{
         Custom,
         NonHostile,
@@ -16,61 +18,61 @@ namespace World.Interactables{
         Pickup,
         Neutral
     }
-}
 
-/// Draws objects on highlight layers into an offscreen mask and composites a screen-space outline.
-[DisallowMultipleRendererFeature("InteractableOutlineFeature")]
-public class InteractableOutlineFeature : ScriptableRendererFeature{
-    [System.Serializable]
-    public class PaletteSettings{
-        public Color nonHostileColor = new(1f, 0.9f, 0.2f, 1f);
-        public Color hostileColor    = new(1f, 0.2f, 0.2f, 1f);
-        public Color usableColor     = new(0.2f, 0.9f, 0.4f, 1f);
-        public Color doorColor       = new(0.75f, 0.35f, 1f, 1f);
-        public Color pickupColor     = new(0f, 0.85f, 1f, 1f);
-        public Color neutralColor    = new(0.85f, 0.85f, 0.85f, 1f);
-    }
-
-    [System.Serializable]
-    public class Settings{
-        [Tooltip("Layers to include in outline mask. Defaults to Highlight (14).")]
-        public LayerMask targetLayer = 1 << 14;
-        public RenderPassEvent compositePassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-        public Shader maskShader;
-        public Shader outlineShader;
-        [Range(1f, 6f)] public float outlineThickness = 2f;
-        [Range(0f, 1f)] public float outlineIntensity = 1f;
-        [Range(0f, 1f)] public float innerFillOpacity;
-        [Tooltip("If true, occluded parts behind walls and geometry will not be outlined.")]
-        public bool occludeBehindWalls = true;
-        public PaletteSettings palette = new();
-    }
-
-    [SerializeField] private Settings settings = new();
-    private static InteractableOutlineFeature _instance;
-    private HighlightOutlinePass _outlinePass;
-    private Material _maskMaterial;
-    private Material _compositeMaterial;
-
-    /// Resolves color corresponding to semantic category from active renderer feature settings.
-    public static Color GetCategoryColor(World.Interactables.HighlightCategory cat) => (_instance != null ? _instance.settings.palette : null) switch{
-        null => cat switch{
-            World.Interactables.HighlightCategory.Hostile    => new Color(1f, 0.2f, 0.2f, 1f),
-            World.Interactables.HighlightCategory.Usable     => new Color(0.2f, 0.9f, 0.4f, 1f),
-            World.Interactables.HighlightCategory.Door       => new Color(0.75f, 0.35f, 1f, 1f),
-            World.Interactables.HighlightCategory.Pickup     => new Color(0f, 0.85f, 1f, 1f),
-            World.Interactables.HighlightCategory.Neutral    => new Color(0.85f, 0.85f, 0.85f, 1f),
-            _                                                => new Color(1f, 0.9f, 0.2f, 1f)
-        },
-        var p => cat switch{
-            World.Interactables.HighlightCategory.Hostile    => p.hostileColor,
-            World.Interactables.HighlightCategory.Usable     => p.usableColor,
-            World.Interactables.HighlightCategory.Door       => p.doorColor,
-            World.Interactables.HighlightCategory.Pickup     => p.pickupColor,
-            World.Interactables.HighlightCategory.Neutral    => p.neutralColor,
-            _                                                => p.nonHostileColor
+    /// Draws objects on highlight layers into an offscreen mask and composites a screen-space outline.
+    [MovedFrom(true, "")]
+    [DisallowMultipleRendererFeature("InteractableOutlineFeature")]
+    public class InteractableOutlineFeature : ScriptableRendererFeature{
+        [System.Serializable]
+        public class PaletteSettings{
+            public Color nonHostileColor = new(1f, 0.9f, 0.2f, 1f);
+            public Color hostileColor    = new(1f, 0.2f, 0.2f, 1f);
+            public Color usableColor     = new(0.2f, 0.9f, 0.4f, 1f);
+            public Color doorColor       = new(0.75f, 0.35f, 1f, 1f);
+            public Color pickupColor     = new(0f, 0.85f, 1f, 1f);
+            public Color neutralColor    = new(0.85f, 0.85f, 0.85f, 1f);
         }
-    };
+
+        [System.Serializable]
+        public class Settings{
+            [Tooltip("Layers to include in outline mask. Defaults to Highlight (14).")]
+            public LayerMask targetLayer = 1 << 14;
+            public RenderPassEvent compositePassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+            public Shader maskShader;
+            public Shader outlineShader;
+            [Range(1f, 6f)] public float outlineThickness = 2f;
+            [Range(0f, 1f)] public float outlineIntensity = 1f;
+            [Range(0f, 1f)] public float innerFillOpacity;
+            [Tooltip("If true, occluded parts behind walls and geometry will not be outlined.")]
+            public bool occludeBehindWalls = true;
+            public PaletteSettings palette = new();
+        }
+
+        [SerializeField] private Settings settings = new();
+        private static InteractableOutlineFeature _instance;
+        private HighlightOutlinePass _outlinePass;
+        private Material _maskMaterial;
+        private Material _compositeMaterial;
+
+        /// Resolves color corresponding to semantic category from active renderer feature settings.
+        public static Color GetCategoryColor(HighlightCategory cat) => (_instance != null ? _instance.settings.palette : null) switch{
+            null => cat switch{
+                HighlightCategory.Hostile => new Color(1f, 0.2f, 0.2f, 1f),
+                HighlightCategory.Usable  => new Color(0.2f, 0.9f, 0.4f, 1f),
+                HighlightCategory.Door    => new Color(0.75f, 0.35f, 1f, 1f),
+                HighlightCategory.Pickup  => new Color(0f, 0.85f, 1f, 1f),
+                HighlightCategory.Neutral => new Color(0.85f, 0.85f, 0.85f, 1f),
+                _                         => new Color(1f, 0.9f, 0.2f, 1f)
+            },
+            var p => cat switch{
+                HighlightCategory.Hostile => p.hostileColor,
+                HighlightCategory.Usable  => p.usableColor,
+                HighlightCategory.Door    => p.doorColor,
+                HighlightCategory.Pickup  => p.pickupColor,
+                HighlightCategory.Neutral => p.neutralColor,
+                _                         => p.nonHostileColor
+            }
+        };
 
     /// Initializes shaders, materials, and the outline render pass.
     public override void Create(){
@@ -209,5 +211,6 @@ public class InteractableOutlineFeature : ScriptableRendererFeature{
 
             resourcesData.cameraColor = destination;
         }
+    }
     }
 }

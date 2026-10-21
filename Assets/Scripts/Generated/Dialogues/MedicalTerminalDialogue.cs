@@ -7,8 +7,7 @@
 
 using System;
 using System.Collections.Generic;
-using Core;
-using Core.State;
+using BlackboardSaveSystem;
 using Data;
 using Generated.Maps;
 using Narrative.Dialog;

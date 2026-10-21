@@ -7,7 +7,7 @@ using Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.DataBakers{
+namespace Editor.Data{
     /// Unity Editor Tool to parse Masteries CSV directly, create/update Mastery ScriptableObjects,
     /// compile English localization values, and supplant the database so the spreadsheet is the single source of truth.
     public static class MasteryImporter{

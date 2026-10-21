@@ -1,4 +1,4 @@
-﻿namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// Structural AST representation of a choice option belonging to a dialogue knot.
     public class DialogChoiceDef{
         /// Stable identifier assigned during compilation (e.g. KNOTNAME_C00).

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// Represents an individual conversation knot block within a .dialog script.
     public class DialogKnotDef{
         /// Unique name identifier for this knot.

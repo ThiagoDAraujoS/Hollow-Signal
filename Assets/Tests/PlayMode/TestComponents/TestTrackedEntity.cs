@@ -1,6 +1,6 @@
-﻿using Core.State;
+using BlackboardSaveSystem;
 
-namespace CRPG.Tests.PlayMode.TestComponents{
+namespace Tests.PlayMode.TestComponents{
     /// Test component wrapping tracked integer and string properties.
     public class TestTrackedEntity : TrackedBehaviour{
         public Tracked<int>    Health = new("Health", 100);

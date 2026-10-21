@@ -1,7 +1,8 @@
 ﻿{
     "name": "CRPG.Tests.PlayMode",
-    "rootNamespace": "CRPG.Tests.PlayMode",
+    "rootNamespace": "",
     "references": [
+        "BlackboardSaveSystem.Runtime",
         "CRPG.Runtime"
     ],
     "includePlatforms": [],

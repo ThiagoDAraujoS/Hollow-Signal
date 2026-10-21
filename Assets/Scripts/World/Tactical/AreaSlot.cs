@@ -1,5 +1,5 @@
 ﻿using Core.Attributes;
-using Core.State;
+using BlackboardSaveSystem;
 using Data.Effects;
 using UnityEngine;
 using UnityEngine.AI;

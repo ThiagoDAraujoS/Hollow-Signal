@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Core.Managers;
 using UI.BootMenu;
 using UnityEngine;

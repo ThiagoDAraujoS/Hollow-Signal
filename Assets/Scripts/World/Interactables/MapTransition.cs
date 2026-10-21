@@ -1,4 +1,4 @@
-﻿using Core.Managers;
+using Core.Managers;
 using Data.Effects;
 using UnityEngine;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.State;
+using BlackboardSaveSystem;
 using UnityEngine;
 
 namespace World.Actors{

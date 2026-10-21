@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace CRPG.Tests.PlayMode{
+namespace Tests.PlayMode{
     /// Immediate mode GUI overlay for manual test verification.
     internal class TestPromptOverlay : MonoBehaviour{
         public string PromptText;

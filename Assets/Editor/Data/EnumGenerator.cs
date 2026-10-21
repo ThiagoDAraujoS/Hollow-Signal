@@ -5,7 +5,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.DataBakers{
+namespace Editor.Data{
     /// Editor utility to procedurally generate type-safe C# enums (ActionType and Skill) from CSV databases.
     /// Completely supplants the target enum script with the CSV contents as the single source of truth.
     public static class EnumGenerator{

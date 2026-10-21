@@ -2,10 +2,10 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Editor.Dialog.Parser;
+using Editor.Narrative.Dialog.Parser;
 using UnityEngine;
 
-namespace Editor.Dialog.Emitter{
+namespace Editor.Narrative.Dialog.Emitter{
     /// Synchronizes map-wide variables declared in .dialog files with the concrete MapDialogVariables C# script.
     public static class DialogMapVariableSynchronizer{
         private const string DefaultMapScriptsFolder = "Assets/Scripts/Generated/Maps";
@@ -37,8 +37,7 @@ namespace Editor.Dialog.Emitter{
         /// Generates a new MapDialogVariables partial class file for a map scene.
         private static void CreateNewMapClass(string filePath, string className, string mapName, System.Collections.Generic.List<DialogVarDef> mapVars){
             StringBuilder sb = new();
-            sb.AppendLine("using Core;");
-            sb.AppendLine("using Core.State;");
+            sb.AppendLine("using BlackboardSaveSystem;");
             sb.AppendLine("using Narrative.Dialog;");
             sb.AppendLine("using UnityEngine;");
             sb.AppendLine();

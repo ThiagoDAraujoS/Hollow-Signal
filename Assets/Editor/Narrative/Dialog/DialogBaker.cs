@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Editor.Dialog.Emitter;
-using Editor.Dialog.Parser;
+using Editor.Narrative.Dialog.Emitter;
+using Editor.Narrative.Dialog.Parser;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.Dialog{
+namespace Editor.Narrative.Dialog{
     /// Coordinates the full compilation lifecycle of .dialog source files:
     /// Parsing -> AST -> Map Sync -> C# Generation -> Batched Localization Generation.
     public static class DialogBaker{

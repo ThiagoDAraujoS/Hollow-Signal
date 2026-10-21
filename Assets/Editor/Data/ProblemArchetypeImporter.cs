@@ -6,7 +6,7 @@ using Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.DataBakers{
+namespace Editor.Data{
     /// Unity Editor Tool to parse Archetypes CSV directly, populate ProblemArchetype objects,
     /// compile English localization values for names and descriptions, and supplant ProblemArchetypeDatabase.
     public static class ProblemArchetypeImporter{

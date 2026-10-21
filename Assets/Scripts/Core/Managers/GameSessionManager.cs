@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using Core.Config;
-using Core.State;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using World.Actors.Brains;
 using World.Actors.Player;
 using World.Anchors;
 using Partition = System.Collections.Generic.Dictionary<string, object>;
+using BlackboardSaveSystem;
 
 namespace Core.Managers{
     /// Persistent proxy session manager.
+    [RequireComponent(typeof(BlackboardScope))]
     public class GameSessionManager : TrackedBehaviour{
         public static GameSessionManager Instance{ get; private set; }
 
-        [SerializeField] private SceneDependencyDatabase dependencyDatabase;
         public                   Tracked<string>         mainCharacterName = new("mainCharacterName", "Lucca");
         public                   Tracked<string>         currentMapName    = new("CurrentMapName", "GameStart");
 
@@ -45,6 +44,7 @@ namespace Core.Managers{
                 return;
             }
             Instance = this;
+            SaveSystem.MetadataProvider = SceneCoordinator.ResolveSaveMetadata;
         }
 
         /// Cleans up singleton instance reference on destroy.
@@ -52,14 +52,27 @@ namespace Core.Managers{
             if (Instance == this) Instance = null;
         }
 
-        /// Asynchronously loads save dependencies and additively loads the active map scene.
+        private bool _initialMapLoaded;
+
+        /// Asynchronously loads save dependencies and additively loads the active map scene if not already started by SceneCoordinator.
         private async void Start(){
-            List<string> deps = dependencyDatabase.GetSceneDependencies(currentMapName);
-            await SaveSystem.LoadFiles(deps, _ => { });
+            if (!_initialMapLoaded)
+                await LoadInitialMapAsync();
+        }
+
+        /// Loads and streams in the initial map scene additively; the scene's BlackboardScope will acquire required files.
+        public async Task LoadInitialMapAsync(){
+            if (_initialMapLoaded) return;
+            _initialMapLoaded = true;
 
             if (SceneCoordinator.Instance) SceneCoordinator.Instance.ActiveMapScene = currentMapName.Value;
             var op = SceneManager.LoadSceneAsync(currentMapName.Value, LoadSceneMode.Additive);
             if (op != null) await op;
+
+            Scene initialScene = SceneManager.GetSceneByName(currentMapName.Value);
+            if (initialScene.IsValid() && initialScene.isLoaded)
+                SceneManager.SetActiveScene(initialScene);
+
             Debug.Log($"{currentMapName.Value}, {SaveSystem.CurrentSaveSlot}");
         }
 

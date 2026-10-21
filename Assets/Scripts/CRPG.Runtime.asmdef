@@ -2,6 +2,7 @@
     "name": "CRPG.Runtime",
     "rootNamespace": "",
     "references": [
+        "BlackboardSaveSystem.Runtime",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
         "Unity.Cinemachine",

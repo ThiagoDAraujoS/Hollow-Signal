@@ -1,4 +1,4 @@
-﻿using Core.State;
+using BlackboardSaveSystem;
 using UnityEngine;
 
 namespace Narrative.Dialog{

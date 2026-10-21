@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.Config;
 using Narrative.Localization;
 using UI.Shared.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BlackboardSaveSystem;
 
 namespace Core.Managers{
     /// Central manager governing additive scene transitions across the application lifecycle.
@@ -19,8 +19,7 @@ namespace Core.Managers{
 
         public static SceneCoordinator Instance{ get; private set; }
 
-        [SerializeField] private bool                    autoLoadTitleOnStart = true;
-        [SerializeField] private SceneDependencyDatabase dependencyDatabase;
+        [SerializeField] private bool autoLoadTitleOnStart = true;
 
         public static event Action        OnTransitionStarted;
         public static event Action        OnTransitionCompleted;
@@ -36,6 +35,27 @@ namespace Core.Managers{
             }
 
             Instance = this;
+            SaveSystem.MetadataProvider        = ResolveSaveMetadata;
+            SaveSystem.OnStartSessionRequested = StartGameSessionAsync;
+            SaveSystem.OnCloseSessionRequested = () => Instance != null ? Instance.ReturnToTitleMenuAsync() : Task.CompletedTask;
+        }
+
+        public static SaveMetadataContext ResolveSaveMetadata(){
+            string charName = GameSessionManager.Instance != null
+                ? GameSessionManager.Instance.mainCharacterName.Value
+                : null;
+
+            string mapLocation = GameSessionManager.Instance != null && !string.IsNullOrEmpty(GameSessionManager.Instance.currentMapName.Value)
+                ? GameSessionManager.Instance.currentMapName.Value
+                : (!string.IsNullOrEmpty(Instance?.ActiveMapScene)
+                    ? Instance.ActiveMapScene
+                    : "Unknown Location");
+
+            return new SaveMetadataContext{
+                Location      = mapLocation,
+                CharacterName = charName,
+                Region        = "Station Outpost"
+            };
         }
 
         private void OnDestroy(){
@@ -72,7 +92,7 @@ namespace Core.Managers{
         }
 
         /// Unloads the title scene, initializes the active working session, loads core blackboard data,
-        /// and additively loads the persistent GameSession scene.
+        /// and additively loads the persistent GameSession scene and initial map under the loading curtain.
         public static async Task StartGameSessionAsync(string saveSlotName){
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
@@ -85,6 +105,7 @@ namespace Core.Managers{
                 await Resources.UnloadUnusedAssets();
             }
 
+            SaveSystem.ClearActiveMemory();
             SaveSystem.InitializeSession(saveSlotName);
 
             AsyncOperation sessionOp = SceneManager.LoadSceneAsync(GameSessionSceneName, LoadSceneMode.Additive);
@@ -97,59 +118,105 @@ namespace Core.Managers{
                 await sessionOp;
             }
 
+            if (GameSessionManager.Instance != null)
+                await GameSessionManager.Instance.LoadInitialMapAsync();
+
             OnTransitionCompleted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
 
-        /// Transitions between two map zones to a target spawn index, committing memory and streaming new scene.
+        /// Transitions between two map zones to a target spawn index, committing memory and streaming a new scene.
         public async Task TransitionToMapAsync(string newMapName, int spawnIndex = 0){
             GameSessionManager.PendingSpawnIndex             = spawnIndex;
             GameSessionManager.Instance.currentMapName.Value = newMapName;
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
 
-            List<string>    newDeps   = dependencyDatabase.GetSceneDependencies(newMapName);
-            HashSet<string> newDepSet = new(newDeps, StringComparer.OrdinalIgnoreCase);
+            Scene oldScene = !string.IsNullOrEmpty(ActiveMapScene)
+                ? SceneManager.GetSceneByName(ActiveMapScene)
+                : default;
 
-            // 1. Unload old map scene, commit outgoing partitions to disk, and release only unneeded partitions
-            if (!string.IsNullOrEmpty(ActiveMapScene) && SceneManager.GetSceneByName(ActiveMapScene).isLoaded){
-                await SceneManager.UnloadSceneAsync(ActiveMapScene);
+            // 1. Flush & disable all BlackboardClients in the old scene and turn off all non-scope root GameObjects.
+            // This immediately disables entities, lights, physics, audio, and cameras while keeping the
+            // BlackboardScope holder active so its files remain leased in RAM until the new scene loads.
+            if (oldScene.IsValid() && oldScene.isLoaded){
+                GameObject[] oldRoots = oldScene.GetRootGameObjects();
 
-                List<string> oldDeps = dependencyDatabase.GetSceneDependencies(ActiveMapScene);
-                foreach (string file in oldDeps){
-                    await SaveSystem.CommitFileAsync(file);
-                    if (!newDepSet.Contains(file))
-                        SaveSystem.ReleaseFile(file);
+                foreach (GameObject root in oldRoots){
+                    if (root == null) continue;
+                    foreach (BlackboardClient client in root.GetComponentsInChildren<BlackboardClient>(includeInactive: false)){
+                        client.enabled = false;
+                    }
                 }
 
+                foreach (GameObject root in oldRoots){
+                    if (root == null) continue;
+                    if (root.GetComponentInChildren<BlackboardScope>(includeInactive: false) != null) continue;
+                    root.SetActive(false);
+                }
+            }
+
+            // 2. Load the new scene additively.
+            // With [DefaultExecutionOrder(-1000)], Unity runs the new scene's BlackboardScope.OnEnable() first
+            // (acquiring files or bumping refCount to 2 for shared files), followed by BlackboardClient.OnEnable() (0)
+            // to hydrate entities.
+            ActiveMapScene = newMapName;
+            AsyncOperation loadOp = SceneManager.LoadSceneAsync(newMapName, LoadSceneMode.Additive);
+            if (loadOp != null)
+                await loadOp;
+
+            Scene newScene = SceneManager.GetSceneByName(newMapName);
+            if (newScene.IsValid() && newScene.isLoaded){
+                SceneManager.SetActiveScene(newScene);
+            }
+
+            // 3. Unload the old map scene in controlled order
+            // (remaining BlackboardClients flush first, BlackboardScopes release last: refCount drops 2 -> 1 or 1 -> 0).
+            if (oldScene.IsValid() && oldScene.isLoaded){
+                await UnloadSceneWithScopeOrderAsync(oldScene);
                 await SaveSystem.AutosaveAsync();
 
                 GC.Collect();
                 await Resources.UnloadUnusedAssets();
             }
 
-            // 2. Stream new 3D scene assets in background, holding activation
-            ActiveMapScene = newMapName;
-            AsyncOperation loadOp = SceneManager.LoadSceneAsync(newMapName, LoadSceneMode.Additive);
-            if (loadOp != null){
-                loadOp.allowSceneActivation = false;
-
-                // 3. Load only incoming partitions that are not already present in memory
-                List<string> filesToLoad = new();
-                foreach (string file in newDeps)
-                    if (!SaveSystem.Blackboard.Contains(file))
-                        filesToLoad.Add(file);
-
-                await SaveSystem.LoadFiles(filesToLoad);
-
-                // 4. Blackboard is ready! Allow map to activate and wake up entities
-                loadOp.allowSceneActivation = true;
-                await loadOp;
-            }
-
             OnTransitionCompleted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeOutAsync();
         }
+
+        /// Unloads a scene while guaranteeing that all BlackboardClient entities flush and disabled
+        /// before any BlackboardScope components release their file leases.
+        public static async Task UnloadSceneWithScopeOrderAsync(Scene scene){
+            if (!scene.IsValid() || !scene.isLoaded) return;
+
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            // 1. Flush & disable all BlackboardClient components first while scopes are still active
+            foreach (GameObject root in roots){
+                if (root == null) continue;
+                foreach (BlackboardClient client in root.GetComponentsInChildren<BlackboardClient>(includeInactive: false)){
+                    client.enabled = false;
+                }
+            }
+
+            // 2. Release all BlackboardScope components and await disk commit for any files hitting refCount == 0
+            foreach (GameObject root in roots){
+                if (root == null) continue;
+                foreach (BlackboardScope scope in root.GetComponentsInChildren<BlackboardScope>(includeInactive: false)){
+                    await scope.ReleaseScopeAsync();
+                    scope.enabled = false;
+                }
+            }
+
+            // 3. Unload the Unity scene
+            AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(scene);
+            if (unloadOp != null)
+                await unloadOp;
+        }
+
+        /// Unloads a scene by name using the controlled BlackboardClient -> BlackboardScope teardown order.
+        public static Task UnloadSceneWithScopeOrderAsync(string sceneName) =>
+            UnloadSceneWithScopeOrderAsync(SceneManager.GetSceneByName(sceneName));
 
         /// Closes active gameplay, unloads all non-boot scenes, purges memory,
         /// and restores the title diorama scene.

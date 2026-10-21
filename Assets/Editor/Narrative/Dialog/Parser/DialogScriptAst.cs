@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Editor.Dialog.Parser{
+namespace Editor.Narrative.Dialog.Parser{
     /// Root Abstract Syntax Tree container representing a fully parsed .dialog file.
     public class DialogScriptAst{
         /// Base name of the script without extension (e.g. "MedicalBayConsole").

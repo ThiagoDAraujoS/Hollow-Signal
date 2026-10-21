@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using World.Tactical;
 
-namespace CRPG.Editor.Tactical{
+namespace Editor.Tactical{
     /// Custom editor providing in-scene interactive handles for AreaSlot position and facing direction.
     [CustomEditor(typeof(AreaSlot), true)]
     [CanEditMultipleObjects]
