@@ -21,10 +21,10 @@ namespace UI.Shared.SaveLoad{
             foreach (SaveFileMetadata meta in SaveSystem.GetSaveFileList())
                 bulletDataList.Add(new GameFileBulletData{
                     slotName      = meta.slotName,
-                    location      = string.IsNullOrEmpty(meta.location) ? "Somewhere" : meta.location,
+                    location      = meta.Get("location"),
                     timestamp     = meta.lastSaveTime.ToString("yyyy-MM-dd HH:mm"),
                     snapshot      = null,
-                    characterName = string.IsNullOrEmpty(meta.characterName) ? "Nameless Hero" : meta.characterName
+                    characterName = meta.Get("characterName")
                 });
 
             carouselController.BuildCarousel(bulletDataList);

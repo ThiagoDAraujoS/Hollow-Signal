@@ -40,23 +40,14 @@ namespace Core.Managers{
             SaveSystem.OnCloseSessionRequested = () => Instance != null ? Instance.ReturnToTitleMenuAsync() : Task.CompletedTask;
         }
 
-        public static SaveMetadataContext ResolveSaveMetadata(){
-            string charName = GameSessionManager.Instance != null
-                ? GameSessionManager.Instance.mainCharacterName.Value
-                : null;
-
-            string mapLocation = GameSessionManager.Instance != null && !string.IsNullOrEmpty(GameSessionManager.Instance.currentMapName.Value)
+        /// Builds the key-value metadata dictionary for the active Hollow Signal session.
+        public static Dictionary<string, string> ResolveSaveMetadata() => new(){
+            ["location"]      = GameSessionManager.Instance != null && !string.IsNullOrEmpty(GameSessionManager.Instance.currentMapName.Value)
                 ? GameSessionManager.Instance.currentMapName.Value
-                : (!string.IsNullOrEmpty(Instance?.ActiveMapScene)
-                    ? Instance.ActiveMapScene
-                    : "Unknown Location");
-
-            return new SaveMetadataContext{
-                Location      = mapLocation,
-                CharacterName = charName,
-                Region        = "Station Outpost"
-            };
-        }
+                : Instance?.ActiveMapScene,
+            ["characterName"] = GameSessionManager.Instance?.mainCharacterName.Value,
+            ["region"]        = "Station Outpost"
+        };
 
         private void OnDestroy(){
             if (Instance == this)
@@ -167,9 +158,8 @@ namespace Core.Managers{
                 await loadOp;
 
             Scene newScene = SceneManager.GetSceneByName(newMapName);
-            if (newScene.IsValid() && newScene.isLoaded){
+            if (newScene.IsValid() && newScene.isLoaded)
                 SceneManager.SetActiveScene(newScene);
-            }
 
             // 3. Unload the old map scene in controlled order
             // (remaining BlackboardClients flush first, BlackboardScopes release last: refCount drops 2 -> 1 or 1 -> 0).

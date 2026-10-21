@@ -298,12 +298,12 @@ namespace Tests.PlayMode{
             Assert.AreEqual(1, SaveSystem.GetRefCount(scopeFile));
             Assert.IsTrue(SaveSystem.Blackboard.Contains(scopeFile));
 
-            // Controlled teardown order: disable entity first (flushes Health = 77 to Blackboard), then release ScopeA
-            entityObj.SetActive(false);
+            // Release ScopeA first while entity is still active (verifies OnCollectData flushes client before eviction)
             Task releaseA = scopeA.ReleaseScopeAsync();
             while (!releaseA.IsCompleted)
                 yield return null;
             scopeObjA.SetActive(false);
+            entityObj.SetActive(false);
 
             Assert.AreEqual(0, SaveSystem.GetRefCount(scopeFile));
             Assert.IsFalse(SaveSystem.Blackboard.Contains(scopeFile));

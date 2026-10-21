@@ -116,9 +116,9 @@ namespace Core.Crisis{
         /// Injects the target component reference into the context if missing after deserialization.
         private void ResolveTargetReference(ScheduledEntry entry){
             if (entry.context.target != null || string.IsNullOrEmpty(entry.targetId)) return;
-            foreach (BlackboardClient client in BlackboardClient.ActiveClients)
-                if (client.EntityId == entry.targetId)
-                    entry.context.target = client.GetComponent<Sheet>();
+            foreach (Sheet sheet in UnityEngine.Object.FindObjectsByType<Sheet>(FindObjectsSortMode.None))
+                if (sheet.GetComponent<UniqueId>().Id == entry.targetId)
+                    entry.context.target = sheet;
         }
     }
 }
