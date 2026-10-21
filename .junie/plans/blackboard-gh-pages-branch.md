@@ -129,7 +129,7 @@ Comprehensive Markdown documentation and step-by-step guides are created within 
   - Adding `TrackedBehaviour` and `Tracked<T>` fields to GameObjects.
   - Initializing active save sessions and serializing slots with `SaveSystem`.
 
-### * Step 2: Initialize orphan gh-pages branch in BlackboardSaveSystem submodule
+### ✓ Step 2: Initialize orphan gh-pages branch in BlackboardSaveSystem submodule
 The submodule repository has a clean, decoupled orphan gh-pages branch ready for static documentation assets.
 
 - Navigate into the submodule directory (`Assets/ImportedToolsAndLibraries/BlackboardSaveSystem`).
@@ -137,7 +137,7 @@ The submodule repository has a clean, decoupled orphan gh-pages branch ready for
 - Clear the working directory index (`git rm -rf .`) to ensure source code files do not clutter the documentation branch.
 - Verify that `git status` confirms an empty working tree on branch `gh-pages`.
 
-###   Step 3: Create static API documentation site and styling from Markdown source
+### ✓ Step 3: Create static API documentation site and styling from Markdown source
 The gh-pages branch contains a responsive static documentation site built using DOCUMENTATION.md and HOW_TO_USE.md.
 
 - Add `.nojekyll` file at root to prevent GitHub Pages from processing assets through Jekyll.
@@ -148,7 +148,7 @@ The gh-pages branch contains a responsive static documentation site built using 
   - Code examples for `AcquireFile`, `ReleaseFile`, and 4-level data partitioning.
 - Create `css/style.css` providing a clean, responsive developer theme with side navigation and syntax-highlighted code blocks.
 
-###   Step 4: Publish gh-pages branch and configure GitHub Pages deployment
+### ✓ Step 4: Publish gh-pages branch and configure GitHub Pages deployment
 The gh-pages branch is published to origin and step-by-step guidance is provided to enable GitHub Pages in repository settings.
 
 - Stage all documentation assets (`git add .`).
