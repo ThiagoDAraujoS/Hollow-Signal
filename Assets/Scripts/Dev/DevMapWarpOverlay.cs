@@ -255,7 +255,7 @@ namespace Dev{
 
                 // If GameSession is not running yet, start session first
                 if (GameSessionManager.Instance == null){
-                    await SceneCoordinator.StartGameSessionAsync(SaveSystem.DefaultSaveTemplate);
+                    await SceneCoordinator.StartGameSessionAsync();
                 }
 
                 // Transition to the target map scene with the target anchor index

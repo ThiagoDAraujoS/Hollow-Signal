@@ -35,9 +35,7 @@ namespace Core.Managers{
             }
 
             Instance = this;
-            SaveSystem.MetadataProvider        = ResolveSaveMetadata;
-            SaveSystem.OnStartSessionRequested = StartGameSessionAsync;
-            SaveSystem.OnCloseSessionRequested = () => Instance != null ? Instance.ReturnToTitleMenuAsync() : Task.CompletedTask;
+            SaveSystem.MetadataProvider        = ResolveSaveMetadata; 
         }
 
         /// Builds the key-value metadata dictionary for the active Hollow Signal session.
@@ -84,7 +82,7 @@ namespace Core.Managers{
 
         /// Unloads the title scene, initializes the active working session, loads core blackboard data,
         /// and additively loads the persistent GameSession scene and initial map under the loading curtain.
-        public static async Task StartGameSessionAsync(string saveSlotName){
+        public static async Task StartGameSessionAsync(string saveSlotName = null){
             OnTransitionStarted?.Invoke();
             await LoadingScreenCurtain.Instance.FadeInAsync();
 

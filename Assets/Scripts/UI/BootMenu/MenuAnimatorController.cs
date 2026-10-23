@@ -54,7 +54,7 @@ namespace UI.BootMenu {
         public async void StartNewGame(){
             try{
                 CloseMenu();
-                await SceneCoordinator.StartGameSessionAsync(SaveSystem.DefaultSaveTemplate);
+                await SceneCoordinator.StartGameSessionAsync();
             }
             catch (Exception e){
                 Debug.LogException(e);

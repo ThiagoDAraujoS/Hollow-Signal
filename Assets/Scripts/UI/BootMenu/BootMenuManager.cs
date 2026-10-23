@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BlackboardSaveSystem;
+using Core.Managers;
 using TMPro;
 using UI.Shared.SaveLoad;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace UI.BootMenu{
         /// Evaluates available save files and initializes continue button state.
         private void Start() => RefreshContinueButton();
 
-        /// Refreshes continue button interactability and subscribes to panel delete events.
+        /// Refreshes continue button interactability and subscribes to the panel delete events.
         private void OnEnable(){
             RefreshContinueButton();
             if (loadGamePanel != null)
@@ -35,7 +36,7 @@ namespace UI.BootMenu{
         /// Starts a fresh game session using the default save template.
         public async void StartNewGame(){
             try{
-                await SaveSystem.StartNewGameAsync();
+                await SceneCoordinator.StartGameSessionAsync();
             }
             catch (Exception e){
                 Debug.LogException(e);
@@ -45,7 +46,9 @@ namespace UI.BootMenu{
         /// Continues game session from the most recent save file.
         public async void ContinueGame(){
             try{
-                await SaveSystem.ContinueGameAsync();
+                List<SaveFileMetadata> saves = SaveSystem.GetSaveFileList();
+                if (saves.Count == 0) return;
+                await SceneCoordinator.StartGameSessionAsync(saves[0].slotName);
             }
             catch (Exception e){
                 Debug.LogException(e);
@@ -58,7 +61,7 @@ namespace UI.BootMenu{
         /// Deletes the save file currently selected in the load game panel.
         public void DeleteSelectedGame() => loadGamePanel.DeleteSelected();
 
-        /// Closes the application or exits play mode in editor.
+        /// Closes the application or exits play mode in the editor.
         public void QuitGame(){
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
@@ -74,7 +77,7 @@ namespace UI.BootMenu{
             continueText.color          = hasSaves ? activeTextColor : disabledTextColor;
         }
 
-        /// Refreshes continue button when a save is deleted from the panel.
+        /// Refreshes the continue button when a save is deleted from the panel.
         private void HandleSaveDeleted(string slotName) => RefreshContinueButton();
 
         /// Fetches all save files from SaveSystem formatted for carousel bullets.
